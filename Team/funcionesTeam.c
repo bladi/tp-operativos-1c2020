@@ -1,10 +1,6 @@
 #include "team.h"
 
-void configurarLoggerTeam() {
-
-	logger = log_create(unTeamConfig->logFile, "TEAM", true, LOG_LEVEL_TRACE);
-    log_info(logger, "LOG INICIALIZADO CON EXITO");
-}
+///////////////////////Manejo de Config y Logger///////////////////////////////////////////////////////////
 
 void cargarConfiguracionTeam() {
 
@@ -107,31 +103,11 @@ void cargarConfiguracionTeam() {
 
 }
 
-void inicializarTeam() {
-
-    cantidadDeActualizacionesConfigTeam = 0;
-
-    cargarConfiguracionTeam();
-
-	configurarLoggerTeam();
-
-}
-
-void finalizarTeam() {
-
-    free(unTeamConfig);
-    free(logger);
-}
-
-void administradorDeConexiones(void* infoAdmin){
-    return;
-}
-
 void actualizarConfiguracionTeam(){
 
     FILE *archivoConfigFp;
 
-	while(1){
+	while(true){
 
 		sleep(10);
 
@@ -168,4 +144,34 @@ void actualizarConfiguracionTeam(){
 
 	}
 
+}
+
+void configurarLoggerTeam() {
+
+	logger = log_create(unTeamConfig->logFile, "TEAM", true, LOG_LEVEL_TRACE);
+    log_info(logger, "LOG INICIALIZADO CON EXITO");
+}
+
+///////////////////////Manejo de conexiones////////////////////////////////////////////////////////////////
+
+void administradorDeConexiones(void* infoAdmin){
+    return;
+}
+
+///////////////////////Inicio y fin de Teams///////////////////////////////////////////////////////////////
+
+void inicializarTeam() {
+
+    cantidadDeActualizacionesConfigTeam = 0;
+
+    cargarConfiguracionTeam();
+
+	configurarLoggerTeam();
+
+}
+
+void finalizarTeam() {
+
+    free(unTeamConfig);
+    free(logger);
 }
