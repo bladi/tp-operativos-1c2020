@@ -45,6 +45,10 @@
 
 #define PATH_CONFIG_GAMEBOY "configs/configGameBoy.config"
 
+#define ID_BROKER 1
+#define ID_GAMECARD 2
+#define ID_TEAM 3
+
 ///////////////////////////////////////////////////////////////////////////ESTRUCTURAS////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct gameBoyConfig_s{
@@ -70,13 +74,23 @@ unsigned char nuevoIdConfigGameBoy;
 
 uint32_t cantidadDeActualizacionesConfigGameBoy;
 
+int socketBroker;
+int socketGameCard;
+//int socketTeam;
+
+pthread_t hiloActualizadorConfigGameBoy;
+
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
 void configurarLoggerGameBoy();
+
 void cargarConfiguracionGameBoy();
 void actualizarConfiguracionGameBoy();
+
 void inicializarGameBoy();
+void inicializarHilosYVariablesGameBoy();
 void finalizarGameBoy();
+
 void administradorDeConexiones(void* infoAdmin);
 
 #endif

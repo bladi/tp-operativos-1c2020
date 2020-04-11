@@ -9,7 +9,7 @@ all:
 	gcc -g -w GameCard/gameCard.c GameCard/funcionesGameCard.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o gameCard -lcommons -lpthread
 	@printf '$(negrita)$(amarillo)Game Card$(sin_color) ..... $(verde)ok!$(sin_color)$(sin_negrita)\n'
 
-	gcc -g -w GameBoy/gameBoy.c GameBoy/funcionesGameBoy.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o gameBoy -lcommons -lpthread -lm
+	gcc -g -w GameBoy/gameBoy.c GameBoy/funcionesGameBoy.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o gameBoy -lcommons -lpthread
 	@printf '$(negrita)$(amarillo)Game Boy$(sin_color) ..... $(verde)ok!$(sin_color)$(sin_negrita)\n'
 
 	gcc -g -w Broker/broker.c Broker/funcionesBroker.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o broker -lcommons -lpthread

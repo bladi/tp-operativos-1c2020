@@ -1,15 +1,13 @@
 #include "sockets.h"
 
-#define TOPE_CLIENTES_ACTIVOS 100
-
-int escucharSocket(int puertoObjetivo, t_log *log) {
+int escucharSocket(int puertoObjetivo) {
 
 	int socketEscucha;
 	int activador = 1;
 	struct sockaddr_in direccion;
 
   	if ((socketEscucha = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-    	log_error(log, "- FALLO AL SOLICITAR SOCKET");
+    	log_error(logger, "- FALLO AL SOLICITAR SOCKET");
     	return -1;
   	}
 
@@ -22,37 +20,37 @@ int escucharSocket(int puertoObjetivo, t_log *log) {
   	direccion.sin_port = htons(puertoObjetivo);
 
   	if (bind(socketEscucha, (struct sockaddr*) &direccion, sizeof(direccion)) < 0) {
-  		log_error(log, "- FALLO AL ASIGNAR PUERTO AL SOCKET");
+  		log_error(logger, "- FALLO AL ASIGNAR PUERTO AL SOCKET");
   		return -1;
   	}
   
   	if (listen(socketEscucha, TOPE_CLIENTES_ACTIVOS) < 0) {
-  		log_error(log, "- FALLO AL ESCUCHAR");
+  		log_error(logger, "- FALLO AL ESCUCHAR");
   		return -1;
   	}
 
-  	log_trace(log, "- SOCKET %d ESCUCHANDO DESDE EL PUERTO: %d", socketEscucha, puertoObjetivo);
+  	log_trace(logger, "- SOCKET %d ESCUCHANDO DESDE EL PUERTO: %d", socketEscucha, puertoObjetivo);
 	return socketEscucha;
 
 }
 
-int aceptarConexion(int socketEscucha, t_log *log) {
+int aceptarConexion(int socketEscucha) {
   	
   	int nuevoSocketCliente;
   	struct sockaddr_in direccionClie;
   	socklen_t tamanioDireClie = sizeof(direccionClie); //revisar si no es de la estructura sino addrlen
   	
   	if ((nuevoSocketCliente = accept(socketEscucha,(struct sockaddr*) &direccionClie, &tamanioDireClie)) < 0) {
-  		log_error(log, "- FALLO AL ACEPTAR CONEXION DE UN CLIENTE");
+  		log_error(logger, "- FALLO AL ACEPTAR CONEXION DE UN CLIENTE");
   		return 1;
   	}
 
-  	log_info(log, "- CONEXION ACEPTADA");
+  	log_info(logger, "- CONEXION ACEPTADA");
   	return nuevoSocketCliente;
 
 }
 
-int conectarseA(char *ip, int puertoObjetivo, t_log *log) {
+int conectarseA(char *ip, int puertoObjetivo) {
 	
 	struct sockaddr_in direccionServidor;
 	direccionServidor.sin_family = AF_INET;
@@ -61,11 +59,11 @@ int conectarseA(char *ip, int puertoObjetivo, t_log *log) {
 	int nuevoCliente = socket(AF_INET, SOCK_STREAM, 0);
 	
 	if (connect(nuevoCliente, (void*) &direccionServidor, sizeof(direccionServidor)) != 0) {
-		log_error(log, "- FALLO AL CONECTAR AL SERVIDOR");
+		log_error(logger, "- FALLO AL CONECTAR AL SERVIDOR");
 		return 0;
 	}
 
-	log_info(log, "- CONEXION EXITOSA");
+	log_info(logger, "- CONEXION EXITOSA");
 	return nuevoCliente;
 
 }
@@ -74,7 +72,7 @@ int enviarInt(int socketDestino, int numero) {
 	
 	void *buffer = malloc(sizeof(int));
 	memcpy(buffer, &numero,sizeof(int));
-	ssize_t sent = 0;
+	size_t sent = 0;
 	sent = send(socketDestino, buffer, sizeof(int), MSG_NOSIGNAL);
 	free(buffer);
 	return sent;
@@ -127,16 +125,16 @@ int recibirCadena(int socketOrigen, char *mensaje) {
 
 }
 
-int cliente(char *ipCliente, int puertoCliente, int idCliente, t_log *log) {
+int cliente(char *ipCliente, int puertoCliente, int idCliente) {
 
-	int socketCliente = conectarseA(ipCliente, puertoCliente, log);
+	int socketCliente = conectarseA(ipCliente, puertoCliente);
 	char *nombreCliente = devuelveNombreProceso(idCliente);
 
 	if (socketCliente == 0) {
 		//return EXIT_FAILURE;
 		return 0;
 	} else {
-		log_trace(log, "- Conectado a %s a través del socket %d", nombreCliente, socketCliente);
+		log_trace(logger, "- Conectado a %s a través del socket %d", nombreCliente, socketCliente);
 		return socketCliente;
 	}
 
@@ -174,7 +172,7 @@ void servidor_inicializar(void* unaInfoServidor) {
        if(bind(socket_desc,(struct sockaddr *)&server,sizeof(server)) < 0)
        {
                perror("Bind fallo. Error");
-		close(socket_desc);
+			   close(socket_desc);
                return 0;
        }
 
@@ -186,26 +184,27 @@ void servidor_inicializar(void* unaInfoServidor) {
 
        while((client_sock = accept(socket_desc,(struct sockaddr*)&client,(socklen_t*)&c))){
 
-            puts("Cliente conectado!");
-            puts("Creando hilo de administracion de conexion con cliente ....");
+            log_info(logger,"Cliente conectado!");
+            log_info(logger,"Creando hilo de administracion de conexion con cliente ....");
 
 			infoAdminConexiones_t* unaInfoAdmin = malloc(sizeof(infoAdminConexiones_t));
-			unaInfoAdmin->log = unaInfo->log;
 			unaInfoAdmin->socketCliente = client_sock;
 
             if(pthread_create(&thread_id,NULL,(void*)administradorDeConexiones,(void*)unaInfoAdmin)<0){
 
-                perror("No se pudo crear el hilo");
+                log_error(logger,"No se pudo crear el hilo");
                 return 0;
 
             }
-            puts("Hilo creado correctamente");           
+
+            log_info(logger,"Hilo creado correctamente");   
+
        }
 
        if(client_sock<0){
 
-            perror("accept fallo");
-	   close(socket_desc);
+            log_error(logger,"accept fallo");
+	   		close(socket_desc);
             return 0;
 			
        }
@@ -219,15 +218,19 @@ char* devuelveNombreProceso(int idProceso) {
 	switch(idProceso) {
 		
 		case 1: {
-			string_append(&nombreProceso,"FileSystem");
+			string_append(&nombreProceso,"Broker");
 			break;
 		}
 		case 2: {
-			string_append(&nombreProceso,"Memoria");
+			string_append(&nombreProceso,"Game Boy");
 			break;
 		}
 		case 3: {
-			string_append(&nombreProceso,"Kernel");
+			string_append(&nombreProceso,"Game Card");
+			break;
+		}
+		case 4: {
+			string_append(&nombreProceso,"Team");
 			break;
 		}
 		case -1:{
@@ -243,7 +246,7 @@ char* devuelveNombreProceso(int idProceso) {
 
 }
 
-int enviarPorSocket(int fdCliente, const void* mensaje, int totalAEnviar, t_log *log) {
+int enviarPorSocket(int fdCliente, const void* mensaje, int totalAEnviar) {
 	
 	int bytes_enviados;
 	int totalEnviado = 0;
@@ -261,12 +264,12 @@ int enviarPorSocket(int fdCliente, const void* mensaje, int totalAEnviar, t_log 
 	}
 	//if (bytes_enviados == FAIL) manejaError ("[ERROR] Funcion send");
 
-	log_info(log, "- SE HAN ENVIADO %d BYTES CON EXITO", bytes_enviados);
+	log_info(logger, "- SE HAN ENVIADO %d BYTES CON EXITO", bytes_enviados);
 	return bytes_enviados;
 
 }
 
-int recibirPorSocket(int fdEmisor, void *buffer, int totalARecibir, t_log *log) {
+int recibirPorSocket(int fdEmisor, void *buffer, int totalARecibir) {
 	
 	int totalRecibido = 0;
 	int bytesRecibidos;
@@ -279,7 +282,7 @@ int recibirPorSocket(int fdEmisor, void *buffer, int totalARecibir, t_log *log) 
 		bytesRecibidos = recv(fdEmisor, buffer + totalRecibido, totalARecibir, 0);
 		
 		if ((bytesRecibidos == FAIL) || (bytesRecibidos == 0)) {
-			log_error(log, "- FALLO AL RECIBIR");
+			log_error(logger, "- FALLO AL RECIBIR");
 			break;
 		}
 		

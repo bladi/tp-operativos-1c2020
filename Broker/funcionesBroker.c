@@ -1,12 +1,12 @@
 #include "broker.h"
 
-void configurarLoggerBroker() {
+void configurarLoggerBroker(){
 
 	logger = log_create(unBrokerConfig->logFile, "BROKER", true, LOG_LEVEL_TRACE);
     log_info(logger, "LOG INICIALIZADO CON EXITO");
 }
 
-void cargarConfiguracionBroker() {
+void cargarConfiguracionBroker(){
 
     unBrokerConfig = malloc(sizeof(brokerConfig_t));
 
@@ -50,24 +50,49 @@ void cargarConfiguracionBroker() {
 
 }
 
-void inicializarBroker() {
-
-    cantidadDeActualizacionesConfigBroker = 0;
+void inicializarBroker(){
 
     cargarConfiguracionBroker();
 
     configurarLoggerBroker();
 
+    t_localizedPokemon* unLocalizedPokemon = malloc(sizeof(t_localizedPokemon));
+    int* tamanio = malloc(sizeof(int));
+
+    datosPokemon* nodoUnoDatosPokemon = malloc(sizeof(datosPokemon));
+    datosPokemon* nodoDosDatosPokemon = malloc(sizeof(datosPokemon));
+
+    t_list* listaDatosPokemon = list_create();
+
+    nodoUnoDatosPokemon->cantidad = 10;
+    nodoUnoDatosPokemon->posicionEnElMapaX = 5;
+    nodoUnoDatosPokemon->posicionEnElMapaY = 3;
+
+    list_add(listaDatosPokemon,nodoUnoDatosPokemon);
+
+    nodoDosDatosPokemon->cantidad = 15;
+    nodoDosDatosPokemon->posicionEnElMapaX = 20;
+    nodoDosDatosPokemon->posicionEnElMapaY = 89;
+
+    list_add(listaDatosPokemon,nodoDosDatosPokemon);
+
+    unLocalizedPokemon->identificador = 1;
+    unLocalizedPokemon->identificadorCorrelacional = 2;
+    unLocalizedPokemon->nombrePokemon = string_new();
+    string_append(&unLocalizedPokemon->nombrePokemon,"Pikachu");
+    unLocalizedPokemon->listaDatosPokemon = listaDatosPokemon;
+
+    serializar(tLocalizedPokemon,unLocalizedPokemon,tamanio);
+
+    inicializarHilosYVariablesBroker();
+
 }
 
-void finalizarBroker() {
+void finalizarBroker(){
 
     free(unBrokerConfig);
     free(logger);
-}
 
-void administradorDeConexiones(void* infoAdmin){
-    return;
 }
 
 void actualizarConfiguracionBroker(){
@@ -111,4 +136,445 @@ void actualizarConfiguracionBroker(){
 
 	}
 
+}
+
+void inicializarHilosYVariablesBroker(){
+
+    cantidadDeActualizacionesConfigBroker = 0;
+
+    infoServidor_t* unaInfoServidorBroker;
+
+    unaInfoServidorBroker = malloc(sizeof(infoServidor_t));
+
+    unaInfoServidorBroker->puerto = unBrokerConfig->puertoBroker;
+    unaInfoServidorBroker->ip = string_new();
+    //string_append(&unaInfoServidorBroker->ip,unBrokerConfig->ipBroker); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
+    string_append(&unaInfoServidorBroker->ip,"0");
+
+    pthread_create(&hiloActualizadorConfigBroker, NULL, (void*)actualizarConfiguracionBroker, NULL);
+    pthread_create(&hiloServidorBroker,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorBroker);
+
+    pthread_join(hiloActualizadorConfigBroker, NULL);
+
+}
+
+void administradorDeConexiones(void* infoAdmin){
+
+    infoAdminConexiones_t* unaInfoAdmin = (infoAdminConexiones_t*) infoAdmin;
+
+    int idCliente = 0;
+    int resultado;
+
+    while((resultado = recibirInt(unaInfoAdmin->socketCliente,&idCliente)) > 0){
+
+        switch(idCliente){
+
+            case 2: {
+
+                manejarRespuestaAGameBoy(unaInfoAdmin->socketCliente,idCliente);
+                break;
+
+            }
+
+            case 3: {
+
+                manejarRespuestaAGameCard(unaInfoAdmin->socketCliente,idCliente);
+                break;
+            }
+
+            case 4: {
+
+                manejarRespuestaATeam(unaInfoAdmin->socketCliente,idCliente);
+                break;
+
+            }
+
+            case -1: {
+
+                log_info(logger, "RECIBIMOS UNA PRUEBA DE CONEXION");
+                break;
+
+            }
+
+            default: {
+
+                log_warning(logger, "RECIBIMOS UN IDENTIFICADOR DE PROCESO NO VALIDO");
+                break;
+
+            }
+                      
+        }
+
+    }
+
+    if(resultado == 0){
+
+        log_warning(logger, "CLIENTE DESCONECTADO");
+        fflush(stdout);
+        close(unaInfoAdmin->socketCliente);
+        
+    }else if(resultado < 0){
+        
+        log_warning(logger, "ERROR AL RECIBIR");
+        close(unaInfoAdmin->socketCliente);
+       
+    }
+
+    return;
+
+}
+
+void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
+
+    int* tipoMensaje = malloc(sizeof(int));
+	int* tamanioMensaje = malloc(sizeof(int));
+
+	void* buffer = recibirPaquete(socket, tipoMensaje, tamanioMensaje);
+
+    switch(*tipoMensaje){
+
+        case tNewPokemon: {
+
+            /*
+            
+            Casteo de estructura (ejemplo): 
+            
+            t_newPokemon* unNewPokemon = (t_newPokemon*) buffer;
+
+            */
+
+            /*
+            
+            Logueo de lo recibido (ejemplo):
+
+            log_info(logger,"El nombre del Pokemón es: %s",unNewPokemon->nombre);
+            log_info(logger,"La posicion del Pokémon es: %d %d", unNewPokemon->posicion[0], unNewPokemon->posicion[1]);
+            
+            */
+
+           /*
+        
+           Funciones que se invocan luego de recibir un NEW_POKEMON (ejemplo):
+
+           int idNuevoMensaje = generarNuevoIdMensajeBroker();
+
+           darAGameCardPosicionesDePokemon(unNewPokemon->nombrePokemon, unNewPokemon->cantidad,unNewPokemon->posicion, idNuevoMensaje);
+           recibirRespuestaGameCard(idNuevoMensaje);
+           avisarATeamPokemonAparecido(unGetPokemon->nombrePokemon,idNuevoMensaje);
+
+            */
+            
+            break;
+        }
+
+        case tGetPokemon: {
+
+            /*
+            
+            Casteo de estructura (ejemplo): 
+            
+            t_getPokemon* unGetPokemon = (t_getPokemon*) buffer;
+
+            */
+
+            /*
+            
+            Logueo de lo recibido (ejemplo):
+
+            log_info(logger,"El nombre del Pokemón es: %s",unGetPokemon->nombrePokemon);
+            log_info(logger,"Las posiciones del Pokémon son: %d %d", unGetPokemon->posicion[0], unGetPokemon->posicion[1]);
+            log_info(logger,"La cantidad que hay de ese Pokémon es: %d",unGetPokemon->cantidad);
+            
+            */
+
+           /*
+
+           Funciones que se invocan luego de recibir un GET_POKEMON (ejemplo):
+
+           int idNuevoMensaje = generarNuevoIdMensajeBroker();
+
+           pedirAGameCardPosicionesDePokemon(unGetPokemon->nombrePokemon, idNuevoMensaje);
+           recibirRespuestaGameCard(idNuevoMensaje);
+           avisarATeamPokemonLocalizado(unGetPokemon->nombrePokemon,idNuevoMensaje);
+
+            */
+
+            break;
+
+        }
+
+        case tCatchPokemon: {
+
+            /*
+            
+            Casteo de estructura (ejemplo): 
+            
+            t_catchPokemon* unCatchPokemon = (t_catchPokemon*) buffer;
+
+            */
+
+            /*
+            
+            Logueo de lo recibido (ejemplo):
+
+            log_info(logger,"El nombre del Pokemón es: %s",unCatchPokemon->nombrePokemon);
+            log_info(logger,"La posicion del Pokémon era: %d %d", unCatchPokemon->posicion[0], unCatchPokemon->posicion[1]);
+            log_info(logger,"El nombre del entrenador es: %s",unCatchPokemon->nombreEntrenador);
+            
+            */
+
+            /*
+
+            Funciones que se invocan luego de recibir un CATCH_POKEMON (ejemplo):
+
+            int idNuevoMensaje = generarNuevoIdMensajeBroker();
+
+            darAGameCardPokemonAtrapado(unCatchPokemon->nombrePokemon,unCatchPokemon->posicion, idNuevoMensaje);
+            recibirRespuestaGameCard(idNuevoMensaje);
+            avisarATeamPokemonAtrapado(unGetPokemon->nombrePokemon,idNuevoMensaje);
+
+            */
+
+            break;
+
+        }
+
+        default:{
+
+            log_error(logger,"Recibimos algo del Game Boy que no sabemos manejar: %d",*tipoMensaje);
+            abort();
+            break;
+
+        }
+
+    }
+
+    free(tipoMensaje);
+    free(tamanioMensaje);
+	free(buffer);
+
+    return;
+}
+
+void manejarRespuestaAGameCard(int socketCliente,int idCliente){
+
+    int* tipoMensaje = malloc(sizeof(int));
+	int* tamanioMensaje = malloc(sizeof(int));
+
+	void* buffer = recibirPaquete(socket, tipoMensaje, tamanioMensaje);
+
+    switch(*tipoMensaje){
+
+        case tCaughtPokemon: {
+
+            /*
+            
+            Casteo de estructura (ejemplo): 
+            
+            t_caughtPokemon* unCaughtPokemon = (t_caughtPokemon*) buffer;
+
+            */
+
+            /*
+            
+            Logueo de lo recibido (ejemplo):
+
+            log_info(logger,"El nombre del Pokemón es: %s",unCaughtPokemon->nombre);
+            log_info(logger,"La posicion del Pokémon es: %d %d", unCaughtPokemon->posicion[0], unCaughtPokemon->posicion[1]);
+            
+            */
+
+           /*
+        
+           Funciones que se invocan luego de recibir un CAUGHT_POKEMON (ejemplo):
+
+           int idNuevoMensaje = generarNuevoIdMensajeBroker();
+
+           avisarATeamPokemonAtrapado(unCaughtPokemon->nombrePokemon,idNuevoMensaje);
+
+            */
+            
+            break;
+        }
+
+        case tLocalizedPokemon: {
+
+            /*
+            
+            Casteo de estructura (ejemplo): 
+            
+            t_localizedPokemon* unLocalizedPokemon = (t_localizedPokemon*) buffer;
+
+            */
+
+            /*
+            
+            Logueo de lo recibido (ejemplo):
+
+            log_info(logger,"El nombre del Pokemón es: %s",unLocalizedPokemon->nombrePokemon);
+            log_info(logger,"Las posiciones del Pokémon son: %d %d", unLocalizedPokemon->posicion[0], unLocalizedPokemon->posicion[1]);
+            log_info(logger,"La cantidad que hay de ese Pokémon es: %d",unLocalizedPokemon->cantidad);
+            
+            */
+
+           /*
+
+           Funciones que se invocan luego de recibir un LOCALIZED_POKEMON (ejemplo):
+
+           int idNuevoMensaje = generarNuevoIdMensajeBroker();
+
+           avisarATeamPokemonLocalizado(unGetPokemon->nombrePokemon,idNuevoMensaje);
+
+            */
+
+            break;
+
+        }
+
+        case tAppearedPokemon: {
+
+            /*
+            
+            Casteo de estructura (ejemplo): 
+            
+            t_appeardPokemon* unAppeardPokemon = (t_appeardPokemon*) buffer;
+
+            */
+
+            /*
+            
+            Logueo de lo recibido (ejemplo):
+
+            log_info(logger,"El nombre del Pokemón es: %s",unAppeardPokemon->nombrePokemon);
+            log_info(logger,"La posicion del Pokémon era: %d %d", unAppeardPokemon->posicion[0], unAppeardPokemon->posicion[1]);
+            
+            */
+
+            /*
+
+            Funciones que se invocan luego de recibir un APPEARED_POKEMON (ejemplo):
+
+            int idNuevoMensaje = generarNuevoIdMensajeBroker();
+
+            avisarATeamPokemonAparecido(unAppeardPokemon->nombrePokemon,idNuevoMensaje);
+
+            */
+
+            break;
+
+        }
+
+        default:{
+
+            log_error(logger,"Recibimos algo del Game Card que no sabemos manejar: %d",*tipoMensaje);
+            abort();
+            break;
+
+        }
+
+    }
+
+    free(tipoMensaje);
+    free(tamanioMensaje);
+	free(buffer);
+
+    return;
+}
+
+void manejarRespuestaATeam(int socketCliente,int idCliente){
+
+    int* tipoMensaje = malloc(sizeof(int));
+	int* tamanioMensaje = malloc(sizeof(int));
+
+	void* buffer = recibirPaquete(socket, tipoMensaje, tamanioMensaje);
+
+    switch(*tipoMensaje){
+
+        case tGetPokemon: {
+
+            /*
+            
+            Casteo de estructura (ejemplo): 
+            
+            t_getPokemon* unGetPokemon = (t_getPokemon*) buffer;
+
+            */
+
+            /*
+            
+            Logueo de lo recibido (ejemplo):
+
+            log_info(logger,"El nombre del Pokemón es: %s",unGetPokemon->nombrePokemon);
+            log_info(logger,"Las posiciones del Pokémon son: %d %d", unGetPokemon->posicion[0], unGetPokemon->posicion[1]);
+            log_info(logger,"La cantidad que hay de ese Pokémon es: %d",unGetPokemon->cantidad);
+            
+            */
+
+           /*
+
+           Funciones que se invocan luego de recibir un GET_POKEMON (ejemplo):
+
+           int idNuevoMensaje = generarNuevoIdMensajeBroker();
+
+           pedirAGameCardPosicionesDePokemon(unGetPokemon->nombrePokemon, idNuevoMensaje);
+           recibirRespuestaGameCard(idNuevoMensaje);
+           avisarATeamPokemonLocalizado(unGetPokemon->nombrePokemon,idNuevoMensaje);
+
+            */
+
+            break;
+
+        }
+
+        case tCatchPokemon: {
+
+            /*
+            
+            Casteo de estructura (ejemplo): 
+            
+            t_catchPokemon* unCatchPokemon = (t_catchPokemon*) buffer;
+
+            */
+
+            /*
+            
+            Logueo de lo recibido (ejemplo):
+
+            log_info(logger,"El nombre del Pokemón es: %s",unCatchPokemon->nombrePokemon);
+            log_info(logger,"La posicion del Pokémon era: %d %d", unCatchPokemon->posicion[0], unCatchPokemon->posicion[1]);
+            log_info(logger,"El nombre del entrenador es: %s",unCatchPokemon->nombreEntrenador);
+            
+            */
+
+            /*
+
+            Funciones que se invocan luego de recibir un CATCH_POKEMON (ejemplo):
+
+            int idNuevoMensaje = generarNuevoIdMensajeBroker();
+
+            darAGameCardPokemonAtrapado(unCatchPokemon->nombrePokemon,unCatchPokemon->posicion, idNuevoMensaje);
+            recibirRespuestaGameCard(idNuevoMensaje);
+            avisarATeamPokemonAtrapado(unGetPokemon->nombrePokemon,idNuevoMensaje);
+
+            */
+
+            break;
+
+        }
+
+        default:{
+
+            log_error(logger,"Recibimos algo del Game Boy que no sabemos manejar: %d",*tipoMensaje);
+            abort();
+            break;
+
+        }
+
+    }
+
+    free(tipoMensaje);
+    free(tamanioMensaje);
+	free(buffer);
+
+    return;
 }

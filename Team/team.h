@@ -43,11 +43,15 @@
 #define IP_BROKER "IP_BROKER"
 #define ESTIMACION_INICIAL "ESTIMACION_INICIAL"
 #define PUERTO_BROKER "PUERTO_BROKER"
+//#define IP_TEAM "IP_BROKER"
+//#define PUERTO_TEAM "PUERTO_BROKER"
 #define LOG_FILE "LOG_FILE"
 
 //////////////////////////////////////////////////////////////////////VARIABLES ESTATICAS/////////////////////////////////////////////////////////////////////////////////
 
 #define PATH_CONFIG_TEAM "configs/configTeam.config"
+
+#define ID_BROKER 1
 
 ///////////////////////////////////////////////////////////////////////////ESTRUCTURAS////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +67,8 @@ typedef struct teamConfig_s{
 	char* ipBroker;
 	uint32_t estimacionInicial;
     uint32_t puertoBroker;
+	//char* ipTeam;
+	//uint32_t puertoTeam;
     char* logFile;
 
 } teamConfig_t;
@@ -78,13 +84,25 @@ unsigned char nuevoIdConfigTeam;
 
 uint32_t cantidadDeActualizacionesConfigTeam;
 
+//pthread_t hiloServidorTeam;
+pthread_t hiloActualizadorConfigTeam;
+
+//infoServidor_t* unaInfoServidorTeam;
+
+int socketBroker;
+
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
 void configurarLoggerTeam();
+
 void cargarConfiguracionTeam();
 void actualizarConfiguracionTeam();
+
 void inicializarTeam();
+void inicializarHilosYVariablesTeam();
 void finalizarTeam();
+
 void administradorDeConexiones(void* infoAdmin);
+//void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
 
 #endif

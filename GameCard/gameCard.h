@@ -39,11 +39,14 @@
 #define PUNTO_MONTAJE_TALLGRASS "PUNTO_MONTAJE_TALLGRASS"
 #define IP_BROKER "IP_BROKER"
 #define PUERTO_BROKER "PUERTO_BROKER"
+#define PUERTO_GAMECARD "PUERTO_GAMECARD"
+#define IP_BROKER "IP_GAMECARD"
 #define LOG_FILE "LOG_FILE"
 
 //////////////////////////////////////////////////////////////////////VARIABLES ESTATICAS/////////////////////////////////////////////////////////////////////////////////
 
 #define PATH_CONFIG_GAMECARD "configs/configGameCard.config"
+#define ID_BROKER 1
 
 ///////////////////////////////////////////////////////////////////////////ESTRUCTURAS////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +57,8 @@ typedef struct gameCardConfig_s{
 	char* puntoMontajeTallGrass;
 	char* ipBroker;
     uint32_t puertoBroker;
+	char* ipGameCard;
+    uint32_t puertoGameCard;
 	char* logFile;
 
 } gameCardConfig_t;
@@ -69,13 +74,23 @@ unsigned char nuevoIdConfigGameCard;
 
 uint32_t cantidadDeActualizacionesConfigGameCard;
 
+int socketBroker;
+
+pthread_t hiloServidorGameCard;
+pthread_t hiloActualizadorConfigGameCard;
+
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
-void configurarGameCard();
+void configurarLoggerGameCard();
+
 void cargarConfiguracionGameCard();
 void actualizarConfiguracionGameCard();
+
 void inicializarGameCard();
+void inicializarHilosYVariablesGameCard();
 void finalizarGameCard();
+
 void administradorDeConexiones(void* infoAdmin);
+void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
 
 #endif

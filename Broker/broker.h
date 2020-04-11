@@ -74,13 +74,23 @@ unsigned char nuevoIdConfigBroker;
 
 uint32_t cantidadDeActualizacionesConfigBroker;
 
+pthread_t hiloServidorBroker;
+pthread_t hiloActualizadorConfigBroker;
+
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
 void configurarLoggerBroker();
+
 void cargarConfiguracionBroker();
 void actualizarConfiguracionBroker();
+
 void inicializarBroker();
+void inicializarHilosYVariablesBroker();
 void finalizarBroker();
+
 void administradorDeConexiones(void* infoAdmin);
+void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
+void manejarRespuestaAGameCard(int socketCliente,int idCliente);
+void manejarRespuestaATeam(int socketCliente,int idCliente);
 
 #endif

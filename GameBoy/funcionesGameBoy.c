@@ -1,12 +1,12 @@
 #include "gameBoy.h"
 
-void configurarLoggerGameBoy() {
+void configurarLoggerGameBoy(){
 
 	logger = log_create(unGameBoyConfig->logFile, "GAME BOY", true, LOG_LEVEL_TRACE);
     log_info(logger, "LOG INICIALIZADO CON EXITO");
 }
 
-void cargarConfiguracionGameBoy() {
+void cargarConfiguracionGameBoy(){
 
     unGameBoyConfig = malloc(sizeof(gameBoyConfig_t));
 
@@ -45,20 +45,21 @@ void cargarConfiguracionGameBoy() {
 
 }
 
-void inicializarGameBoy() {
-
-    cantidadDeActualizacionesConfigGameBoy = 0;
+void inicializarGameBoy(){
 
     cargarConfiguracionGameBoy();
 
     configurarLoggerGameBoy();
 
+    inicializarHilosYVariablesGameBoy();
+
 }
 
-void finalizarGameBoy() {
+void finalizarGameBoy(){
 
     free(unGameBoyConfig);
     free(logger);
+
 }
 
 void administradorDeConexiones(void* infoAdmin){
@@ -105,5 +106,19 @@ void actualizarConfiguracionGameBoy(){
         idConfigGameBoy = nuevoIdConfigGameBoy;
 
 	}
+
+}
+
+void inicializarHilosYVariablesGameBoy(){
+
+    cantidadDeActualizacionesConfigGameBoy = 0;
+
+    socketBroker = cliente(unGameBoyConfig->ipBroker, unGameBoyConfig->puertoBroker, ID_BROKER);
+    socketGameCard = cliente(unGameBoyConfig->ipGameCard, unGameBoyConfig->puertoGameCard, ID_GAMECARD);
+    //socketTeam = cliente(unGameBoyConfig->ipTeam, unGameBoyConfig->puertoTeam, ID_TEAM);
+
+    pthread_create(&hiloActualizadorConfigGameBoy, NULL, (void*)actualizarConfiguracionGameBoy, NULL);
+
+    pthread_join(hiloActualizadorConfigGameBoy, NULL);
 
 }
