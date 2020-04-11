@@ -43,6 +43,11 @@
 #define IP_BROKER "IP_GAMECARD"
 #define LOG_FILE "LOG_FILE"
 
+///////////////// CONFIG METADATA
+#define BLOCKS "BLOCKS"
+#define BLOCK_SIZE "BLOCK_SIZE"
+#define MAGIC_NUMBER "MAGIC_NUMBER"
+
 //////////////////////////////////////////////////////////////////////VARIABLES ESTATICAS/////////////////////////////////////////////////////////////////////////////////
 
 #define PATH_CONFIG_GAMECARD "configs/configGameCard.config"
@@ -60,14 +65,20 @@ typedef struct gameCardConfig_s{
 	char* ipGameCard;
     uint32_t puertoGameCard;
 	char* logFile;
+	int32_t cantidadDeBloques;
+	size_t tamanioBloques;
+	char* magicNumber;
 
 } gameCardConfig_t;
 
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
 
 t_config* unGameCardArchivoConfig;
+t_config* configMetadata;
 gameCardConfig_t* unGameCardConfig;
 t_log* logger;
+
+t_bitarray* bitarray;
 
 unsigned char idConfigGameCard;
 unsigned char nuevoIdConfigGameCard;
@@ -92,5 +103,16 @@ void finalizarGameCard();
 
 void administradorDeConexiones(void* infoAdmin);
 void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
+
+///////////////////////////////////////////////////////////////////////////CONEXIONES/////////////////////////////////////////////////////////////////////////////////////
+
+void inicializarBitMap();
+void crearArchivoBitmap(char* pathBitmap);
+void verificarBitmapPrevio(char* pathBitmap);
+int validarArchivo(char* path);
+int fsCantidadBloquesLibres();
+int fsBuscarBloqueLibreYOcupar();
+void crearBloquesFileSystem();
+void fsMostrarEstadoBitmap();
 
 #endif

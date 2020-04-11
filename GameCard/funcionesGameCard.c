@@ -42,7 +42,26 @@ void cargarConfiguracionGameCard(){
         printf("· Puerto del Game Card = %s\n", unGameCardConfig->puertoGameCard);
         printf("· Ruta del Archivo Log del Game Card = %s\n\n", unGameCardConfig->logFile);
 
+        char* pathMetadata = string_new();
+        string_append_with_format(&pathMetadata,"%sMetadata/Metadata.bin", unGameCardConfig->puntoMontajeTallGrass);
+
+        printf("· pathMetadata = %s\n\n", pathMetadata);
+
+        configMetadata = config_create(pathMetadata);
+
+        if(configMetadata == NULL) {
+            //log_error(logger,"- NO SE PUDO IMPORTAR LA METADATA");
+            exit(1);
+        }
+
+        unGameCardConfig->cantidadDeBloques = config_get_int_value(configMetadata, BLOCKS);
+        unGameCardConfig->tamanioBloques = config_get_int_value(configMetadata, BLOCK_SIZE);
+        unGameCardConfig->magicNumber = config_get_string_value(configMetadata, MAGIC_NUMBER);
+
+
         free(unGameCardArchivoConfig);
+        free(configMetadata);
+        free(pathMetadata);
 
     }
 
@@ -53,8 +72,15 @@ void inicializarGameCard(){
     cargarConfiguracionGameCard();
 
 	configurarLoggerGameCard();
+    
+    inicializarBitMap();
+
+    crearBloquesFileSystem();
+
+    fsMostrarEstadoBitmap();
 
     inicializarHilosYVariablesGameCard();
+
 
 }
 
@@ -313,3 +339,180 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
 
     return;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////BITMAP///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void inicializarBitMap(){
+
+
+    char* pathBitmap = string_new();
+    string_append_with_format(&pathBitmap,"%sMetadata/Bitmap.bin",unGameCardConfig->puntoMontajeTallGrass);
+         
+    if (validarArchivo(pathBitmap)){
+        log_info(logger,"BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA");
+        verificarBitmapPrevio(pathBitmap);
+    } else {
+        log_info(logger,"NO EXISTE UN BITMAP PREVIO, CREO UNO NUEVO");
+        crearArchivoBitmap(pathBitmap);
+        verificarBitmapPrevio(pathBitmap);
+        
+    }
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void verificarBitmapPrevio(char* pathBitmap){
+    
+    int tamBitmap = unGameCardConfig->cantidadDeBloques/8;
+
+	if(unGameCardConfig->cantidadDeBloques % 8 != 0){
+		tamBitmap++;
+	}
+
+	int fd = open(pathBitmap, O_RDWR);
+	ftruncate(fd, tamBitmap);
+    
+    struct stat mystat;
+
+    if (fstat(fd, &mystat) < 0) {
+		log_error(logger, "ERROR AL ESTABLECER FSTAT PARA BITMAP. SE CREARÁ UNO NUEVO.");
+		close(fd);
+        exit(-1);
+	} else {
+        char *bitmap = (char *) mmap(NULL, mystat.st_size, PROT_READ | PROT_WRITE,	MAP_SHARED, fd, 0);
+        if (bitmap == MAP_FAILED) {
+            log_error(logger, "ERROR AL MAPEAR BITMAP A MEMORIA. SE CREARÁ UNO NUEVO.");
+            close(fd);
+            //crearArchivoBitmap(pathBitmap);
+        } else{
+            
+            bitarray = bitarray_create_with_mode(bitmap, tamBitmap, LSB_FIRST);
+            close(fd);
+        }
+    }
+
+    //free(pathBitmap);
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void crearArchivoBitmap(char* pathBitmap){
+    
+    int tamBitarray = unGameCardConfig->cantidadDeBloques/8;
+    int bit = 0;
+
+    if(unGameCardConfig->cantidadDeBloques % 8 != 0){
+        tamBitarray++;
+    }
+
+    char* data = malloc(tamBitarray);
+    t_bitarray* bitarrayInicial = bitarray_create_with_mode(data,tamBitarray,MSB_FIRST);
+
+    while(bit < unGameCardConfig->cantidadDeBloques){
+        bitarray_clean_bit(bitarrayInicial, bit);
+        bit ++;
+    }
+
+	FILE *bitmap;
+	bitmap = fopen(pathBitmap, "wb+");
+
+	//fseek(bitmap, 0, SEEK_SET);
+	fwrite(bitarrayInicial->bitarray, 1, bitarrayInicial->size, bitmap);
+
+    log_info(logger,"ARCHIVO BITMAP CREADO EN: %s", pathBitmap);
+
+    bitarray_destroy(bitarrayInicial);
+	fclose(bitmap);
+	//free(pathBitmap);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int validarArchivo(char *path) {
+	struct stat buffer;
+	int status;
+	status = stat(path, &buffer);
+	if (status < 0) {
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int fsBuscarBloqueLibreYOcupar(){
+    for(int i = 0; i< unGameCardConfig->cantidadDeBloques; i++){
+        if(bitarray_test_bit(bitarray, i)==0){
+            bitarray_set_bit(bitarray,i);
+            return i;
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int fsCantidadBloquesLibres(){
+
+	int posicion = 0;
+	int libres = 0;
+
+    //pthread_mutex_lock(&mutexMemtable);
+	while(posicion < unGameCardConfig->cantidadDeBloques){
+		if(bitarray_test_bit(bitarray, posicion) == 0){
+			libres ++;
+		}
+		posicion ++;
+	}
+    //pthread_mutex_unlock(&mutexMemtable);
+
+	return libres;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void fsMostrarEstadoBitmap(){
+	int posicion = 0;
+	bool a;
+
+    //pthread_mutex_lock(&mutexMemtable);
+    while(posicion < unGameCardConfig->cantidadDeBloques){
+        if((posicion%10) == 0) printf ("\n");
+		a = bitarray_test_bit(bitarray,posicion);
+		printf("%i", a);
+        posicion ++;
+	}
+    //pthread_mutex_unlock(&mutexMemtable);
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////MANEJO BLOQUES/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void crearBloquesFileSystem(){
+
+    char* pathBloques = string_new();
+    string_append_with_format(&pathBloques, "%sBloques/",unGameCardConfig->puntoMontajeTallGrass);
+
+    if (!(pathBloques,0777)){
+       int i = 0;
+
+        while(i<unGameCardConfig->cantidadDeBloques){
+            FILE* bloque;
+            char* pathBloquei = string_new();
+            string_append_with_format(&pathBloquei, "%s%d.bin",pathBloques,i);
+            bloque = fopen(pathBloquei, "wb+");
+            fclose(bloque);
+            free(pathBloquei);
+            i++;
+        }
+    }
+}
+
