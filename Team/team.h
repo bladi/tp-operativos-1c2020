@@ -73,6 +73,24 @@ typedef struct teamConfig_s{
 
 } teamConfig_t;
 
+typedef enum {
+	NEW,
+	READY,
+	BLOCK,
+	EXEC,
+	EXIT
+} Estado;
+
+typedef struct entrenador
+{
+	unsigned int idEntrenador;
+	int posicionX;
+	int posicionY;
+	char** pokemons;
+	char** objetivos;
+	Estado estado;
+} t_Entrenador;
+
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
 
 t_config* unTeamArchivoConfig;

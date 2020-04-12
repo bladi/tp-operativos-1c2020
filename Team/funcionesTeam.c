@@ -1,12 +1,16 @@
 #include "team.h"
 
-void configurarLoggerTeam() {
+///////////////////////// Manejo de Configuracion y Logger ////////////////////////////////////////////////
+
+void configurarLoggerTeam()
+{
 
 	logger = log_create(unTeamConfig->logFile, "TEAM", true, LOG_LEVEL_TRACE);
     log_info(logger, "LOG INICIALIZADO CON EXITO");
 }
 
-void cargarConfiguracionTeam() {
+void cargarConfiguracionTeam()
+{
 
     unTeamConfig = malloc(sizeof(teamConfig_t));
 
@@ -111,24 +115,54 @@ void cargarConfiguracionTeam() {
 
 }
 
-void inicializarTeam() {
+void actualizarConfiguracionTeam()
+{
 
-    cargarConfiguracionTeam();
+    FILE *archivoConfigFp;
 
-	configurarLoggerTeam();
+	while(1){
 
-    inicializarHilosYVariablesTeam();
+		sleep(10);
+
+		archivoConfigFp = fopen(PATH_CONFIG_TEAM,"rb");
+
+		nuevoIdConfigTeam = 0;
+
+		while (!feof(archivoConfigFp) && !ferror(archivoConfigFp)) {
+
+   			nuevoIdConfigTeam ^= fgetc(archivoConfigFp);
+
+		}
+
+        fclose(archivoConfigFp);
+
+
+        if(cantidadDeActualizacionesConfigTeam == 0){
+
+        cantidadDeActualizacionesConfigTeam += 1;
+
+        }else{
+
+            if (nuevoIdConfigTeam != idConfigTeam) {
+
+                log_info(logger,"El archivo de configuración del Team cambió. Se procederá a actualizar.");
+                cargarConfiguracionTeam();
+                cantidadDeActualizacionesConfigTeam += 1;
+                
+            }
+
+        }
+
+        idConfigTeam = nuevoIdConfigTeam;
+
+	}
 
 }
 
-void finalizarTeam() {
+///////////////////////// Manejo de Conexiones ////////////////////////////////////////////////////////////
 
-    free(unTeamConfig);
-    free(logger);
-
-}
-
-void administradorDeConexiones(void* infoAdmin){
+void administradorDeConexiones(void* infoAdmin)
+{
 
     infoAdminConexiones_t* unaInfoAdmin = (infoAdminConexiones_t*) infoAdmin;
 
@@ -180,46 +214,59 @@ void administradorDeConexiones(void* infoAdmin){
     return;
 }
 
-void actualizarConfiguracionTeam(){
+///////////////////////// Funciones Auxiliares para Estados ///////////////////////////////////////////////
 
-    FILE *archivoConfigFp;
-
-	while(1){
-
-		sleep(10);
-
-		archivoConfigFp = fopen(PATH_CONFIG_TEAM,"rb");
-
-		nuevoIdConfigTeam = 0;
-
-		while (!feof(archivoConfigFp) && !ferror(archivoConfigFp)) {
-
-   			nuevoIdConfigTeam ^= fgetc(archivoConfigFp);
-
+void cambiarEstado(t_Entrenador *unEntrenador, Estado unEstado)
+{
+    switch(unEstado)
+	{
+		case READY:
+		{
+			unEntrenador->estado = READY;
+			break;
+		}
+		
+		case BLOCK:
+		{
+			unEntrenador->estado = BLOCK;
+			break;
 		}
 
-        fclose(archivoConfigFp);
+		case EXEC:
+		{
+			unEntrenador->estado = EXEC;
+			break;
+		}
 
+        case EXIT:
+		{
+			unEntrenador->estado = EXIT;
+			break;
+		}
 
-        if(cantidadDeActualizacionesConfigTeam == 0){
-
-        cantidadDeActualizacionesConfigTeam += 1;
-
-        }else{
-
-            if (nuevoIdConfigTeam != idConfigTeam) {
-
-                log_info(logger,"El archivo de configuración del Team cambió. Se procederá a actualizar.");
-                cargarConfiguracionTeam();
-                cantidadDeActualizacionesConfigTeam += 1;
-                
-            }
-
-        }
-
-        idConfigTeam = nuevoIdConfigTeam;
-
+		default:
+		{
+			break;
+		}
 	}
+}
+
+///////////////////////// Inicio y Fin de Team ////////////////////////////////////////////////////////////
+
+void inicializarTeam() {
+
+    cargarConfiguracionTeam();
+
+	configurarLoggerTeam();
+
+    inicializarHilosYVariablesTeam();
+
+}
+
+void finalizarTeam() {
+
+    free(unTeamConfig);
+    free(logger);
 
 }
 
@@ -227,7 +274,7 @@ void inicializarHilosYVariablesTeam(){
 
     cantidadDeActualizacionesConfigTeam = 0;
 
-    socketBroker = cliente(unGameCardConfig->ipBroker, unGameCardConfig->puertoBroker, ID_BROKER);
+    socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
     // unaInfoServidorTeam = malloc(sizeof(infoServidor_t));
 
@@ -243,8 +290,10 @@ void inicializarHilosYVariablesTeam(){
 
 }
 
-// void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
+//////////////////////// Cosas Comentadas /////////////////////////////////////////////////////////////////
 
+//void manejarRespuestaATeam(int socketCliente,int idCliente)
+//{
 //     int* tipoMensaje = malloc(sizeof(int));
 // 	int* tamanioMensaje = malloc(sizeof(int));
 
@@ -373,4 +422,4 @@ void inicializarHilosYVariablesTeam(){
 // 	free(buffer);
 
 //     return;
-// }
+//}
