@@ -77,7 +77,7 @@ void inicializarGameCard(){
 
     crearBloquesFileSystem();
 
-    fsMostrarEstadoBitmap();
+    casoDePrueba();
 
     inicializarHilosYVariablesGameCard();
 
@@ -446,7 +446,7 @@ int validarArchivo(char *path) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int fsBuscarBloqueLibreYOcupar(){
+int buscarBloqueLibreYOcupar(){
     for(int i = 0; i< unGameCardConfig->cantidadDeBloques; i++){
         if(bitarray_test_bit(bitarray, i)==0){
             bitarray_set_bit(bitarray,i);
@@ -457,7 +457,7 @@ int fsBuscarBloqueLibreYOcupar(){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int fsCantidadBloquesLibres(){
+int cantidadBloquesLibres(){
 
 	int posicion = 0;
 	int libres = 0;
@@ -476,7 +476,7 @@ int fsCantidadBloquesLibres(){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void fsMostrarEstadoBitmap(){
+void mostrarEstadoBitmap(){
 	int posicion = 0;
 	bool a;
 
@@ -499,11 +499,15 @@ void fsMostrarEstadoBitmap(){
 void crearBloquesFileSystem(){
 
     char* pathBloques = string_new();
-    string_append_with_format(&pathBloques, "%sBloques/",unGameCardConfig->puntoMontajeTallGrass);
+    string_append_with_format(&pathBloques, "%sBlocks/",unGameCardConfig->puntoMontajeTallGrass);
 
-    if (!(pathBloques,0777)){
+    //printf("\nPath bloques: %s ", pathBloques);
+    //printf("\nCantidad de bloques a crear: %d ", unGameCardConfig->cantidadDeBloques);
+    //printf("\n!(pathBloques,0777): %d ", !(pathBloques,0777));
+
+    if (!mkdir(pathBloques,0777)){
        int i = 0;
-
+       
         while(i<unGameCardConfig->cantidadDeBloques){
             FILE* bloque;
             char* pathBloquei = string_new();
@@ -512,7 +516,185 @@ void crearBloquesFileSystem(){
             fclose(bloque);
             free(pathBloquei);
             i++;
+            printf("\nCreado bloque %d",i);
         }
     }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////MANEJO BLOQUES/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+int existePokemon(char* pokemon){
+
+	struct stat infoArchivo;
+	char* path = string_new();
+    string_append_with_format(&path,"%sFiles/%s",unGameCardConfig->puntoMontajeTallGrass, pokemon);
+    
+	if(stat(path,&infoArchivo) == 0 && S_ISDIR(infoArchivo.st_mode))
+	{
+		return 1; 
+	}
+	return 0; 
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t cantidad){
+
+    FILE* f;
+    char* formatoUbicacion = string_new();
+    char* pathPokemon      = string_new();
+    char* pathMetadata     = string_new();
+    
+    string_append_with_format(&formatoUbicacion,"%d-%d=%d",posicionX, posicionY, cantidad);
+    int tamanioPokemon = string_length(formatoUbicacion);
+
+    string_append_with_format(&pathPokemon, "%sFiles/%s",unGameCardConfig->puntoMontajeTallGrass, pokemon);
+
+    mkdir(pathPokemon,0777);
+
+    string_append_with_format(&pathMetadata,"%s/Metadata.bin",pathPokemon);
+    
+    f = fopen(pathMetadata,"w");
+
+    if(f == NULL){
+    
+        log_error(logger,"NO SE PUDO CREAR EL ARCHIVO METADATA PARA EL POKEMON %s", pokemon);
+	
+    }else{ 
+
+        char* formatoDirectory = string_new();
+        char* formatoSize      = string_new();
+        char* formatoBlocks    = string_new();
+        char* formatoOpen      = string_new();
+
+        int cantBloquesAOcupar = cantBloquesParaSize(tamanioPokemon);
+        int bloquesAEscribir[cantBloquesAOcupar];
+        
+        if(cantBloquesAOcupar <= cantidadBloquesLibres()){
+
+            for(int j=0; j<cantBloquesAOcupar; j++ ){
+                bloquesAEscribir[j] = buscarBloqueLibreYOcupar();
+            }
+
+            formatoBlocks = generarStringBlocks(cantBloquesAOcupar, bloquesAEscribir);
+
+        } else{
+            log_error(logger, "NO HAY BLOQUES SUFICIENTES PARA CREAR AL POKEMON");
+            free(formatoDirectory);
+            free(formatoSize);
+            free(formatoBlocks);
+            free(formatoOpen);
+            return 0;
+        }
+
+        string_append(&formatoDirectory, "DIRECTORY=N");
+        string_append_with_format(&formatoSize,"\nSIZE=%d\n", tamanioPokemon);
+        string_append(&formatoDirectory, "\nOPEN=Y");
+
+        fputs(formatoDirectory,f);
+        fputs(formatoSize,f);
+        fputs(formatoBlocks,f);
+        fputs(formatoOpen,f);
+        fseek(f, 0, SEEK_SET);
+        fclose(f);
+
+        log_info(logger,"ARCHIVO METADATA DEL POKEMON %s CREADO CORRECTAMENTE", pokemon); 
+
+        escribirEnBloques(formatoUbicacion,bloquesAEscribir,cantBloquesAOcupar);
+
+        free(formatoDirectory);
+        free(formatoSize);
+        free(formatoBlocks);
+        free(formatoOpen);
+        return 1;
+        
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int cantBloquesParaSize(int size){
+    int cantBloques = size / unGameCardConfig->tamanioBloques;
+    int resto = size % unGameCardConfig->tamanioBloques;
+
+    if(resto > 0){
+        cantBloques = cantBloques + 1 ;
+    }
+
+    return cantBloques;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+char* generarStringBlocks(int cantBloques, int bloquesAEscribir[]){
+    
+    char* stringBlocks = string_new();
+    string_append(&stringBlocks,"BLOCKS=[");
+
+    for(int j=0; j<cantBloques; j++ ){
+
+        //pthread_mutex_lock(&mutexBitmap);
+        //bloquesAEscribir[j] = buscarBloqueLibreYOcupar();
+        //pthread_mutex_unlock(&mutexBitmap);
+        if (j==(cantBloques-1)){
+            string_append_with_format(&stringBlocks,"%d]",bloquesAEscribir[j]);
+        }else{
+            string_append_with_format(&stringBlocks,"%d,",bloquesAEscribir[j]);
+        }
+    }
+
+    return stringBlocks;
+      
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int escribirEnBloques(char* ubicaciones, int arregloBloques[], int cantBloques){
+    
+    int totalEscrito = 0;
+
+    for (int i = 0; i<cantBloques-1;i++){
+        char* pathBloque = string_new();
+        string_append_with_format(&pathBloque,"%sBlocks/%d.bin",unGameCardConfig->puntoMontajeTallGrass,arregloBloques[i]);
+        FILE* f;
+        //fopen(pathBloque,f);
+        char* escrituraPorBloque = string_substring(ubicaciones,totalEscrito,unGameCardConfig->tamanioBloques);
+        f = fopen(pathBloque,"wb+");
+        fputs(escrituraPorBloque,f);
+        fclose(f);
+        totalEscrito += string_length(escrituraPorBloque);
+        free(pathBloque);
+    }
+    
+    int restante = string_length(ubicaciones) - totalEscrito;
+    
+    char* ultimaPorcionAEscribir = string_substring(ubicaciones,totalEscrito,restante);
+    char* pathUltimoBloque = string_new();
+
+    string_append_with_format(&pathUltimoBloque,"%sBlocks/%d.bin",unGameCardConfig->puntoMontajeTallGrass,arregloBloques[cantBloques-1]);
+    FILE* g;
+    g = fopen(pathUltimoBloque,"wb+");
+    fputs(ultimaPorcionAEscribir,g);
+    fclose(g);
+
+    free(pathUltimoBloque);
+    free(ultimaPorcionAEscribir);
+    free(ubicaciones);
+    
+    return 1;
+
+}
+
+
+void casoDePrueba(){
+    if(crearPokemon("AlvaritoGUEI", 15, 24, 51)){
+        printf("\nSo un cra");
+    } else{
+
+        printf("\nfalló, boludazo");
+    }
+}

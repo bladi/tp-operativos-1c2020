@@ -634,7 +634,8 @@ t_localizedPokemon* deserializarLocalizedPokemon(void* buffer){
 	memcpy(&tamanioBuffer, buffer + desplazamiento, sizeof(int));
 	desplazamiento += sizeof(int);
 
-	t_localizedPokemon* unLocalizedPokemon = malloc(tamanioBuffer - sizeof(int));
+	t_localizedPokemon* unLocalizedPokemon = malloc(tamanioBuffer - 2 * sizeof(int)); //porque el buffer contiene el tamaño total del paquete y el tamaño del string, que no deben ser considerados al mallocear
+	
 
 	memcpy(&unLocalizedPokemon->identificador, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);

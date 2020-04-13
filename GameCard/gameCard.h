@@ -104,15 +104,27 @@ void finalizarGameCard();
 void administradorDeConexiones(void* infoAdmin);
 void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
 
+int existePokemon(char* pokemon);
+int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t cantidad);
+
 ///////////////////////////////////////////////////////////////////////////CONEXIONES/////////////////////////////////////////////////////////////////////////////////////
 
 void inicializarBitMap();
 void crearArchivoBitmap(char* pathBitmap);
 void verificarBitmapPrevio(char* pathBitmap);
 int validarArchivo(char* path);
-int fsCantidadBloquesLibres();
-int fsBuscarBloqueLibreYOcupar();
+int cantidadBloquesLibres();
+int buscarBloqueLibreYOcupar();
+void mostrarEstadoBitmap();
+
+///////////////////////////////////////////////////////////////////////MANEJO BLOQUES/////////////////////////////////////////////////////////////////////////////////////
+
 void crearBloquesFileSystem();
-void fsMostrarEstadoBitmap();
+int cantBloquesParaSize(int size);
+char* generarStringBlocks(int cantBloques, int bloquesAEscribir[]);
+int escribirEnBloques(char* ubicaciones, int arregloBloques[], int cantBloques);
+
+
+void casoDePrueba();
 
 #endif
