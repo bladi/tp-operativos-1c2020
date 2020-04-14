@@ -107,6 +107,7 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
 int existePokemon(char* pokemon);
 int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t cantidad);
 int leerEstadoPokemon(char* nombrePokemon);
+int cambiarEstadoPokemon(char* pokemon, int estado);
 
 int crearDirectorio(char* path, char* nombreDirectorio);
 
