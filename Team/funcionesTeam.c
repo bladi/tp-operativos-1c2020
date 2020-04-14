@@ -273,8 +273,9 @@ void finalizarTeam() {
 void inicializarHilosYVariablesTeam()
 {
     cantidadDeActualizacionesConfigTeam = 0;
+    
     listaDeEntrenadores = list_create();
-    //printf(unTeamConfig->posicionEntrenadores);
+    
     cargarEntrenadores();
     //socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
@@ -295,43 +296,86 @@ void inicializarHilosYVariablesTeam()
 void cargarEntrenadores()
 {
     int cantidadDeEntrenadores = 0;
-    //cantidadDeEntrenadores = 0;
-    printf("\n%d\n",cantidadDeEntrenadores);
     for (int i = 0; unTeamConfig->posicionEntrenadores[i] != NULL; i++)
 	{
         if(string_ends_with(unTeamConfig->posicionEntrenadores[i],"]"))
             cantidadDeEntrenadores++;
     }
-    int auxPosiciones = 1;
-    printf("\n%d\n",cantidadDeEntrenadores);
-    /*
-    while(auxPosiciones <= cantidadDeEntrenadores)
+    int idEntrenador = 1;
+    int auxPosiciones = 0;
+    int auxPokemones = 0;
+    int auxObjetivos = 0;
+    while(idEntrenador <= cantidadDeEntrenadores)
     {
         t_Entrenador *unEntrenador = malloc(sizeof(t_Entrenador));
-        unEntrenador->id = auxPosiciones;
-        bool mismoEntrenador = true;
-		for(int i=0;i<2;i++)
+        unEntrenador->pokemons = list_create();
+        unEntrenador->objetivos = list_create();
+        unEntrenador->id = idEntrenador;
+		for(auxPosiciones;unTeamConfig->posicionEntrenadores[auxPosiciones] != NULL;auxPosiciones++)
         {
-            printf("\n%s\n",unTeamConfig->posicionEntrenadores[0]);
-            if(string_starts_with(unTeamConfig->posicionEntrenadores[0],"["))
+            //printf("%s\n",unTeamConfig->posicionEntrenadores[auxPosiciones]);
+            if(string_starts_with(unTeamConfig->posicionEntrenadores[auxPosiciones],"["))
             {    
-                unEntrenador->posicionX = atoi(string_substring_from(unTeamConfig->posicionEntrenadores[0],1));
-                list_remove(unTeamConfig->posicionEntrenadores,0);
+                unEntrenador->posicionX = atoi(string_substring_from(unTeamConfig->posicionEntrenadores[auxPosiciones],1));
             }
-            else if(string_ends_with(unTeamConfig->posicionEntrenadores[0],"]"))
+            else if(string_ends_with(unTeamConfig->posicionEntrenadores[auxPosiciones],"]"))
             {
-                unEntrenador->posicionY = atoi(string_substring_until(unTeamConfig->posicionEntrenadores[0],strlen(unTeamConfig->posicionEntrenadores[0])));
-                list_remove(unTeamConfig->posicionEntrenadores,0);
-                mismoEntrenador = false;
+                unEntrenador->posicionY = atoi(string_substring_until(unTeamConfig->posicionEntrenadores[auxPosiciones],strlen(unTeamConfig->posicionEntrenadores[auxPosiciones])-1));
+                auxPosiciones++;
+                break;
+            }
+        }
+        for(auxPokemones; unTeamConfig->pokemonEntrenadores[auxPokemones] != NULL; auxPokemones++)
+        {
+            //printf("%s\n",unTeamConfig->pokemonEntrenadores[auxPokemones]);
+            if(string_starts_with(unTeamConfig->pokemonEntrenadores[auxPokemones],"["))
+            {    
+                agregarPokeALista(unEntrenador->pokemons, (string_substring_from(unTeamConfig->pokemonEntrenadores[auxPokemones],1)));
+            }
+            else
+            {
+                if(string_ends_with(unTeamConfig->pokemonEntrenadores[auxPokemones],"]"))
+                {
+                    agregarPokeALista(unEntrenador->pokemons, (string_substring_until(unTeamConfig->pokemonEntrenadores[auxPokemones],strlen(unTeamConfig->pokemonEntrenadores[auxPokemones])-1)));
+                    auxPokemones++;
+                    break;
+                }
+                else
+                {
+                    agregarPokeALista(unEntrenador->pokemons, unTeamConfig->pokemonEntrenadores[auxPokemones]);
+                }
+            }
+        }
+        for(auxObjetivos; unTeamConfig->objetivosEntrenadores[auxObjetivos] != NULL; auxObjetivos++)
+        {
+            //printf("%s\n",unTeamConfig->objetivosEntrenadores[auxObjetivos]);
+            if(string_starts_with(unTeamConfig->objetivosEntrenadores[auxObjetivos],"["))
+            {    
+                agregarPokeALista(unEntrenador->objetivos, (string_substring_from(unTeamConfig->objetivosEntrenadores[auxObjetivos],1)));
+            }
+            else
+            {
+                if(string_ends_with(unTeamConfig->objetivosEntrenadores[auxObjetivos],"]"))
+                {
+                    agregarPokeALista(unEntrenador->objetivos, (string_substring_until(unTeamConfig->objetivosEntrenadores[auxObjetivos],strlen(unTeamConfig->objetivosEntrenadores[auxObjetivos])-1)));
+                    auxObjetivos++;
+                    break;
+                }
+                else
+                {
+                    agregarPokeALista(unEntrenador->objetivos, unTeamConfig->objetivosEntrenadores[auxObjetivos]);
+                }
             }
         }
         unEntrenador->estado = NEW;
-        //printf(unEntrenador->posicionX);
-        //printf(unEntrenador->posicionY);
+        //printf("%d\n",unEntrenador->id);
+        //printf("%d\n",unEntrenador->posicionX);
+        //printf("%d\n",unEntrenador->posicionY);
+        //printf("%s\n", list_take(unEntrenador->pokemons,1));
 		list_add(listaDeEntrenadores, unEntrenador);
-        auxPosiciones++;
+        idEntrenador++;
     }
-    */
+    
         /*
 		t_Entrenador *unEntrenador = malloc(sizeof(t_Entrenador));
 		unEntrenador->id = i;
@@ -344,6 +388,38 @@ void cargarEntrenadores()
         unEntrenador->estado = NEW;
 		list_add(listaDeEntrenadores, unEntrenador);
         */
+}
+
+int posicionPokeEnLista(t_list* pLista, char* pPokemon)
+{
+    for(int i = 0; i < list_size(pLista); i++)
+    {
+        t_Pokemon* unPokemon = list_get(pLista,i);
+        char* pokeNombre = unPokemon->nombre;
+        if(strcmp(pPokemon, pokeNombre) == 0)
+            return i;
+    }
+    return -1; //Si no existe
+}
+
+void agregarPokeALista(t_list* pLista, char* pPokemon)
+{
+    int posicion = posicionPokeEnLista(pLista, pPokemon);
+    //printf("%d\n",posicion);
+    if(posicion != -1)
+    {
+        t_Pokemon* unPokemon = list_get(pLista, posicion);
+        unPokemon->cantidad++;
+    }
+    else
+    {
+        t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
+        unPokemon->nombre = pPokemon;
+        unPokemon->cantidad = 1;
+        list_add(pLista, unPokemon);
+    }
+    //posicion = posicionPokeEnLista(pLista, pPokemon);
+    //printf("%d\n",posicion);
 }
 
 //////////////////////// Cosas Comentadas /////////////////////////////////////////////////////////////////
