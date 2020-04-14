@@ -615,6 +615,51 @@ int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Devuelve 0 si ya existe el archivo ó si hubo algún error, 1 si salió bien
+int crearDirectorio(char* path, char* nombreDirectorio){
+
+    struct stat infoDirectorio;
+    char* pathDirectorio = string_new();
+    string_append_with_format(&pathDirectorio,"%s/%s",path,nombreDirectorio);
+
+    if(stat(path,&infoDirectorio) == 0 && S_ISDIR(infoDirectorio.st_mode)){
+        
+        free(pathDirectorio);
+        log_warning(logger,"YA EXISTE EL DIRECTORIO %s", pathDirectorio);
+		return 0; 
+	
+    } else {
+
+        mkdir(pathDirectorio,0777);
+
+        FILE* f;
+        
+        char* pathMetadata = string_new();
+        string_append_with_format(&pathMetadata,"%s/Metadata.bin",pathDirectorio);
+    
+        f = fopen(pathMetadata,"w");
+
+        if(f == NULL){
+            
+            free(pathMetadata);
+            log_error(logger,"NO SE PUDO CREAR EL ARCHIVO METADATA PARA EL DIRECTORIO %s", nombreDirectorio);
+            return 0;
+        
+        }else{ 
+            fputs("DIRECTORY=Y\0",f);
+            fseek(f, 0, SEEK_SET);
+
+            fclose(f);
+            free(pathMetadata);
+            log_info(logger,"SE CREÓ EL DIRECTORIO %s EN %s", nombreDirectorio, path);
+            return 1;
+        }
+    
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int cantBloquesParaSize(int size){
@@ -689,6 +734,99 @@ int escribirEnBloques(char* ubicaciones, int arregloBloques[], int cantBloques){
 
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//DEVUELVE 0 si OPEN=N, 1 si OPEN=Y, 2 si no existe
+int leerEstadoPokemon(char* pokemon){
+
+    if(existePokemon(pokemon)){
+
+        char* pathMetadata = string_new();
+        string_append_with_format(&pathMetadata,"%sFiles/%s/Metadata.bin" ,unGameCardConfig->puntoMontajeTallGrass, pokemon);
+        //FILE* f;
+        //f = fopen(pathMetadata,"r");//podría ser rb
+
+        t_config* metadata;
+        log_info(logger, "INGRESANDO A LA METADATA DE PATH %s", pathMetadata);
+        metadata = config_create(pathMetadata);
+        
+        free(pathMetadata);
+        
+        if (metadata == NULL) {
+
+            free(metadata);
+            log_error(logger,"ERROR: NO SE PUDO LEER LA INFORMACION DEL ARCHIVO");
+            exit(1);
+
+        }else{
+            
+            char* estadoPokemon = config_get_string_value(metadata,"OPEN");
+            if(!strcmp(estadoPokemon,"N")){
+                free(metadata);
+                free(estadoPokemon);
+                return 0;
+            } else {
+                free(metadata);
+                free(estadoPokemon);
+                return 1;
+            } 
+
+        }
+
+    } else return 2;
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// lo del estado se puede hacer dentro de la misma funcion, pero me pareció que iba a ser mejor separarlo así se puede controlar mejor el tema del "semaforo"
+int cambiarEstadoPokemon(char* pokemon, int estado){
+
+    char* pathMetadata = string_new();
+    string_append_with_format(&pathMetadata,"%s/Files/%s/Metadata.bin");
+
+    char* nuevoEstado = string_new();
+    if(estado == 1){
+        string_append(&nuevoEstado, "OPEN=Y\0");
+    } else {
+        string_append(&nuevoEstado, "OPEN=N\0");
+    }
+
+    FILE* f;
+    f = fopen(pathMetadata,"r+");
+    
+    if(f = NULL){
+        log_error(logger,"NO SE PUDO CREAR EL ARCHIVO METADATA PARA EL POKEMON %s", pokemon);
+        free(pathMetadata);
+        free(nuevoEstado);
+        exit(1);
+    }else{ 
+        char* linea     = string_new();
+        char* contenido = string_new();
+        size_t tamLinea = 0;
+
+        for(int i = 0; i < 3; i++){
+            getline(&linea,&tamLinea,f);
+            string_append(&contenido,linea);
+        }
+
+        fclose(f);
+        f = fopen(pathMetadata,"w");
+        fputs(contenido,f);
+        fputs(nuevoEstado,f);
+
+        fclose(f);
+        free(pathMetadata);
+        free(linea);
+        free(contenido);
+        free(nuevoEstado);
+
+        return 1;
+
+    }
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void casoDePrueba(){
     if(crearPokemon("AlvaritoGUEI", 15, 24, 51)){
