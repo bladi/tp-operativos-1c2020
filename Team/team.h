@@ -83,11 +83,11 @@ typedef enum {
 
 typedef struct entrenador
 {
-	unsigned int idEntrenador;
+	unsigned int id;
 	int posicionX;
 	int posicionY;
-	char** pokemons;
-	char** objetivos;
+	t_list* pokemons;
+	t_list* objetivos;
 	Estado estado;
 } t_Entrenador;
 
@@ -96,6 +96,10 @@ typedef struct entrenador
 t_config* unTeamArchivoConfig;
 teamConfig_t* unTeamConfig;
 t_log* logger;
+t_list* posiciones;
+t_list* pokemones;
+t_list* objetivos;
+t_list* listaDeEntrenadores;
 
 unsigned char idConfigTeam;
 unsigned char nuevoIdConfigTeam;

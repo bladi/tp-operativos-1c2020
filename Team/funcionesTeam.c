@@ -41,7 +41,7 @@ void cargarConfiguracionTeam()
         //unTeamConfig->ipTeam = config_get_string_value(unTeamArchivoConfig, IP_TEAM);
         //unTeamConfig->puertoTeam = config_get_int_value(unTeamArchivoConfig, PUERTO_TEAM);
         unTeamConfig->logFile = config_get_string_value(unTeamArchivoConfig, LOG_FILE);
-
+        
         char *stringPosicionEntrenadores = string_new();
 	    char *stringPokemonEntrenadores = string_new();
 	    char *stringObjetivosEntrenadores = string_new();
@@ -104,11 +104,11 @@ void cargarConfiguracionTeam()
         //printf("· IP del Team = %s\n", unTeamConfig->ipTeam);
         //printf("· Puerto del Team = %d\n", unTeamConfig->puertoTeam);
         printf("· Ruta del Archivo Log del Team = %s\n\n", unTeamConfig->logFile);
-
+        
         free(stringPosicionEntrenadores);
         free(stringPokemonEntrenadores);
         free(stringObjetivosEntrenadores);
-
+        
         free(unTeamArchivoConfig);
 
     }
@@ -270,11 +270,13 @@ void finalizarTeam() {
 
 }
 
-void inicializarHilosYVariablesTeam(){
-
+void inicializarHilosYVariablesTeam()
+{
     cantidadDeActualizacionesConfigTeam = 0;
-
-    socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
+    listaDeEntrenadores = list_create();
+    //printf(unTeamConfig->posicionEntrenadores);
+    cargarEntrenadores();
+    //socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
     // unaInfoServidorTeam = malloc(sizeof(infoServidor_t));
 
@@ -283,11 +285,65 @@ void inicializarHilosYVariablesTeam(){
     // //string_append(&unaInfoServidorTeam->ip,unTeamConfig->ipTeam); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
     // string_append(&unaInfoServidorTeam->ip,"0");
 
-    pthread_create(&hiloActualizadorConfigTeam, NULL, (void*)actualizarConfiguracionTeam, NULL);
+    //pthread_create(&hiloActualizadorConfigTeam, NULL, (void*)actualizarConfiguracionTeam, NULL);
     // pthread_create(&hiloServidorTeam,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorTeam);
 
-    pthread_join(hiloActualizadorConfigTeam, NULL);
+    //pthread_join(hiloActualizadorConfigTeam, NULL);
 
+}
+
+void cargarEntrenadores()
+{
+    int cantidadDeEntrenadores = 0;
+    //cantidadDeEntrenadores = 0;
+    printf("\n%d\n",cantidadDeEntrenadores);
+    for (int i = 0; unTeamConfig->posicionEntrenadores[i] != NULL; i++)
+	{
+        if(string_ends_with(unTeamConfig->posicionEntrenadores[i],"]"))
+            cantidadDeEntrenadores++;
+    }
+    int auxPosiciones = 1;
+    printf("\n%d\n",cantidadDeEntrenadores);
+    /*
+    while(auxPosiciones <= cantidadDeEntrenadores)
+    {
+        t_Entrenador *unEntrenador = malloc(sizeof(t_Entrenador));
+        unEntrenador->id = auxPosiciones;
+        bool mismoEntrenador = true;
+		for(int i=0;i<2;i++)
+        {
+            printf("\n%s\n",unTeamConfig->posicionEntrenadores[0]);
+            if(string_starts_with(unTeamConfig->posicionEntrenadores[0],"["))
+            {    
+                unEntrenador->posicionX = atoi(string_substring_from(unTeamConfig->posicionEntrenadores[0],1));
+                list_remove(unTeamConfig->posicionEntrenadores,0);
+            }
+            else if(string_ends_with(unTeamConfig->posicionEntrenadores[0],"]"))
+            {
+                unEntrenador->posicionY = atoi(string_substring_until(unTeamConfig->posicionEntrenadores[0],strlen(unTeamConfig->posicionEntrenadores[0])));
+                list_remove(unTeamConfig->posicionEntrenadores,0);
+                mismoEntrenador = false;
+            }
+        }
+        unEntrenador->estado = NEW;
+        //printf(unEntrenador->posicionX);
+        //printf(unEntrenador->posicionY);
+		list_add(listaDeEntrenadores, unEntrenador);
+        auxPosiciones++;
+    }
+    */
+        /*
+		t_Entrenador *unEntrenador = malloc(sizeof(t_Entrenador));
+		unEntrenador->id = i;
+		unEntrenador->posicionX = atoi(unTeamConfig->posicionEntrenadores[i]);
+		unEntrenador->posicionY = atoi(unTeamConfig->posicionEntrenadores[i]);
+		unEntrenador->pokemons = list_create();
+        unEntrenador->pokemons = list_create();
+        unEntrenador->objetivos = list_create();
+        unEntrenador->objetivos = list_create();
+        unEntrenador->estado = NEW;
+		list_add(listaDeEntrenadores, unEntrenador);
+        */
 }
 
 //////////////////////// Cosas Comentadas /////////////////////////////////////////////////////////////////
