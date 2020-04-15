@@ -113,13 +113,7 @@ void inicializarHilosYVariablesGameBoy(){
 
     cantidadDeActualizacionesConfigGameBoy = 0;
 
-    //socketBroker = cliente(unGameBoyConfig->ipBroker, unGameBoyConfig->puertoBroker, ID_BROKER);
-    //socketGameCard = cliente(unGameBoyConfig->ipGameCard, unGameBoyConfig->puertoGameCard, ID_GAMECARD);
-    //socketTeam = cliente(unGameBoyConfig->ipTeam, unGameBoyConfig->puertoTeam, ID_TEAM);
-
     pthread_create(&hiloActualizadorConfigGameBoy, NULL, (void*)actualizarConfiguracionGameBoy, NULL);
-
-    pthread_join(hiloActualizadorConfigGameBoy, NULL);
 
 }
 
