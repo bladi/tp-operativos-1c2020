@@ -81,6 +81,9 @@ typedef enum {
 	EXIT
 } Estado;
 
+typedef t_list *EstadoProceso;
+EstadoProceso NUEVOS, LISTOS, BLOQUEADOS, EJECUTANDO, FINALIZADOS; //Puede que no hagan falta todas las listas
+
 typedef struct entrenador
 {
 	int id;

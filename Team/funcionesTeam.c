@@ -275,8 +275,15 @@ void inicializarHilosYVariablesTeam()
     cantidadDeActualizacionesConfigTeam = 0;
     
     listaDeEntrenadores = list_create();
+    NUEVOS = list_create();
+    LISTOS = list_create();
+    BLOQUEADOS = list_create();
+    EJECUTANDO = list_create();
+    FINALIZADOS = list_create();
     
     cargarEntrenadores();
+
+    planificar();
     //socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
     // unaInfoServidorTeam = malloc(sizeof(infoServidor_t));
@@ -313,7 +320,6 @@ void cargarEntrenadores()
         unEntrenador->id = idEntrenador;
 		for(auxPosiciones;unTeamConfig->posicionEntrenadores[auxPosiciones] != NULL;auxPosiciones++)
         {
-            //printf("%s\n",unTeamConfig->posicionEntrenadores[auxPosiciones]);
             if(string_starts_with(unTeamConfig->posicionEntrenadores[auxPosiciones],"["))
             {    
                 unEntrenador->posicionX = atoi(string_substring_from(unTeamConfig->posicionEntrenadores[auxPosiciones],1));
@@ -327,7 +333,6 @@ void cargarEntrenadores()
         }
         for(auxPokemones; unTeamConfig->pokemonEntrenadores[auxPokemones] != NULL; auxPokemones++)
         {
-            //printf("%s\n",unTeamConfig->pokemonEntrenadores[auxPokemones]);
             if(string_starts_with(unTeamConfig->pokemonEntrenadores[auxPokemones],"["))
             {    
                 agregarPokeALista(unEntrenador->pokemons, (string_substring_from(unTeamConfig->pokemonEntrenadores[auxPokemones],1)));
@@ -348,7 +353,6 @@ void cargarEntrenadores()
         }
         for(auxObjetivos; unTeamConfig->objetivosEntrenadores[auxObjetivos] != NULL; auxObjetivos++)
         {
-            //printf("%s\n",unTeamConfig->objetivosEntrenadores[auxObjetivos]);
             if(string_starts_with(unTeamConfig->objetivosEntrenadores[auxObjetivos],"["))
             {    
                 agregarPokeALista(unEntrenador->objetivos, (string_substring_from(unTeamConfig->objetivosEntrenadores[auxObjetivos],1)));
@@ -368,29 +372,13 @@ void cargarEntrenadores()
             }
         }
         unEntrenador->estado = NEW;
-        //printf("%d\n",unEntrenador->id);
-        //printf("%d\n",unEntrenador->posicionX);
-        //printf("%d\n",unEntrenador->posicionY);
-        //printf("%s\n", list_take(unEntrenador->pokemons,1));
 		list_add(listaDeEntrenadores, unEntrenador);
+        list_add(NUEVOS, unEntrenador);
         idEntrenador++;
     }
-    
-        /*
-		t_Entrenador *unEntrenador = malloc(sizeof(t_Entrenador));
-		unEntrenador->id = i;
-		unEntrenador->posicionX = atoi(unTeamConfig->posicionEntrenadores[i]);
-		unEntrenador->posicionY = atoi(unTeamConfig->posicionEntrenadores[i]);
-		unEntrenador->pokemons = list_create();
-        unEntrenador->pokemons = list_create();
-        unEntrenador->objetivos = list_create();
-        unEntrenador->objetivos = list_create();
-        unEntrenador->estado = NEW;
-		list_add(listaDeEntrenadores, unEntrenador);
-        */
 }
 
-int posicionPokeEnLista(t_list* pLista, char* pPokemon)
+int posicionPokeEnLista(t_list* pLista, char* pPokemon) //Retorna la posicion donde se encuentra o -1 si no esta
 {
     for(int i = 0; i < list_size(pLista); i++)
     {
@@ -405,7 +393,6 @@ int posicionPokeEnLista(t_list* pLista, char* pPokemon)
 void agregarPokeALista(t_list* pLista, char* pPokemon)
 {
     int posicion = posicionPokeEnLista(pLista, pPokemon);
-    //printf("%d\n",posicion);
     if(posicion != -1)
     {
         t_Pokemon* unPokemon = list_get(pLista, posicion);
@@ -418,8 +405,50 @@ void agregarPokeALista(t_list* pLista, char* pPokemon)
         unPokemon->cantidad = 1;
         list_add(pLista, unPokemon);
     }
-    //posicion = posicionPokeEnLista(pLista, pPokemon);
-    //printf("%d\n",posicion);
+}
+
+void planificar()
+{
+    if(strcmp(unTeamConfig->algoritmoPlanificacion,"FIFO") == 0)
+    {
+        planificarFIFO();
+    }
+    else if(strcmp(unTeamConfig->algoritmoPlanificacion,"RR") == 0)
+    {
+        planificarRR();
+    }
+    else if(strcmp(unTeamConfig->algoritmoPlanificacion,"SJF-SD") == 0)
+    {
+        planificarSJF();
+    }
+    else if(strcmp(unTeamConfig->algoritmoPlanificacion,"SJF-CD") == 0)
+    {
+        planificarSRT();
+    }
+    else
+    {
+        log_error(logger, "No existe el algoritmo de planificacion especificado\n");
+    }
+}
+
+void planificarFIFO()
+{
+
+}
+
+void planificarRR()
+{
+    printf("Planifique Round Robin\n");
+}
+
+void planificarSJF()
+{
+
+}
+
+void planificarSRT()
+{
+
 }
 
 //////////////////////// Cosas Comentadas /////////////////////////////////////////////////////////////////
