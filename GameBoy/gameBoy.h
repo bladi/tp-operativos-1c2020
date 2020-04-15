@@ -49,6 +49,15 @@
 #define ID_GAMECARD 2
 #define ID_TEAM 3
 
+#define MAX_CANTIDAD_ARGUMENTOS 7
+#define MIN_CANTIDAD_ARGUMENTOS 4
+
+#define CATCH_POKEMON "CATCH_POKEMON"
+#define CAUGHT_POKEMON "CAUGHT_POKEMON"
+#define GET_POKEMON "GET_POKEMON"
+#define APPEARED_POKEMON "APPEARED_POKEMON"
+#define NEW_POKEMON "NEW_POKEMON"
+
 ///////////////////////////////////////////////////////////////////////////ESTRUCTURAS////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct gameBoyConfig_s{
@@ -76,7 +85,7 @@ uint32_t cantidadDeActualizacionesConfigGameBoy;
 
 int socketBroker;
 int socketGameCard;
-//int socketTeam;
+int socketTeam;
 
 pthread_t hiloActualizadorConfigGameBoy;
 
@@ -92,5 +101,16 @@ void inicializarHilosYVariablesGameBoy();
 void finalizarGameBoy();
 
 void administradorDeConexiones(void* infoAdmin);
+
+void enviarNewPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* cantidad);
+void enviarAppearedPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* id);
+void enviarCatchPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY);
+void enviarCaughtPokemonABroker(char* nombrePokemon,char* resultado);
+void enviarGetPokemonABroker(char* nombrePokemon);
+void enviarAppearedPokemonATeam(char* nombrePokemon,char* posicionEnX,char* posicionEnY);
+void enviarNewPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* cantidad);
+void enviarCatchPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY);
+void enviarGetPokemonAGameCard(char* nombrePokemon);
+void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion);
 
 #endif

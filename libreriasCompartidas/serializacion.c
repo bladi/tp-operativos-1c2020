@@ -252,7 +252,7 @@ t_newPokemon* deserializarNewPokemon(void* buffer){
 
 }
 
-///////////////////////////////////////////////////GET POKEMON//////////////////////////////////////////////////////
+/////////////////////////////////////////////////////GET POKEMON////////////////////////////////////////////////////////
 
 void* serializarGetPokemon(t_getPokemon* getPokemon, int* tamanio){
 
@@ -330,6 +330,93 @@ t_getPokemon* deserializarGetPokemon(void* buffer){
 	return unGetPokemon;
 
 	return;
+
+}
+
+/////////////////////////////////////////////////////SUSCRIPTOR////////////////////////////////////////////////////////
+
+void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
+
+	t_suscriptor* unSuscriptor = (t_suscriptor*) suscriptor;
+
+	int desplazamiento = 0;
+	int tamanioColaDeMensajes = string_length(unSuscriptor->colaDeMensajes);
+
+	*tamanio = sizeof(int) + tamanioColaDeMensajes + 3 * sizeof(uint32_t);
+
+	void* suscriptorSerializado = malloc(*tamanio);
+
+	memcpy(suscriptorSerializado + desplazamiento, &unSuscriptor->identificador, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(suscriptorSerializado + desplazamiento, &unSuscriptor->identificadorCorrelacional, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(suscriptorSerializado + desplazamiento, &tamanioColaDeMensajes, sizeof(int));
+	desplazamiento += sizeof(int);
+
+	memcpy(suscriptorSerializado + desplazamiento, unSuscriptor->colaDeMensajes, tamanioColaDeMensajes);
+	desplazamiento += tamanioColaDeMensajes;
+
+	memcpy(suscriptorSerializado + desplazamiento, &unSuscriptor->tiempoDeSuscripcion, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	///////////////////////////////////////CASO DE PRUEBA SERIALIZACION SUSCRIPTOR///////////////////////////////////////////////
+	
+	// printf("\n\nSUSCRIPTOR A SERIALIZAR: \n");
+	// printf("\nIdentificador: %d", unSuscriptor->identificador);
+	// printf("\nIdentificador Correlacional: %d", unSuscriptor->identificadorCorrelacional);
+	// printf("\nNombre de cola de mensajes a suscribirse: %s", unSuscriptor->colaDeMensajes);
+	// printf("\nTiempo de suscripción: %d", unSuscriptor->tiempoDeSuscripcion);	
+	// printf("\nTamaño del SUSCRIPTOR: %d", *tamanio);
+	
+	// t_suscriptor* suscriptorDeserializado = deserializarSuscriptor(suscriptorSerializado);
+
+	// printf("\n\nSUSCRIPTOR DESERIALIZADO: \n");
+	// printf("\nIdentificador: %d", suscriptorDeserializado->identificador);
+	// printf("\nIdentificador Correlacional: %d", suscriptorDeserializado->identificadorCorrelacional);
+	// printf("\nNombre de cola de mensajes a suscribirse: %s", suscriptorDeserializado->colaDeMensajes);
+	// printf("\nTiempo de suscripción: %d", suscriptorDeserializado->tiempoDeSuscripcion);	
+
+	// free(suscriptorDeserializado);
+	
+	///////////////////////////////////////FIN CASO DE PRUEBA SERIALIZACION SUSCRIPTOR////////////////////////////////////////////
+
+	return suscriptorSerializado;
+
+}
+
+t_suscriptor* deserializarSuscriptor(void* buffer){
+	
+	t_suscriptor* unSuscriptor = malloc(sizeof(t_suscriptor));
+
+	int desplazamiento = 0;
+	int tamanioColaDeMensajes = 0;
+
+	memcpy(&unSuscriptor->identificador, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(&unSuscriptor->identificadorCorrelacional, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(&tamanioColaDeMensajes, buffer + desplazamiento, sizeof(int));
+	desplazamiento += sizeof(int);
+
+	char* bufferColaDeMensajes = malloc(tamanioColaDeMensajes+1);
+	memcpy(bufferColaDeMensajes, buffer + desplazamiento, tamanioColaDeMensajes);
+	bufferColaDeMensajes[tamanioColaDeMensajes] = '\0';
+	desplazamiento += tamanioColaDeMensajes;
+
+	unSuscriptor->colaDeMensajes = string_new();
+
+	string_append(&unSuscriptor->colaDeMensajes, bufferColaDeMensajes);
+
+	free(bufferColaDeMensajes);
+
+	memcpy(&unSuscriptor->tiempoDeSuscripcion, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	return unSuscriptor;
 
 }
 

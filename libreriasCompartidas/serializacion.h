@@ -23,6 +23,7 @@ typedef enum t_protocolo {
 	tCaughtPokemon,
 	tLocalizedPokemon,
 	tAppearedPokemon,
+	tSuscriptor,
 	tFinDeProtocolo //NO SACAR Y DEJAR A LO ULTIMO!!!
 } t_protocolo;
 
@@ -91,6 +92,15 @@ typedef struct t_appearedPokemon{
 	uint32_t posicionEnElMapaY;
 
 } __attribute__((packed)) t_appearedPokemon;
+
+typedef struct t_suscriptor{
+
+	uint32_t identificador;
+	uint32_t identificadorCorrelacional;
+	char* colaDeMensajes;
+	uint32_t tiempoDeSuscripcion;
+
+} __attribute__((packed)) t_suscriptor;
 
 typedef struct datosPokemon{
 
