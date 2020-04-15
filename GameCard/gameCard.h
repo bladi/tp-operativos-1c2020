@@ -84,6 +84,8 @@ unsigned char idConfigGameCard;
 unsigned char nuevoIdConfigGameCard;
 
 uint32_t cantidadDeActualizacionesConfigGameCard;
+uint32_t busquedaX;
+uint32_t busquedaY;
 
 int socketBroker;
 
@@ -108,6 +110,9 @@ int existePokemon(char* pokemon);
 int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t cantidad);
 int leerEstadoPokemon(char* nombrePokemon);
 int cambiarEstadoPokemon(char* pokemon, int estado);
+int actualizarPokemon(char* pokemon, uint32_t posX, uint32_t posY, int cant);
+
+t_list* generarListaUbicaciones(char* pokemon);
 
 int crearDirectorio(char* path, char* nombreDirectorio);
 
@@ -127,6 +132,7 @@ void crearBloquesFileSystem();
 int cantBloquesParaSize(int size);
 char* generarStringBlocks(int cantBloques, int bloquesAEscribir[]);
 int escribirEnBloques(char* ubicaciones, int arregloBloques[], int cantBloques);
+char* leerUbicacionesPokemon(char* pokemon);
 
 
 void casoDePrueba();
