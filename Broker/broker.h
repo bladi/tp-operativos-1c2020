@@ -63,10 +63,59 @@ typedef struct brokerConfig_s{
 
 } brokerConfig_t;
 
+//typedef enum tipoMensaje {M_NEW, M_APPEARED, M_CATCH, M_CAUGHT, M_GET, M_LOCALIZED} tipoMensaje_t;
+
+typedef struct {
+
+	uint32_t idMensaje;
+	uint32_t tipoMensaje;
+	t_list* suscriptoresEnviados; // uint32_t
+	t_list* acknowledgement; // uint32_t
+	
+} tMensaje;// ??* revisar
+
+typedef struct {
+
+	uint32_t idSuscriptor;
+	char* ipServer;
+	uint32_t PuertoEschucha;
+	uint32_t socketSuscriptor;
+		
+} tSuscriptor;
+
+typedef struct {
+
+	uint32_t idSuscriptor;
+	uint32_t startTime;
+	uint32_t timeToLive;
+	
+		
+} tSuscriptorEnCola;
+
+
+t_list* SUSCRIPTORES;
+
+t_list* NEW_POKEMON;
+
+t_list* APPEARED_POKEMON;
+
+t_list* CATCH_POKEMON;
+
+t_list* CAUGHT_POKEMON;
+
+t_list* GET_POKEMON;
+
+t_list* LOCALIZED_POKEMON;
+
+t_list* MENSAJES;
+
+
+
+
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
 
-t_config* unBrokerArchivoConfig;
-brokerConfig_t* unBrokerConfig;
+
+brokerConfig_t* CONFIG_BROKER;
 t_log* logger;
 
 unsigned char idConfigBroker;
@@ -76,6 +125,11 @@ uint32_t cantidadDeActualizacionesConfigBroker;
 
 pthread_t hiloServidorBroker;
 pthread_t hiloActualizadorConfigBroker;
+
+
+char *MEMORIA_PRINCIPAL;
+uint32_t NUM_SUSCRIPTOR;
+pthread_mutex_t mutex_NUM_SUSCRIPTOR;
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -92,5 +146,25 @@ void administradorDeConexiones(void* infoAdmin);
 void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
 void manejarRespuestaAGameCard(int socketCliente,int idCliente);
 void manejarRespuestaATeam(int socketCliente,int idCliente);
+
+void inicializarMemoria();
+
+void ingresarNuevoSuscriber(t_suscribeQueue* nuevaSuscripcion);
+
+//////////////////////////////////////////////////FUNCIONES LISTAS//////////////////////////////////////////////////////////////////////////////////////
+
+bool existeNuevoSuscriber(void *tSuscriptor);
+char* ipServerABuscar;
+uint32_t PuertoEschuchaABuscar;
+pthread_mutex_t mutex_ipServerABuscar;
+pthread_mutex_t mutex_PuertoEschuchaABuscar;
+
+
+bool existeIdSuscriberEnCola(void *suscriptorEnCola);
+uint32_t idSuscriberABuscar;
+pthread_mutex_t mutex_idSuscriberABuscar;
+
+
+
 
 #endif
