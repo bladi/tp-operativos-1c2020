@@ -23,6 +23,7 @@ typedef enum t_protocolo {
 	tCaughtPokemon,
 	tLocalizedPokemon,
 	tAppearedPokemon,
+	tSuscribe,
 	tFinDeProtocolo //NO SACAR Y DEJAR A LO ULTIMO!!!
 } t_protocolo;
 
@@ -100,6 +101,16 @@ typedef struct datosPokemon{
 
 } __attribute__((packed)) datosPokemon;
 
+typedef struct t_suscribeQueue{
+
+	uint32_t colaAsuscribir;
+	uint32_t tiempoEnCola;
+	char* ipServer;
+	uint32_t PuertoEscucha;
+
+	
+} __attribute__((packed)) t_suscribeQueue;
+
 /////////////////////////////////////////////////FUNCIONES SERIALIZACION/DESEREALIZACION///////////////////////////////////////////
 
 void* recibirPaquete(int fdCliente, int* tipoMensaje, int* tamanioMensaje);
@@ -125,6 +136,9 @@ t_getPokemon* deserializarGetPokemon(void* buffer);
 
 void* serializarNewPokemon(t_newPokemon* newPokemon, int* tamanio);
 t_newPokemon* deserializarNewPokemon(void* buffer);
+
+void* serializarSuscribe(t_suscribeQueue* queue, int* tamanio);
+t_suscribeQueue* deserializarSuscribe(void* buffer);
 
 //////////////////////////////////////////FUNCIONES PARA SERIALIZACION DE LISTAS///////////////////////////////////////
 

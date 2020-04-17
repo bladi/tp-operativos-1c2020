@@ -36,6 +36,11 @@ void* serializar(int tipoMensaje, void* mensaje, int* tamanio){
 			break;
 
 		}
+		case tSuscribe: {
+			buffer = serializarSuscribe(mensaje, tamanio);
+			break;
+
+		}
 
 		case 0: {
 			//printf("Desconexion. \n");
@@ -85,6 +90,12 @@ void* deserializar(uint16_t tipoMensaje, void* mensaje){
 
 			case tAppearedPokemon: {
 				buffer = deserializarAppearedPokemon(mensaje);
+				break;
+
+			}
+
+			case tSuscribe: {
+				buffer = deserializarSuscribe(mensaje);
 				break;
 
 			}
@@ -782,6 +793,78 @@ t_appearedPokemon* deserializarAppearedPokemon(void* buffer){
 	return unAppearedPokemon;
 
 }
+
+//////////////////////////////////////////////////SUSCRIBE TO QUEUE////////////////////////////////////////////////////
+
+
+void* serializarSuscribe(void* administrativo, int* tamanio) {
+
+	t_suscribeQueue* unAdministrativo = (t_suscribeQueue*) administrativo;
+
+	int desplazamiento = 0;
+	uint32_t tamanioIp = string_length(unAdministrativo->ipServer);
+
+	*tamanio = 4 * sizeof(uint32_t) + tamanioIp;
+
+	int desplazamiento = 0;
+
+	void* paqueteAdministrativo = malloc(*tamanio);
+
+	memcpy(paqueteAdministrativo + desplazamiento, &unAdministrativo->colaAsuscribir, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(paqueteAdministrativo + desplazamiento, &unAdministrativo->tiempoEnCola, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(paqueteAdministrativo + desplazamiento, &unAdministrativo->PuertoEscucha, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(paqueteAdministrativo + desplazamiento, &tamanioIp, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(paqueteAdministrativo + desplazamiento, unAdministrativo->ipServer, tamanioIp);
+	desplazamiento += tamanioIp;
+
+
+	return paqueteAdministrativo;
+
+}
+
+t_suscribeQueue* deserializarAdministrativo(void* buffer) {
+
+	int desplazamiento = 0;
+	uint32_t tamip = 0;
+	
+	t_suscribeQueue* unAdministrativo = malloc(sizeof(t_suscribeQueue));
+
+	memcpy(&unAdministrativo->colaAsuscribir, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(&unAdministrativo->tiempoEnCola, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(&unAdministrativo->PuertoEscucha, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(&tamip, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	char* bufferIp = malloc(tamip + 1);
+	memcpy(bufferIp, buffer + desplazamiento, tamip);
+	bufferIp[tamip] = '\0';
+	desplazamiento += tamip;
+
+	unAdministrativo->ipServer = string_new();
+
+	string_append(&unAdministrativo->ipServer, bufferIp);
+
+	free(bufferIp);
+
+
+	return unAdministrativo;
+
+}
+
 
 //////////////////////////////////////////FUNCIONES PARA SERIALIZACION DE LISTAS///////////////////////////////////////
 
