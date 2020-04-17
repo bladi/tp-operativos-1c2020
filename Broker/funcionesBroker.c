@@ -416,6 +416,19 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
     switch (*tipoMensaje)
     {
 
+        case tSuscribe:
+    {
+
+        t_suscribeQueue *nuevaSuscripcion = (t_suscribeQueue *)buffer;
+
+        log_info(logger, "Se suscribe a cola: : %d", nuevaSuscripcion->colaAsuscribir);
+        log_info(logger, "Tiempo de Suscripcion: %d", nuevaSuscripcion->tiempoEnCola);
+
+        ingresarNuevoSuscriber(nuevaSuscripcion);
+
+        break;
+    }
+
     case tCaughtPokemon:
     {
 
@@ -542,6 +555,19 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
     switch (*tipoMensaje)
     {
+
+        case tSuscribe:
+    {
+
+        t_suscribeQueue *nuevaSuscripcion = (t_suscribeQueue *)buffer;
+
+        log_info(logger, "Se suscribe a cola: : %d", nuevaSuscripcion->colaAsuscribir);
+        log_info(logger, "Tiempo de Suscripcion: %d", nuevaSuscripcion->tiempoEnCola);
+
+        ingresarNuevoSuscriber(nuevaSuscripcion);
+
+        break;
+    }
 
     case tGetPokemon:
     {

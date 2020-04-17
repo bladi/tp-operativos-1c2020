@@ -797,7 +797,7 @@ t_appearedPokemon* deserializarAppearedPokemon(void* buffer){
 //////////////////////////////////////////////////SUSCRIBE TO QUEUE////////////////////////////////////////////////////
 
 
-void* serializarSuscribe(void* administrativo, int* tamanio) {
+void* serializarSuscribe(t_suscribeQueue* administrativo, int* tamanio) {
 
 	t_suscribeQueue* unAdministrativo = (t_suscribeQueue*) administrativo;
 
@@ -805,8 +805,6 @@ void* serializarSuscribe(void* administrativo, int* tamanio) {
 	uint32_t tamanioIp = string_length(unAdministrativo->ipServer);
 
 	*tamanio = 4 * sizeof(uint32_t) + tamanioIp;
-
-	int desplazamiento = 0;
 
 	void* paqueteAdministrativo = malloc(*tamanio);
 
@@ -830,7 +828,7 @@ void* serializarSuscribe(void* administrativo, int* tamanio) {
 
 }
 
-t_suscribeQueue* deserializarAdministrativo(void* buffer) {
+t_suscribeQueue* deserializarSuscribe(void* buffer) {
 
 	int desplazamiento = 0;
 	uint32_t tamip = 0;
