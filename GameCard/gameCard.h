@@ -108,11 +108,13 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
 
 int existePokemon(char* pokemon);
 int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t cantidad);
+int actualizarPokemon(char* pokemon, char* stringUbicaciones, int sizeUbicaciones);
 int leerEstadoPokemon(char* nombrePokemon);
 int cambiarEstadoPokemon(char* pokemon, int estado);
-int actualizarPokemon(char* pokemon, uint32_t posX, uint32_t posY, int cant);
+int actualizarUbicacionPokemon(char* pokemon, uint32_t posX, uint32_t posY, int cant);
 
 t_list* generarListaUbicaciones(char* pokemon);
+char* generarStringUbicacionesSegunLista(t_list* listaUbicaciones);
 
 int crearDirectorio(char* path, char* nombreDirectorio);
 
@@ -133,8 +135,9 @@ int cantBloquesParaSize(int size);
 char* generarStringBlocks(int cantBloques, int bloquesAEscribir[]);
 int escribirEnBloques(char* ubicaciones, int arregloBloques[], int cantBloques);
 char* leerUbicacionesPokemon(char* pokemon);
+void liberarBloquesDelPokemon(char* pokemon);
 
-
+bool mismaUbicacion(datosPokemon* ubicacion);
 void casoDePrueba();
 
 #endif

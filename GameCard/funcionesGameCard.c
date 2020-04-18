@@ -541,7 +541,7 @@ int existePokemon(char* pokemon){
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t cantidad){
 
     FILE* f;
@@ -593,7 +593,7 @@ int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t
 
         string_append(&formatoDirectory, "DIRECTORY=N");
         string_append_with_format(&formatoSize,"\nSIZE=%d\n", tamanioPokemon);
-        string_append(&formatoDirectory, "\nOPEN=Y");
+        string_append(&formatoDirectory, "\nOPEN=N");
 
         fputs(formatoDirectory,f);
         fputs(formatoSize,f);
@@ -612,6 +612,88 @@ int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t
         free(formatoOpen);
         return 1;
         
+    }
+}
+*/
+int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t cantidad){
+
+    char* pathPokemon = string_new();
+    char* ubicacion   = string_new();
+
+    string_append_with_format(&pathPokemon, "%sFiles/%s",unGameCardConfig->puntoMontajeTallGrass, pokemon);
+
+    mkdir(pathPokemon,0777);
+
+    string_append_with_format(&ubicacion,"%d-%d=%d\n",posicionX, posicionY, cantidad);
+    int tamanioPokemon = string_length(ubicacion);
+
+    return actualizarPokemon(pokemon, ubicacion, tamanioPokemon);
+
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int actualizarPokemon(char* pokemon, char* stringUbicaciones, int sizeUbicaciones){
+    
+    FILE* f;
+    char* pathMetadata = string_new();
+
+    string_append_with_format(&pathMetadata,"%sFiles/%s/Metadata.bin",unGameCardConfig->puntoMontajeTallGrass,pokemon);
+    
+    f = fopen(pathMetadata,"w");
+
+    if(f == NULL){
+    
+        log_error(logger,"NO SE PUDO CREAR EL ARCHIVO METADATA PARA EL POKEMON %s", pokemon);
+        return 0;
+	
+    }else{ 
+
+        char* formatoDirectory = string_new();
+        char* formatoSize      = string_new();
+        char* formatoBlocks    = string_new();
+        char* formatoOpen      = string_new();
+
+        int cantBloquesAOcupar = cantBloquesParaSize(sizeUbicaciones);
+        int bloquesAEscribir[cantBloquesAOcupar];
+        
+        if(cantBloquesAOcupar <= cantidadBloquesLibres()){
+
+            for(int j=0; j<cantBloquesAOcupar; j++ ){
+                bloquesAEscribir[j] = buscarBloqueLibreYOcupar();
+            }
+
+            formatoBlocks = generarStringBlocks(cantBloquesAOcupar, bloquesAEscribir);
+
+        } else{
+            log_error(logger, "NO HAY BLOQUES SUFICIENTES PARA CREAR AL POKEMON");
+            free(formatoDirectory);
+            free(formatoSize);
+            free(formatoBlocks);
+            free(formatoOpen);
+            return 0;
+        }
+
+        string_append(&formatoDirectory, "DIRECTORY=N");
+        string_append_with_format(&formatoSize,"\nSIZE=%d\n", sizeUbicaciones);
+        string_append(&formatoDirectory, "\nOPEN=N");
+
+        fputs(formatoDirectory,f);
+        fputs(formatoSize,f);
+        fputs(formatoBlocks,f);
+        fputs(formatoOpen,f);
+        fseek(f, 0, SEEK_SET);
+        fclose(f);
+
+        log_info(logger,"ARCHIVO METADATA DEL POKEMON %s CREADO CORRECTAMENTE", pokemon); 
+        
+        escribirEnBloques(stringUbicaciones,bloquesAEscribir,cantBloquesAOcupar);
+
+        free(formatoDirectory);
+        free(formatoSize);
+        free(formatoBlocks);
+        free(formatoOpen);
+
+        return 1;
     }
 }
 
@@ -666,9 +748,6 @@ char* leerUbicacionesPokemon(char* pokemon){
             free(bloques);
 
             return todasLasUbicaciones;
-//        }
-
-//    }
 
 }
 
@@ -683,7 +762,7 @@ t_list* generarListaUbicaciones(char* pokemon){
 
     int cantUbicaciones;
 
-    while(cantUbicaciones = 0; arregloUbicaciones[cantUbicaciones] != NULL; cantUbicaciones++){
+    for(cantUbicaciones = 0; arregloUbicaciones[cantUbicaciones] != NULL; cantUbicaciones++){
         uint32_t posX;
         uint32_t posY;
         uint32_t cant;
@@ -696,9 +775,9 @@ t_list* generarListaUbicaciones(char* pokemon){
         cant = (uint32_t) atoi(igualdad[1]);
         
         datosPokemon* ubicacion = malloc(sizeof(datosPokemon));
-        ubicacion->posicionX = posX;
-        ubicacion->posicionY = posY;
-        ubicacion->cantidad  = cant
+        ubicacion->posicionEnElMapaX = posX;
+        ubicacion->posicionEnElMapaY = posY;
+        ubicacion->cantidad  = cant;
 
         list_add(listaUbicaciones,ubicacion);
         
@@ -715,40 +794,63 @@ t_list* generarListaUbicaciones(char* pokemon){
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int actualizarPokemon(char* pokemon, uint32_t posX, uint32_t posY, int cant){
+int actualizarUbicacionPokemon(char* pokemon, uint32_t posX, uint32_t posY, int cant){
+   
+    busquedaX = posX;
+    busquedaY = posY;
 
-    while(true){
+    t_list* listaUbicaciones = generarListaUbicaciones(pokemon);
 
-        if(leerEstadoPokemon(pokemon) == 1){
+    datosPokemon* ubicacionEncontrada = list_find(listaUbicaciones, (void*)mismaUbicacion);
+
+    if(ubicacionEncontrada == NULL){
+
+        list_destroy_and_destroy_elements(listaUbicaciones, eliminarNodoDatosPokemon);
         
-            sleep(unGameCardConfig->tiempoReintentoOperacion);
-        
+        if(cant > 0){
+            // añadir ubicacion a los bloques
+            char* ubicacionesPokemon = leerUbicacionesPokemon(pokemon);
+            char* nuevaUbicacion = string_new();
+            string_append_with_format(&nuevaUbicacion,"%d-%d=%d\n",posX,posY,cant);
+            string_append(&ubicacionesPokemon,nuevaUbicacion);
+            int sizeUbicaciones = string_length(ubicacionesPokemon);
+            liberarBloquesDelPokemon(pokemon);
+
+            return actualizarPokemon(pokemon,ubicacionesPokemon,sizeUbicaciones);
+
         } else {
-
-            cambiarEstadoPokemon(pokemon,1);
-            
-            busquedaX = posX;
-            busquedaY = posY;
-
-            t_list* listaUbicaciones = generarListaUbicaciones(pokemon);
-
-            datosPokemon* ubicacionEncontrada = list_find(listaUbicaciones, (void*)mismaUbicacion);
-
-            if(ubicacionEncontrada == NULL){
-                if(cant > 0){
-                    // añadir ubicacion a los bloques
-                } else {
-                    log_error(logger,"NO SE ENCUENTRAN %s EN LA UBICACION %d-%d", pokemon,posX,posY);
-                    return 0;
-                }
-
-            } else {
-                //actualizar ubicacion, reescribir bloques y actualizar metadata.
-                
-            }
-
+            log_error(logger,"NO SE ENCUENTRAN %s EN LA UBICACION %d-%d", pokemon,posX,posY);
+            return 0;
         }
+
+    } else {
+        //actualizar ubicacion, reescribir bloques y actualizar metadata.
+
+        ubicacionEncontrada->cantidad = ubicacionEncontrada->cantidad + cant; //probar bien esto, por ahí hay que castear
+        char* nuevoStringUbicaciones = generarStringUbicacionesSegunLista(listaUbicaciones);
+        int sizeUbicaciones = string_length(nuevoStringUbicaciones);
+        liberarBloquesDelPokemon(pokemon);
+
+        return actualizarPokemon(pokemon,nuevoStringUbicaciones,sizeUbicaciones);
+
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+char* generarStringUbicacionesSegunLista(t_list* listaUbicaciones){
+
+    //por ahi no tome la lista como una lista de datosPokemon de una, maybe castear
+    int tamLista = list_size(listaUbicaciones);
+    char* stringUbicaciones = string_new();
+
+    for(int i = 0; i < tamLista; i++){
+        datosPokemon* nodo = list_get(listaUbicaciones,i);
+        string_append_with_format(&stringUbicaciones,"%d-%d=%d\n", nodo->posicionEnElMapaX, nodo->posicionEnElMapaY, nodo->cantidad);
+    }
+
+    return stringUbicaciones;
+
 
 }
 
@@ -874,6 +976,44 @@ int escribirEnBloques(char* ubicaciones, int arregloBloques[], int cantBloques){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void liberarBloquesDelPokemon(char* pokemon){
+    
+    char* pathMetadata = string_new();
+    t_config* metadata;
+
+    string_append_with_format(&pathMetadata,"%sFiles/%s/Metadata.bin" ,unGameCardConfig->puntoMontajeTallGrass, pokemon);
+
+    log_info(logger, "INGRESANDO A LA METADATA DE PATH %s", pathMetadata);
+    metadata = config_create(pathMetadata);
+    
+    free(pathMetadata);
+    
+    if (metadata == NULL) {
+
+        free(metadata);
+        log_error(logger,"ERROR: NO SE PUDO LEER LA INFORMACION DEL ARCHIVO");
+        exit(1);
+
+    }else{
+        
+        char** bloques = config_get_array_value(configMetadata, "BLOCKS");
+
+        for(int i = 0; bloques[i] != NULL; i++){
+            int bloqueALiberar = atoi(bloques[i]);
+            //pthread_mutex_lock(&mutexBitmap);
+            bitarray_clean_bit(bitarray,bloqueALiberar);
+            //pthread_mutex_unlock(&mutexBitmap);
+        }
+
+        free(bloques);
+        free(metadata);
+
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //DEVUELVE 0 si OPEN=N, 1 si OPEN=Y, 2 si no existe
 int leerEstadoPokemon(char* pokemon){
 
@@ -978,18 +1118,9 @@ void casoDePrueba(){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool mismaUbicacion(datosPokemon* ubicacion){
-    if(ubicacion->posicionX == busquedaX && ubicacion->posicionY==busquedaY){
+    if(ubicacion->posicionEnElMapaX == busquedaX && ubicacion->posicionEnElMapaY==busquedaY){
         return true;
     }else{
         return false;
     }
 }
-/*
-bool mismaPosicionY(datosPokemon* ubicacion){
-    if(ubicacion->posicionX == busquedaX){
-        return true;
-    }else{
-        return false;
-    }
-}
-*/
