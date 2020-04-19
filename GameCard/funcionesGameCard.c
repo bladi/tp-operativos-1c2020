@@ -508,6 +508,8 @@ void crearBloquesFileSystem(){
     if (!mkdir(pathBloques,0777)){
        int i = 0;
        
+       log_info(logger,"Cantidad de bloques del FS: %d",unGameCardConfig->cantidadDeBloques);
+
         while(i<unGameCardConfig->cantidadDeBloques){
             FILE* bloque;
             char* pathBloquei = string_new();
@@ -774,7 +776,7 @@ t_list* generarListaUbicaciones(char* pokemon){
         posY = (uint32_t) atoi(posiciones[1]);
         cant = (uint32_t) atoi(igualdad[1]);
         
-        datosPokemon* ubicacion = malloc(sizeof(datosPokemon));
+        datosPokemon_t* ubicacion = malloc(sizeof(datosPokemon_t));
         ubicacion->posicionEnElMapaX = posX;
         ubicacion->posicionEnElMapaY = posY;
         ubicacion->cantidad  = cant;
@@ -801,7 +803,7 @@ int actualizarUbicacionPokemon(char* pokemon, uint32_t posX, uint32_t posY, int 
 
     t_list* listaUbicaciones = generarListaUbicaciones(pokemon);
 
-    datosPokemon* ubicacionEncontrada = list_find(listaUbicaciones, (void*)mismaUbicacion);
+    datosPokemon_t* ubicacionEncontrada = list_find(listaUbicaciones, (void*)mismaUbicacion);
 
     if(ubicacionEncontrada == NULL){
 
@@ -825,12 +827,22 @@ int actualizarUbicacionPokemon(char* pokemon, uint32_t posX, uint32_t posY, int 
 
     } else {
         //actualizar ubicacion, reescribir bloques y actualizar metadata.
+        if(ubicacionEncontrada->cantidad + cant < 0){
+            
+            log_error(logger, "NO HAY SUFICIENTES POKEMON EN LA UBICACION SELECCIONADA");
+            return 0;
 
-        ubicacionEncontrada->cantidad = ubicacionEncontrada->cantidad + cant; //probar bien esto, por ahí hay que castear
+        } else if(ubicacionEncontrada->cantidad + cant == 0) {
+            list_remove_and_destroy_by_condition(listaUbicaciones,(void*)mismaUbicacion, eliminarNodoDatosPokemon);
+        
+        } else {
+
+            ubicacionEncontrada->cantidad = ubicacionEncontrada->cantidad + cant; 
+        }
+
         char* nuevoStringUbicaciones = generarStringUbicacionesSegunLista(listaUbicaciones);
         int sizeUbicaciones = string_length(nuevoStringUbicaciones);
         liberarBloquesDelPokemon(pokemon);
-
         return actualizarPokemon(pokemon,nuevoStringUbicaciones,sizeUbicaciones);
 
     }
@@ -840,12 +852,12 @@ int actualizarUbicacionPokemon(char* pokemon, uint32_t posX, uint32_t posY, int 
 
 char* generarStringUbicacionesSegunLista(t_list* listaUbicaciones){
 
-    //por ahi no tome la lista como una lista de datosPokemon de una, maybe castear
+    //por ahi no tome la lista como una lista de datosPokemon_t de una, maybe castear
     int tamLista = list_size(listaUbicaciones);
     char* stringUbicaciones = string_new();
 
     for(int i = 0; i < tamLista; i++){
-        datosPokemon* nodo = list_get(listaUbicaciones,i);
+        datosPokemon_t* nodo = list_get(listaUbicaciones,i);
         string_append_with_format(&stringUbicaciones,"%d-%d=%d\n", nodo->posicionEnElMapaX, nodo->posicionEnElMapaY, nodo->cantidad);
     }
 
@@ -983,7 +995,7 @@ void liberarBloquesDelPokemon(char* pokemon){
 
     string_append_with_format(&pathMetadata,"%sFiles/%s/Metadata.bin" ,unGameCardConfig->puntoMontajeTallGrass, pokemon);
 
-    log_info(logger, "INGRESANDO A LA METADATA DE PATH %s", pathMetadata);
+    log_trace(logger, "INGRESANDO A LA METADATA DE PATH %s", pathMetadata);
     metadata = config_create(pathMetadata);
     
     free(pathMetadata);
@@ -996,10 +1008,12 @@ void liberarBloquesDelPokemon(char* pokemon){
 
     }else{
         
-        char** bloques = config_get_array_value(configMetadata, "BLOCKS");
+        char** bloques = config_get_array_value(metadata, "BLOCKS");
 
         for(int i = 0; bloques[i] != NULL; i++){
+            log_trace(logger, "Bloque %d del pokemon %s: %s", i, pokemon, bloques[i]);
             int bloqueALiberar = atoi(bloques[i]);
+            log_trace(logger, "Bloque pasado a int: %d", bloqueALiberar);
             //pthread_mutex_lock(&mutexBitmap);
             bitarray_clean_bit(bitarray,bloqueALiberar);
             //pthread_mutex_unlock(&mutexBitmap);
@@ -1060,7 +1074,7 @@ int leerEstadoPokemon(char* pokemon){
 int cambiarEstadoPokemon(char* pokemon, int estado){
 
     char* pathMetadata = string_new();
-    string_append_with_format(&pathMetadata,"%s/Files/%s/Metadata.bin");
+    string_append_with_format(&pathMetadata,"%s/Files/%s/Metadata.bin",unGameCardConfig->puntoMontajeTallGrass,pokemon);
 
     char* nuevoEstado = string_new();
     if(estado == 1){
@@ -1069,55 +1083,122 @@ int cambiarEstadoPokemon(char* pokemon, int estado){
         string_append(&nuevoEstado, "OPEN=N\0");
     }
 
-    FILE* f;
-    f = fopen(pathMetadata,"r+");
+    t_config* metaPokemon = config_create(pathMetadata);
     
-    if(f = NULL){
-        log_error(logger,"NO SE PUDO ABRIR EL ARCHIVO METADATA DEL POKEMON %s", pokemon);
-        free(pathMetadata);
-        free(nuevoEstado);
-        exit(1);
-    }else{ 
-        char* linea     = string_new();
-        char* contenido = string_new();
-        size_t tamLinea = 0;
+    char* directory = config_get_string_value(metaPokemon,"DIRECTORY");
+    //char* open      = config_get_string_value(metaPokemon,"OPEN");
+    char* size      = config_get_string_value(metaPokemon,"SIZE");
+    char* blocks    = config_get_string_value(metaPokemon,"BLOCKS");
 
-        for(int i = 0; i < 3; i++){
-            getline(&linea,&tamLinea,f);
-            string_append(&contenido,linea);
+    free(metaPokemon);
+
+    char* nuevaMeta = string_new();
+    string_append_with_format(&nuevaMeta,"DIRECTORY=%s\n%s\nSIZE=%s\nBLOCKS=%s\n",directory,nuevoEstado,size,blocks);
+
+    FILE* f;
+    f = fopen(pathMetadata, "w");
+    fputs(nuevaMeta,f);
+    fclose(f);
+
+    free(pathMetadata);
+    free(nuevaMeta);
+    free(nuevoEstado);
+    free(directory);
+    free(size);
+    free(blocks);
+    
+    return 1;
+    /*
+        FILE* f;
+        f = fopen(pathMetadata,"r");
+        
+        if(f = NULL){
+            log_error(logger,"NO SE PUDO ABRIR EL ARCHIVO METADATA DEL POKEMON %s", pokemon);
+            free(pathMetadata);
+            free(nuevoEstado);
+            exit(1);
+        }else{ 
+            char* linea     = string_new();
+            char* contenido = string_new();
+            size_t tamLinea = 0;
+
+            for(int i = 0; i < 3; i++){
+                getline(&linea,&tamLinea,f);
+                string_append(&contenido,linea);
+            }
+
+            fclose(f);
+            f = fopen(pathMetadata,"w");
+            fputs(contenido,f);
+            fputs(nuevoEstado,f);
+
+            fclose(f);
+            free(pathMetadata);
+            free(linea);
+            free(contenido);
+            free(nuevoEstado);
+
+            return 1;
+
         }
-
-        fclose(f);
-        f = fopen(pathMetadata,"w");
-        fputs(contenido,f);
-        fputs(nuevoEstado,f);
-
-        fclose(f);
-        free(pathMetadata);
-        free(linea);
-        free(contenido);
-        free(nuevoEstado);
-
-        return 1;
-
-    }
-
+    */
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void casoDePrueba(){
-    if(crearPokemon("AlvaritoGUEI", 15, 24, 51)){
-        printf("\nSo un cra");
-    } else{
+    //if(crearPokemon("AlvaritoGUEI", 15, 24, 51)){
+        // crearPokemon("AlvaritoGUEI", 15, 24, 51);
+        // printf("\nCREE AL POKEMON 1");
+        // crearPokemon("Sceptile",15,20,2);
+        // printf("\nCREE AL POKEMON 2");
+        //crearDirectorio(unGameCardConfig->puntoMontajeTallGrass,"Prueba");
+        //char* pathCarpeta2 = string_new();
+        //string_append_with_format(pathCarpeta2,"%s/Prueba",unGameCardConfig->puntoMontajeTallGrass);
+        
+        /*
+        int estado1 = leerEstadoPokemon("Sceptile");
+        log_trace(logger, "ESTADO INICIAL DE Sceptile: %d", estado1);
+        cambiarEstadoPokemon("Sceptile", !estado1);
+        int estado2 = leerEstadoPokemon("Sceptile");
+        log_trace(logger, "ESTADO NUEVO DE Sceptile: %d", estado2);
+        cambiarEstadoPokemon("Sceptile", !estado2);
+        cambiarEstadoPokemon("AlvaritoGUEI", 0);
+        actualizarUbicacionPokemon("AlvaritoGUEI",16,450,25);
+        actualizarUbicacionPokemon("AlvaritoGUEI",162,450,25);
+        actualizarUbicacionPokemon("AlvaritoGUEI",163,450,25);
+        actualizarUbicacionPokemon("AlvaritoGUEI",164,450,25);
+        actualizarUbicacionPokemon("AlvaritoGUEI",165,450,25);
+        actualizarUbicacionPokemon("Sceptile",987,1235,4);
+        actualizarUbicacionPokemon("Sceptile",9873,1235,4);
+        actualizarUbicacionPokemon("Sceptile",9874,1235,4);
+        actualizarUbicacionPokemon("Sceptile",9867,1235,4);
+        actualizarUbicacionPokemon("Sceptile",9877,1235,4);
+        actualizarUbicacionPokemon("Sceptile",9999,1235,1);
+        actualizarUbicacionPokemon("Sceptile",9999,1235,2);
+        actualizarUbicacionPokemon("AlvaritoGUEI",165,450,-25);
+        actualizarUbicacionPokemon("Sceptile",987,1235,4);
+        printf("\nUbicacion y cantidad P1: \n");
+        char* ubicacionesAlvarito = leerUbicacionesPokemon("AlvaritoGUEI");
+        printf(ubicacionesAlvarito);
+        printf("\nUbicacion y cantidad P2: \n");
+        char* ubicacionesSceptile = leerUbicacionesPokemon("Sceptile");
+        printf(ubicacionesSceptile);
+        mostrarEstadoBitmap();
+        liberarBloquesDelPokemon("AlvaritoGUEI");
+        liberarBloquesDelPokemon("Sceptile");
+        mostrarEstadoBitmap();
+        */
 
-        printf("\nfalló, boludazo");
-    }
+
+    // } else{
+    //     printf("\nERROR CREANDO AL POKEMON 1");
+    // }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool mismaUbicacion(datosPokemon* ubicacion){
+bool mismaUbicacion(datosPokemon_t* ubicacion){
     if(ubicacion->posicionEnElMapaX == busquedaX && ubicacion->posicionEnElMapaY==busquedaY){
         return true;
     }else{

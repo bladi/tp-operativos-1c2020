@@ -71,6 +71,14 @@ typedef struct gameCardConfig_s{
 
 } gameCardConfig_t;
 
+typedef struct ubicacionPokemon{
+
+	uint32_t cantidad;
+	uint32_t posicionEnElMapaX;
+	uint32_t posicionEnElMapaY;
+
+} __attribute__((packed)) datosPokemon_t;
+
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
 
 t_config* unGameCardArchivoConfig;
@@ -137,7 +145,7 @@ int escribirEnBloques(char* ubicaciones, int arregloBloques[], int cantBloques);
 char* leerUbicacionesPokemon(char* pokemon);
 void liberarBloquesDelPokemon(char* pokemon);
 
-bool mismaUbicacion(datosPokemon* ubicacion);
+bool mismaUbicacion(datosPokemon_t* ubicacion);
 void casoDePrueba();
 
 #endif
