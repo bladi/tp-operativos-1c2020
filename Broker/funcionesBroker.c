@@ -56,34 +56,6 @@ void inicializarBroker(){
 
     configurarLoggerBroker();
 
-    t_localizedPokemon* unLocalizedPokemon = malloc(sizeof(t_localizedPokemon));
-    int* tamanio = malloc(sizeof(int));
-
-    datosPokemon* nodoUnoDatosPokemon = malloc(sizeof(datosPokemon));
-    datosPokemon* nodoDosDatosPokemon = malloc(sizeof(datosPokemon));
-
-    t_list* listaDatosPokemon = list_create();
-
-    nodoUnoDatosPokemon->cantidad = 10;
-    nodoUnoDatosPokemon->posicionEnElMapaX = 5;
-    nodoUnoDatosPokemon->posicionEnElMapaY = 3;
-
-    list_add(listaDatosPokemon,nodoUnoDatosPokemon);
-
-    nodoDosDatosPokemon->cantidad = 15;
-    nodoDosDatosPokemon->posicionEnElMapaX = 20;
-    nodoDosDatosPokemon->posicionEnElMapaY = 89;
-
-    list_add(listaDatosPokemon,nodoDosDatosPokemon);
-
-    unLocalizedPokemon->identificador = 1;
-    unLocalizedPokemon->identificadorCorrelacional = 2;
-    unLocalizedPokemon->nombrePokemon = string_new();
-    string_append(&unLocalizedPokemon->nombrePokemon,"Pikachu");
-    unLocalizedPokemon->listaDatosPokemon = listaDatosPokemon;
-
-    serializar(tLocalizedPokemon,unLocalizedPokemon,tamanio);
-
     inicializarHilosYVariablesBroker();
 
 }

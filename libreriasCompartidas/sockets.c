@@ -131,7 +131,7 @@ int cliente(char *ipCliente, int puertoCliente, int idCliente) {
 	char *nombreCliente = devuelveNombreProceso(idCliente);
 
 	if (socketCliente == 0) {
-		//return EXIT_FAILURE;
+		log_error(logger,"No se conectó correctamente al %s. fallo en funcion conectarseA();", nombreCliente);
 		return 0;
 	} else {
 		log_trace(logger, "- Conectado a %s a través del socket %d", nombreCliente, socketCliente);
@@ -273,9 +273,6 @@ int recibirPorSocket(int fdEmisor, void *buffer, int totalARecibir) {
 	
 	int totalRecibido = 0;
 	int bytesRecibidos;
-
- 	//printf("\n--->Total a recibir dentro del recibir por socket: %d",totalARecibir);
-	
 
 	while (totalRecibido < totalARecibir) {
 		

@@ -28,18 +28,18 @@ void cargarConfiguracionGameCard(){
         unGameCardConfig->tiempoReintentoOperacion = config_get_int_value(unGameCardArchivoConfig, TIEMPO_DE_REINTENTO_OPERACION);
         unGameCardConfig->puntoMontajeTallGrass = config_get_string_value(unGameCardArchivoConfig, PUNTO_MONTAJE_TALLGRASS);
         unGameCardConfig->ipBroker = config_get_string_value(unGameCardArchivoConfig, IP_BROKER);
-        unGameCardConfig->puertoBroker = config_get_string_value(unGameCardArchivoConfig, PUERTO_BROKER);
+        unGameCardConfig->puertoBroker = config_get_int_value(unGameCardArchivoConfig, PUERTO_BROKER);
         unGameCardConfig->ipGameCard = config_get_string_value(unGameCardArchivoConfig, IP_GAMECARD);
-        unGameCardConfig->puertoGameCard = config_get_string_value(unGameCardArchivoConfig, PUERTO_GAMECARD);
+        unGameCardConfig->puertoGameCard = config_get_int_value(unGameCardArchivoConfig, PUERTO_GAMECARD);
         unGameCardConfig->logFile = config_get_string_value(unGameCardArchivoConfig, LOG_FILE);
 
         printf("\n\n· Tiempo de Reintento de Conexion = %d\n", unGameCardConfig->tiempoReintentoConexion);
         printf("· Tiempo de Reintento de Operacion = %d\n", unGameCardConfig->tiempoReintentoOperacion);
         printf("· Punto de Montaje de Tall Grass = %s\n", unGameCardConfig->puntoMontajeTallGrass);
         printf("· IP del Broker = %s\n", unGameCardConfig->ipBroker);
-        printf("· Puerto del Broker = %s\n", unGameCardConfig->puertoBroker);
+        printf("· Puerto del Broker = %d\n", unGameCardConfig->puertoBroker);
         printf("· IP del Game Card = %s\n", unGameCardConfig->ipGameCard);
-        printf("· Puerto del Game Card = %s\n", unGameCardConfig->puertoGameCard);
+        printf("· Puerto del Game Card = %d\n", unGameCardConfig->puertoGameCard);
         printf("· Ruta del Archivo Log del Game Card = %s\n\n", unGameCardConfig->logFile);
 
         char* pathMetadata = string_new();
@@ -50,7 +50,7 @@ void cargarConfiguracionGameCard(){
         configMetadata = config_create(pathMetadata);
 
         if(configMetadata == NULL) {
-            //log_error(logger,"- NO SE PUDO IMPORTAR LA METADATA");
+            printf("\n\n- NO SE PUDO IMPORTAR LA METADATA");
             exit(1);
         }
 
@@ -217,7 +217,7 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
     int* tipoMensaje = malloc(sizeof(int));
 	int* tamanioMensaje = malloc(sizeof(int));
 
-	void* buffer = recibirPaquete(socket, tipoMensaje, tamanioMensaje);
+	void* buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
 
     switch(*tipoMensaje){
 
@@ -399,7 +399,7 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
                 t_caughtPokemon* unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
 
                 //Posible mutex
-                //unCaughtPokemon->resultado = atraparPokemon(unCaughtPokemon->nombrePokemon);
+                //unCaughtPokemon->resultado = atraparPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
                 //Fin posible mutex
 
                 unCaughtPokemon->identificador = unCatchPokemon->identificador;                 //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
@@ -462,10 +462,10 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
 
 void manejarRespuestaABroker(int socketCliente,int idCliente){
 
-     int* tipoMensaje = malloc(sizeof(int));
+    int* tipoMensaje = malloc(sizeof(int));
 	int* tamanioMensaje = malloc(sizeof(int));
 
-	void* buffer = recibirPaquete(socket, tipoMensaje, tamanioMensaje);
+	void* buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
 
     switch(*tipoMensaje){
 

@@ -122,11 +122,14 @@ void enviarPaquete(int fdCliente, int tipoMensaje, void * mensaje, int tamanioMe
 
 	free(buffer);
 	free(mensajeSerializado);
+
 }
 
 void* recibirPaquete(int fdCliente, int* tipoMensaje, int* tamanioMensaje){
 
 	int recibido = recibirPorSocket(fdCliente, tipoMensaje, sizeof(int));
+
+	log_info(logger,"Tipo de mensaje recibido: %d", *tipoMensaje);
 
 	if (*tipoMensaje < 1 || *tipoMensaje > tFinDeProtocolo || recibido <= 0){
 		return NULL;

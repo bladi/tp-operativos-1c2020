@@ -135,7 +135,7 @@ void enviarNewPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicio
 
     int tamanioNewPokemon = 0;
 
-    enviarInt(socketBroker, 4);
+    enviarInt(socketBroker, 2);
     enviarPaquete(socketBroker, tNewPokemon, unNewPokemon, tamanioNewPokemon);
 
     int resultado;
@@ -180,7 +180,7 @@ void enviarAppearedPokemonABroker(char* nombrePokemon,char* posicionEnX,char* po
 
     int tamanioAppearedPokemon = 0;
 
-    enviarInt(socketBroker, 4);
+    enviarInt(socketBroker, 2);
     enviarPaquete(socketBroker, tAppearedPokemon, unAppearedPokemon, tamanioAppearedPokemon);
 
     int resultado;
@@ -225,7 +225,7 @@ void enviarCatchPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posic
 
     int tamanioCatchPokemon = 0;
 
-    enviarInt(socketBroker, 4);
+    enviarInt(socketBroker, 2);
     enviarPaquete(socketBroker, tCatchPokemon, unCatchPokemon, tamanioCatchPokemon);
 
     int resultado;
@@ -277,7 +277,7 @@ void enviarCaughtPokemonABroker(char* nombrePokemon,char* resultado){
 
     int tamanioCaughtPokemon = 0;
 
-    enviarInt(socketBroker, 4);
+    enviarInt(socketBroker, 2);
     enviarPaquete(socketBroker, tCaughtPokemon, unCaughtPokemon, tamanioCaughtPokemon);
 
     int resultadoOperacion;
@@ -319,7 +319,7 @@ void enviarGetPokemonABroker(char* nombrePokemon){
 
     int tamanioGetPokemon = 0;
 
-    enviarInt(socketBroker, 4);
+    enviarInt(socketBroker, 2);
     enviarPaquete(socketBroker, tGetPokemon, unGetPokemon, tamanioGetPokemon);
 
     int resultado;
@@ -364,7 +364,7 @@ void enviarAppearedPokemonATeam(char* nombrePokemon,char* posicionEnX,char* posi
 
     int tamanioAppearedPokemon = 0;
 
-    enviarInt(socketTeam, 4);
+    enviarInt(socketTeam, 2);
     enviarPaquete(socketTeam, tAppearedPokemon, unAppearedPokemon, tamanioAppearedPokemon);
 
     int resultado;
@@ -410,7 +410,7 @@ void enviarNewPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posic
 
     int tamanioNewPokemon = 0;
 
-    enviarInt(socketGameCard, 4);
+    enviarInt(socketGameCard, 2);
     enviarPaquete(socketGameCard, tNewPokemon, unNewPokemon, tamanioNewPokemon);
 
     int resultado;
@@ -455,7 +455,7 @@ void enviarCatchPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* pos
 
     int tamanioCatchPokemon = 0;
 
-    enviarInt(socketGameCard, 4);
+    enviarInt(socketGameCard, 2);
     enviarPaquete(socketGameCard, tCatchPokemon, unCatchPokemon, tamanioCatchPokemon);
 
     int resultado;
@@ -497,7 +497,7 @@ void enviarGetPokemonAGameCard(char* nombrePokemon){
 
     int tamanioGetPokemon = 0;
 
-    enviarInt(socketGameCard, 4);
+    enviarInt(socketGameCard, 2);
     enviarPaquete(socketGameCard, tGetPokemon, unGetPokemon, tamanioGetPokemon);
 
     int resultado;
@@ -541,7 +541,7 @@ void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion){
 
     int tamanioSuscriptor = 0;
 
-    enviarInt(socketBroker, 4);
+    enviarInt(socketBroker, 2);
     enviarPaquete(socketBroker, tSuscriptor, unSuscriptor, tamanioSuscriptor);
 
     int resultado;
