@@ -248,7 +248,7 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
                 }
 
                 //Posible mutex
-                resultadoOperacionPokemon = actualizarPokemon(unNewPokemon->nombrePokemon,unNewPokemon->posicionEnElMapaX,unNewPokemon->posicionEnElMapaY,unNewPokemon->cantidad);
+                resultadoOperacionPokemon = actualizarUbicacionPokemon(unNewPokemon->nombrePokemon,unNewPokemon->posicionEnElMapaX,unNewPokemon->posicionEnElMapaY,unNewPokemon->cantidadDePokemon);
                 //Fin posible mutex
 
             }else{
@@ -399,7 +399,7 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
                 t_caughtPokemon* unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
 
                 //Posible mutex
-                unCaughtPokemon->resultado = actualizarPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
+                unCaughtPokemon->resultado = actualizarUbicacionPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
                 //Fin posible mutex
 
                 unCaughtPokemon->identificador = unCatchPokemon->identificador;                 //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
@@ -496,7 +496,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
                 }
 
                 //Posible mutex
-                resultadoOperacionPokemon = actualizarPokemon(unNewPokemon->nombrePokemon,unNewPokemon->posicionEnElMapaX,unNewPokemon->posicionEnElMapaY,unNewPokemon->cantidad);
+                resultadoOperacionPokemon = actualizarUbicacionPokemon(unNewPokemon->nombrePokemon,unNewPokemon->posicionEnElMapaX,unNewPokemon->posicionEnElMapaY,unNewPokemon->cantidadDePokemon);
                 //Fin posible mutex
 
             }else{
@@ -647,7 +647,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
                 t_caughtPokemon* unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
 
                 //Posible mutex
-                unCaughtPokemon->resultado = actualizarPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
+                unCaughtPokemon->resultado = actualizarUbicacionPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
                 //Fin posible mutex
 
                 unCaughtPokemon->identificador = unCatchPokemon->identificador;                 //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
