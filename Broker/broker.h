@@ -163,6 +163,18 @@ void inicializarMemoria();
 void ingresarNuevoSuscriber(t_suscribeQueue* nuevaSuscripcion);
 
 void  enviarMensajeNewPokemon(tMensaje* unMensaje,tSuscriptor* unSuscriptor);
+void enviarMensajeAppearedPokemon(tMensaje *unMensaje, tSuscriptor *unSuscriptor);
+void enviarMensajeCatchPokemon(tMensaje *unMensaje, tSuscriptor *unSuscriptor);
+void enviarMensajeCaughtPokemon(tMensaje *unMensaje, tSuscriptor *unSuscriptor);
+void enviarMensajeGetPokemon(tMensaje *unMensaje, tSuscriptor *unSuscriptor);
+void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, tSuscriptor *unSuscriptor);
+
+void ejecutarColaNewPokemon();
+void ejecutarColaAppearedPokemon();
+void ejecutarColaCatchPokemon();
+void ejecutarColaCaughtPokemon();
+void ejecutarColaGetPokemon();
+void ejecutarColaLocalizedPokemon();
 
 //////////////////////////////////////////////////FUNCIONES LISTAS//////////////////////////////////////////////////////////////////////////////////////
 
