@@ -68,7 +68,9 @@ typedef struct brokerConfig_s{
 typedef struct {
 
 	uint32_t idMensaje;
+	uint32_t idMensajeCorrelacional;
 	uint32_t tipoMensaje;
+	uint32_t posicionEnMemoria;
 	t_list* suscriptoresEnviados; // uint32_t
 	t_list* acknowledgement; // uint32_t
 	
@@ -92,22 +94,31 @@ typedef struct {
 		
 } tSuscriptorEnCola;
 
+typedef struct {
 
-t_list* SUSCRIPTORES;
+	char* posicion;
+	uint32_t tamanio;
+	bool free;
+			
+} tParticion;
 
-t_list* NEW_POKEMON;
+t_list* METADATA_MEMORIA; //tparticion
 
-t_list* APPEARED_POKEMON;
+t_list* SUSCRIPTORES; // tSuscriptor
 
-t_list* CATCH_POKEMON;
+t_list* NEW_POKEMON; //tSuscriptorEnCola
 
-t_list* CAUGHT_POKEMON;
+t_list* APPEARED_POKEMON; //tSuscriptorEnCola
 
-t_list* GET_POKEMON;
+t_list* CATCH_POKEMON; //tSuscriptorEnCola
 
-t_list* LOCALIZED_POKEMON;
+t_list* CAUGHT_POKEMON; //tSuscriptorEnCola
 
-t_list* MENSAJES;
+t_list* GET_POKEMON; //tSuscriptorEnCola
+
+t_list* LOCALIZED_POKEMON; //tSuscriptorEnCola
+
+t_list* MENSAJES; //tMensaje
 
 
 
@@ -151,6 +162,8 @@ void inicializarMemoria();
 
 void ingresarNuevoSuscriber(t_suscribeQueue* nuevaSuscripcion);
 
+void  enviarMensajeNewPokemon(tMensaje* unMensaje,tSuscriptor* unSuscriptor);
+
 //////////////////////////////////////////////////FUNCIONES LISTAS//////////////////////////////////////////////////////////////////////////////////////
 
 bool existeNuevoSuscriber(void *tSuscriptor);
@@ -163,6 +176,21 @@ pthread_mutex_t mutex_PuertoEschuchaABuscar;
 bool existeIdSuscriberEnCola(void *suscriptorEnCola);
 uint32_t idSuscriberABuscar;
 pthread_mutex_t mutex_idSuscriberABuscar;
+
+
+bool existeIdSuscriptor(void *suscriptor);
+uint32_t idSuscriptorABuscar;
+pthread_mutex_t mutex_idSuscriptorABuscar;
+
+
+bool existeTipoMensaje(void *mensaje);
+uint32_t tipoMensajeABuscar;
+pthread_mutex_t mutex_tipoMensajeABuscar;
+
+
+bool existeAck(void *mensaje);
+uint32_t ackABuscar;
+pthread_mutex_t mutex_ackABuscar;
 
 
 

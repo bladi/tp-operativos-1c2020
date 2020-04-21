@@ -179,6 +179,16 @@ void inicializarMemoria()
 
     NUM_SUSCRIPTOR = 0;
 
+    METADATA_MEMORIA = list_create();
+
+    tParticion *unaParti = malloc(sizeof(tParticion));
+
+    unaParti->posicion = MEMORIA_PRINCIPAL;
+    unaParti->free = true;
+    unaParti->tamanio = CONFIG_BROKER->tamanioMemoria;
+
+    list_add(METADATA_MEMORIA, unaParti);
+
     NEW_POKEMON = list_create();
     APPEARED_POKEMON = list_create();
     CATCH_POKEMON = list_create();
@@ -285,22 +295,10 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
     case tNewPokemon:
     {
 
-        /*
-            
-            Casteo de estructura (ejemplo): 
-            
-            t_newPokemon* unNewPokemon = (t_newPokemon*) buffer;
+        t_newPokemon *unNewPokemon = (t_newPokemon *)buffer;
 
-            */
-
-        /*
-            
-            Logueo de lo recibido (ejemplo):
-
-            log_info(logger,"El nombre del Pokemón es: %s",unNewPokemon->nombre);
-            log_info(logger,"La posicion del Pokémon es: %d %d", unNewPokemon->posicion[0], unNewPokemon->posicion[1]);
-            
-            */
+        log_info(logger, "El nombre del Pokemón es: %s", unNewPokemon->nombrePokemon);
+        log_info(logger, "La posicion del Pokémon es: %d %d", unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY);
 
         /*
         
@@ -416,7 +414,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
     switch (*tipoMensaje)
     {
 
-        case tSuscribe:
+    case tSuscribe:
     {
 
         t_suscribeQueue *nuevaSuscripcion = (t_suscribeQueue *)buffer;
@@ -556,7 +554,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
     switch (*tipoMensaje)
     {
 
-        case tSuscribe:
+    case tSuscribe:
     {
 
         t_suscribeQueue *nuevaSuscripcion = (t_suscribeQueue *)buffer;
@@ -704,13 +702,14 @@ void ingresarNuevoSuscriber(t_suscribeQueue *nuevaSuscripcion)
                 unSuscriptorEnCola->startTime = (uint32_t)time(NULL);
                 unSuscriptorEnCola->timeToLive = nuevaSuscripcion->tiempoEnCola;
                 list_add(NEW_POKEMON, unSuscriptorEnCola);
+                enviarMensajesAnteriores(1, unSuscriptorEnCola); //??* agregar en los otros
             }
 
             break;
         }
 
         case 2:
-              {
+        {
             // LO BUSCO EN LISTA DE APPEARED
 
             log_info(logger, "Nuevo Suscriber a Appeared");
@@ -735,7 +734,7 @@ void ingresarNuevoSuscriber(t_suscribeQueue *nuevaSuscripcion)
             break;
         }
         case 3:
-               {
+        {
             // LO BUSCO EN LISTA DE CATCH
 
             log_info(logger, "Nuevo Suscriber a Catch");
@@ -761,7 +760,7 @@ void ingresarNuevoSuscriber(t_suscribeQueue *nuevaSuscripcion)
         }
 
         case 4:
-               {
+        {
             // LO BUSCO EN LISTA DE CAUGHT
 
             log_info(logger, "Nuevo Suscriber a Caught");
@@ -787,7 +786,7 @@ void ingresarNuevoSuscriber(t_suscribeQueue *nuevaSuscripcion)
         }
 
         case 5:
-               {
+        {
             // LO BUSCO EN LISTA DE GET
 
             log_info(logger, "Nuevo Suscriber a Get");
@@ -812,7 +811,7 @@ void ingresarNuevoSuscriber(t_suscribeQueue *nuevaSuscripcion)
             break;
         }
         case 6:
-                {
+        {
             // LO BUSCO EN LISTA DE LOCALIZED_POKEMON
 
             log_info(logger, "Nuevo Suscriber a Localized");
@@ -854,7 +853,8 @@ void ingresarNuevoSuscriber(t_suscribeQueue *nuevaSuscripcion)
         unSuscriptor->idSuscriptor = NUM_SUSCRIPTOR++;
         pthread_mutex_unlock(&mutex_NUM_SUSCRIPTOR);
 
-        unSuscriptor->ipServer = nuevaSuscripcion->ipServer;
+        unSuscriptor->ipServer = string_new();
+        string_append(&unSuscriptor->ipServer, nuevaSuscripcion->ipServer);
         unSuscriptor->PuertoEschucha = nuevaSuscripcion->PuertoEscucha;
 
         //ME HAGO CLIENTE DEL SUSCRIPTOR
@@ -882,6 +882,207 @@ typedef struct t_suscribeQueue{
 
 */
 
+void enviarMensajesAnteriores(uint32_t nroCola, tSuscriptorEnCola *unSuscriptorEnCola)
+{
+
+    uint32_t tiempoActual = (uint32_t)time(NULL);
+
+    if (unSuscriptorEnCola->timeToLive == 0 || unSuscriptorEnCola->timeToLive >= (tiempoActual - unSuscriptorEnCola->startTime))
+    {
+
+        t_list *mensajesAEnviar = list_create();
+
+        pthread_mutex_lock(&mutex_tipoMensajeABuscar);
+
+        tipoMensajeABuscar = nroCola;
+
+        mensajesAEnviar = list_filter(MENSAJES, &existeTipoMensaje);
+
+        pthread_mutex_unlock(&mutex_tipoMensajeABuscar);
+
+        //??* enviar todos los mensaje ANteriores
+
+        pthread_mutex_lock(&mutex_idSuscriptorABuscar);
+
+        idSuscriptorABuscar = unSuscriptorEnCola->idSuscriptor;
+        tSuscriptor *suscriptor = (tSuscriptor *)list_find(SUSCRIPTORES, &existeIdSuscriptor);
+
+        pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+
+        uint32_t tamLista = list_size(mensajesAEnviar);
+        tMensaje *unMensaje;
+
+        for (int i = 0; i < tamLista; i++)
+        {
+            unMensaje = list_get(mensajesAEnviar, i);
+
+            switch (nroCola)
+            {
+            case 1:
+            {
+                enviarMensajeNewPokemon(unMensaje, suscriptor); //??* falta completar con resto de mensajes
+            }
+            default:
+            {
+
+                log_error(logger, "ERROR EN enviarMensajesAnteriores() ");
+                abort();
+                break;
+            }
+            }
+        }
+    }
+}
+
+void enviarMensajeNewPokemon(tMensaje *unMensaje, tSuscriptor *unSuscriptor)
+{ 
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = 0;
+
+    t_newPokemon *unNewPokemon = malloc(sizeof(t_newPokemon));
+
+    unNewPokemon->identificador = unMensaje->idMensaje;
+    unNewPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
+
+    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
+    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
+    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
+    desplazamiento += tamanioNombrePokemon;
+
+    unNewPokemon->nombrePokemon = string_new();
+    string_append(&unNewPokemon->nombrePokemon, bufferNombrePokemon);
+
+    memcpy(&unNewPokemon->posicionEnElMapaX, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(&unNewPokemon->posicionEnElMapaY, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(&unNewPokemon->cantidadDePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    free(bufferNombrePokemon);
+
+    int tamanioNewPokemon = 0;
+
+    enviarInt(unSuscriptor->socketSuscriptor, 4);
+    enviarPaquete(unSuscriptor->socketSuscriptor, tNewPokemon, unNewPokemon, tamanioNewPokemon);
+
+    
+
+    bool anyAck = false;
+
+    pthread_mutex_lock(&mutex_ackABuscar);
+
+    ackABuscar = unSuscriptor->idSuscriptor;
+
+    anyAck = list_any_satisfy(unMensaje->suscriptoresEnviados, &existeAck); //ANTES DE AGREGAR EL MENSAJE a MENSAJES CREAR LISTAS ACK Y ENVIADOS
+
+    pthread_mutex_unlock(&mutex_ackABuscar);
+
+    if(!anyAck){
+        list_add(unMensaje->suscriptoresEnviados,unSuscriptor->idSuscriptor);
+    }
+
+    int resultado;
+    int tipoResultado = 0;
+
+    if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0)
+    {
+
+        if (tipoResultado == 1)
+        {
+
+            log_info(logger, "enviarMensajeNewPokemon() ok realizando ack");
+            list_add(unMensaje->acknowledgement,unSuscriptor->idSuscriptor);
+
+        }
+        else if (tipoResultado == 2)
+        {
+
+            log_info(logger, "ERROR enviarMensajeNewPokemon()");//??* este caso no contemplar nunca ocurre creo, preguntar por las dudas
+        }
+    }
+    else
+    {
+
+        
+
+        log_error(logger, "ERROR enviarMensajeNewPokemon() no recibi nada server apagado ");//??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
+
+
+
+        
+    }
+
+    free(unNewPokemon);
+}
+
+void ejecutarColaNewPokemon()
+{
+
+    t_list *mensajesAEnviar = list_create();
+    tMensaje *unMensaje;
+    int suscriptoresCant;
+    tSuscriptorEnCola *unSuscriptorCola;
+    bool anyAck = false;
+    tSuscriptor *unSuscriptor;
+
+    while (true)
+    {
+
+        if (!list_is_empty(NEW_POKEMON))
+        {
+
+            pthread_mutex_lock(&mutex_tipoMensajeABuscar);
+
+            tipoMensajeABuscar = 1; // 1== newPokemon
+
+            mensajesAEnviar = list_filter(MENSAJES, &existeTipoMensaje);
+
+            pthread_mutex_unlock(&mutex_tipoMensajeABuscar);
+
+            while (!list_is_empty(mensajesAEnviar))
+            {
+
+                unMensaje = list_remove(mensajesAEnviar, 0);
+                suscriptoresCant = list_size(NEW_POKEMON);
+
+                for (int i = 0; i < suscriptoresCant; i++)
+                {
+
+                    unSuscriptorCola = list_get(NEW_POKEMON, i);
+
+                    pthread_mutex_lock(&mutex_ackABuscar);
+
+                    ackABuscar = unSuscriptorCola->idSuscriptor;
+
+                    anyAck = list_any_satisfy(unMensaje->acknowledgement, &existeAck); //ANTES DE AGREGAR EL MENSAJE a MENSAJES CREAR LISTAS ACK Y ENVIADOS
+
+                    pthread_mutex_unlock(&mutex_ackABuscar);
+
+                    if (!anyAck)
+                    {
+
+                        pthread_mutex_lock(&mutex_idSuscriptorABuscar);
+
+                        idSuscriptorABuscar = unSuscriptorCola->idSuscriptor;
+                        unSuscriptor = (tSuscriptor *)list_find(SUSCRIPTORES, &existeIdSuscriptor);
+
+                        pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+
+                        enviarMensajeNewPokemon(unMensaje, unSuscriptor);
+                    }
+                }
+            }
+        }
+    }
+}
+
 ////////////////////////////////////////FUNCIONES LISTAS////////////////////////////////////////////////
 
 bool existeNuevoSuscriber(void *unSuscriber)
@@ -907,6 +1108,51 @@ bool existeIdSuscriberEnCola(void *suscriptorEnCola)
     bool existe = false;
 
     if ((p->idSuscriptor == idSuscriberABuscar))
+    {
+        existe = true;
+    }
+
+    return existe;
+}
+
+bool existeTipoMensaje(void *mensaje)
+{
+
+    tMensaje *p = (tMensaje *)mensaje;
+
+    bool existe = false;
+
+    if ((p->tipoMensaje == tipoMensajeABuscar))
+    {
+        existe = true;
+    }
+
+    return existe;
+}
+
+bool existeIdSuscriptor(void *suscriptor)
+{
+
+    tSuscriptor *p = (tSuscriptor *)suscriptor;
+
+    bool existe = false;
+
+    if ((p->idSuscriptor == idSuscriptorABuscar))
+    {
+        existe = true;
+    }
+
+    return existe;
+}
+
+bool existeAck(void *numero)
+{
+
+    uint32_t *p = (uint32_t *)numero;
+
+    bool existe = false;
+
+    if ((p == ackABuscar))
     {
         existe = true;
     }
