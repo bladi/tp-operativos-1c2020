@@ -44,6 +44,7 @@
 #define LOG_FILE "LOG_FILE"
 
 ///////////////// CONFIG METADATA
+
 #define BLOCKS "BLOCKS"
 #define BLOCK_SIZE "BLOCK_SIZE"
 #define MAGIC_NUMBER "MAGIC_NUMBER"
@@ -103,6 +104,7 @@ void finalizarGameCard();
 
 void administradorDeConexiones(void* infoAdmin);
 void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
+void manejarRespuestaABroker(int socketCliente,int idCliente);
 
 int existePokemon(char* pokemon);
 int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t cantidad);

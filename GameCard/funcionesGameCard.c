@@ -77,10 +77,7 @@ void inicializarGameCard(){
 
     crearBloquesFileSystem();
 
-    casoDePrueba();
-
     inicializarHilosYVariablesGameCard();
-
 
 }
 
@@ -100,6 +97,13 @@ void administradorDeConexiones(void* infoAdmin){
     while((resultado = recibirInt(unaInfoAdmin->socketCliente,&idCliente)) > 0){
 
         switch(idCliente){
+
+            case 1: {
+
+                manejarRespuestaABroker(unaInfoAdmin->socketCliente,idCliente);
+                break;
+
+            }
 
             case 2: {
 
@@ -218,106 +222,222 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
     switch(*tipoMensaje){
 
         case tNewPokemon: {
-
-            /*
-            
-            Casteo de estructura (ejemplo): 
             
             t_newPokemon* unNewPokemon = (t_newPokemon*) buffer;
+            int resultado;
+            int tipoResultado = 0;
 
-            */
+            log_info(logger,"Se recibió un 'NEW_POKEMON':");
+            log_info(logger,"El ID del mensaje es: %d",unNewPokemon->identificador);
+            log_info(logger,"El ID correlacional del mensaje es: %d.",unNewPokemon->identificadorCorrelacional);
+            log_info(logger,"La posición del Pokémon en el mapa es: [%d,%d].", unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY);
+            log_info(logger,"El nombre del Pokemón es: %s.",unNewPokemon->nombrePokemon);
+            log_info(logger,"La cantidad del pokemón es: %d.", unNewPokemon->cantidadDePokemon);
 
-            /*
+            int resultadoOperacionPokemon;
+
+            if(existePokemon(unNewPokemon->nombrePokemon)){
+
+                log_info(logger,"El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.");
+
+                while(false/*carpetaAbierta(unNewPokemon->nombrePokemon)*/){
+
+                    log_info(logger,"La carpeta del pokemón esta abierta en este momento, se intentará nuevamente en %d segundos.",unGameCardConfig->tiempoReintentoOperacion);
+                    sleep(unGameCardConfig->tiempoReintentoOperacion);
+
+                }
+
+                //Posible mutex
+                resultadoOperacionPokemon = 1;//modificarPokemon(unNewPokemon->nombrePokemon,unNewPokemon->posicionEnElMapaX,unNewPokemon->posicionEnElMapaY,unNewPokemon->cantidad);
+                //Fin posible mutex
+
+            }else{
+
+                log_info(logger,"El pokemon solicitado no existia en Game Card. Se procederá a crearlo.");
+                //Posible mutex
+                resultadoOperacionPokemon = crearPokemon(unNewPokemon->nombrePokemon,unNewPokemon->posicionEnElMapaX,unNewPokemon->posicionEnElMapaY,unNewPokemon->cantidadDePokemon);
+                //Fin posible mutex
+
+            }
             
-            Logueo de lo recibido (ejemplo):
+            enviarInt(socketCliente,resultadoOperacionPokemon);
+            log_info(logger,"Se envió el resultado de la operación al Game Boy.");
 
-            log_info(logger,"El nombre del Pokemón es: %s",unNewPokemon->nombre);
-            log_info(logger,"La posicion del Pokémon es: %d %d", unNewPokemon->posicion[0], unNewPokemon->posicion[1]);
-            
-            */
+            //PREGUNTAR SI HAY QUE MANDAR IGUAL EL APPEARED POKEMON CUANDO EL POKEMON YA EXISTÍA EN UNA POSICIÓN. POR AHORA LO HACEMOS IGUAL.
 
-           /*
-        
-           Funciones que se invocan luego de recibir un NEW_POKEMON (ejemplo):
+            t_appearedPokemon* unAppearedPokemon = malloc(sizeof(t_appearedPokemon));
 
-           int idNuevoMensaje = generarNuevoIdMensajeBroker();
+            unAppearedPokemon->identificador = unNewPokemon->identificador;                 //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+            unAppearedPokemon->identificadorCorrelacional = unNewPokemon->identificador;    //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+            unAppearedPokemon->nombrePokemon = unNewPokemon->nombrePokemon;
+            unAppearedPokemon->posicionEnElMapaX = unNewPokemon->posicionEnElMapaX;
+            unAppearedPokemon->posicionEnElMapaY = unNewPokemon->posicionEnElMapaY;
 
-           darAGameCardPosicionesDePokemon(unNewPokemon->nombrePokemon, unNewPokemon->cantidad,unNewPokemon->posicion, idNuevoMensaje);
-           recibirRespuestaGameCard(idNuevoMensaje);
-           avisarATeamPokemonAparecido(unGetPokemon->nombrePokemon,idNuevoMensaje);
+            *tamanioMensaje = 0;
 
-            */
+            enviarInt(socketBroker, 3);
+            enviarPaquete(socketBroker, tAppearedPokemon, unAppearedPokemon, tamanioMensaje);
+
+            if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
+
+                 if(tipoResultado == 1){
+
+                    log_info(logger,"El APPEARED_POKEMON se envió con éxito al Broker.");
+
+                  }else if(tipoResultado == 0){
+
+                    log_error(logger,"El APPEARED_POKEMON no se envió con éxito al Broker.");
+
+                  }
+
+            }else{
+
+                log_error(logger,"El APPEARED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
+
+            }
             
             break;
+
         }
 
         case tGetPokemon: {
-
-            /*
-            
-            Casteo de estructura (ejemplo): 
-            
+ 
             t_getPokemon* unGetPokemon = (t_getPokemon*) buffer;
+            int resultado;
+            int tipoResultado = 0;
 
-            */
+            log_info(logger,"Se recibió un 'GET_POKEMON':");
+            log_info(logger,"El ID del pókemon es %d.", unGetPokemon->identificador);
+            log_info(logger,"El ID correlacional del pókemon es %d.",unGetPokemon->identificadorCorrelacional);
+            log_info(logger,"El nombre del Pokemón es: %s.",unGetPokemon->nombrePokemon);
 
-            /*
+            int resultadoOperacion = existePokemon(unGetPokemon->nombrePokemon);
+
+            enviarInt(socketCliente, resultadoOperacion);
+            log_info(logger,"Se le envió al Game Boy el resultado de la operación.");
             
-            Logueo de lo recibido (ejemplo):
+            if(resultadoOperacion){
 
-            log_info(logger,"El nombre del Pokemón es: %s",unGetPokemon->nombrePokemon);
-            log_info(logger,"Las posiciones del Pokémon son: %d %d", unGetPokemon->posicion[0], unGetPokemon->posicion[1]);
-            log_info(logger,"La cantidad que hay de ese Pokémon es: %d",unGetPokemon->cantidad);
-            
-            */
+                log_info(logger,"El pokemón requerido existe en Game Card.");
 
-           /*
+                while(false/*carpetaAbierta(unGetPokemon->nombrePokemon)*/){
 
-           Funciones que se invocan luego de recibir un GET_POKEMON (ejemplo):
+                    log_info(logger,"La carpeta del pokemón esta abierta en este momento, se intentará nuevamente en %d segundos.",unGameCardConfig->tiempoReintentoOperacion);
+                    sleep(unGameCardConfig->tiempoReintentoOperacion);
 
-           int idNuevoMensaje = generarNuevoIdMensajeBroker();
+                }
 
-           pedirAGameCardPosicionesDePokemon(unGetPokemon->nombrePokemon, idNuevoMensaje);
-           recibirRespuestaGameCard(idNuevoMensaje);
-           avisarATeamPokemonLocalizado(unGetPokemon->nombrePokemon,idNuevoMensaje);
+                t_localizedPokemon* unLocalizedPokemon = malloc(sizeof(t_localizedPokemon));
 
-            */
+                //Posible mutex
+                //unLocalizedPokemon->listaDatosPokemon = dameDatosPokemon(unGetPokemon->nombrePokemon);
+                //Fin posible mutex
+
+                unLocalizedPokemon->identificador = unGetPokemon->identificador;                 //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+                unLocalizedPokemon->identificadorCorrelacional = unGetPokemon->identificador;    //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+                unLocalizedPokemon->nombrePokemon = unGetPokemon->nombrePokemon;
+
+                *tamanioMensaje = 0;
+
+                enviarInt(socketBroker, 3);
+                enviarPaquete(socketBroker, tLocalizedPokemon, unLocalizedPokemon, tamanioMensaje);
+
+                if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
+
+                    if(tipoResultado == 1){
+
+                        log_info(logger,"El LOCALIZED_POKEMON se envió con éxito al Broker.");
+
+                    }else if(tipoResultado == 0){
+
+                        log_error(logger,"El LOCALIZED_POKEMON no se envió con éxito al Broker.");
+
+                    }
+
+                }else{
+
+                    log_error(logger,"El LOCALIZED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
+
+                }
+
+
+            }else{
+
+                log_error(logger,"El pokemón requerido no existe en Game Card.");
+
+            }
 
             break;
 
         }
 
         case tCatchPokemon: {
-
-            /*
-            
-            Casteo de estructura (ejemplo): 
             
             t_catchPokemon* unCatchPokemon = (t_catchPokemon*) buffer;
+            int resultado;
+            int tipoResultado = 0;
 
-            */
+            log_info(logger,"Se recibió un 'CATCH_POKEMON':");
+            log_info(logger,"El ID del mensaje es: %d.",unCatchPokemon->identificador);
+            log_info(logger,"El ID correlacional del mensaje es: %d.",unCatchPokemon->identificadorCorrelacional);
+            log_info(logger,"El nombre del pokemón es: %s.",unCatchPokemon->nombrePokemon);
+            log_info(logger,"La posicion del pokémon en el mapa es: [%d,%d].", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
 
-            /*
-            
-            Logueo de lo recibido (ejemplo):
+            int resultadoOperacion = existePokemon(unCatchPokemon->nombrePokemon);
 
-            log_info(logger,"El nombre del Pokemón es: %s",unCatchPokemon->nombrePokemon);
-            log_info(logger,"La posicion del Pokémon era: %d %d", unCatchPokemon->posicion[0], unCatchPokemon->posicion[1]);
-            log_info(logger,"El nombre del entrenador es: %s",unCatchPokemon->nombreEntrenador);
-            
-            */
+            if(resultadoOperacion){
 
-            /*
+                log_info(logger,"El pokemón a atrapar existe en Game Card.");
 
-            Funciones que se invocan luego de recibir un CATCH_POKEMON (ejemplo):
+                while(false/*carpetaAbierta(unCatchPokemon->nombrePokemon)*/){
 
-            int idNuevoMensaje = generarNuevoIdMensajeBroker();
+                    log_info(logger,"La carpeta del pokemón esta abierta en este momento, se intentará nuevamente en %d segundos.",unGameCardConfig->tiempoReintentoOperacion);
+                    sleep(unGameCardConfig->tiempoReintentoOperacion);
 
-            darAGameCardPokemonAtrapado(unCatchPokemon->nombrePokemon,unCatchPokemon->posicion, idNuevoMensaje);
-            recibirRespuestaGameCard(idNuevoMensaje);
-            avisarATeamPokemonAtrapado(unGetPokemon->nombrePokemon,idNuevoMensaje);
+                }
 
-            */
+                t_caughtPokemon* unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
+
+                //Posible mutex
+                //unCaughtPokemon->resultado = atraparPokemon(unCaughtPokemon->nombrePokemon);
+                //Fin posible mutex
+
+                unCaughtPokemon->identificador = unCatchPokemon->identificador;                 //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+                unCaughtPokemon->identificadorCorrelacional = unCatchPokemon->identificador;    //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+                unCaughtPokemon->nombrePokemon = unCatchPokemon->nombrePokemon;
+
+                enviarInt(socketCliente, unCaughtPokemon->resultado);
+                log_info(logger,"Se le envió al Game Boy el resultado de la operación.");
+
+                *tamanioMensaje = 0;
+
+                enviarInt(socketBroker, 3);
+                enviarPaquete(socketBroker, tCaughtPokemon, unCaughtPokemon, tamanioMensaje);
+
+                if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
+
+                    if(tipoResultado == 1){
+
+                        log_info(logger,"El CAUGHT_POKEMON se envió con éxito al Broker.");
+
+                    }else if(tipoResultado == 0){
+
+                        log_error(logger,"El CAUGHT_POKEMON no se envió con éxito al Broker.");
+
+                    }
+
+                }else{
+
+                    log_error(logger,"El CAUGHT_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
+
+                }
+
+
+            }else{
+
+                log_error(logger,"El pokemón requerido no existe en Game Card.");
+
+            }
 
             break;
 
@@ -340,6 +460,254 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
     return;
 }
 
+void manejarRespuestaABroker(int socketCliente,int idCliente){
+
+     int* tipoMensaje = malloc(sizeof(int));
+	int* tamanioMensaje = malloc(sizeof(int));
+
+	void* buffer = recibirPaquete(socket, tipoMensaje, tamanioMensaje);
+
+    switch(*tipoMensaje){
+
+        case tNewPokemon: {
+            
+            t_newPokemon* unNewPokemon = (t_newPokemon*) buffer;
+            int resultado;
+            int tipoResultado = 0;
+
+            log_info(logger,"Se recibió un 'NEW_POKEMON':");
+            log_info(logger,"El ID del mensaje es: %d",unNewPokemon->identificador);
+            log_info(logger,"El ID correlacional del mensaje es: %d.",unNewPokemon->identificadorCorrelacional);
+            log_info(logger,"La posición del Pokémon en el mapa es: [%d,%d].", unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY);
+            log_info(logger,"El nombre del Pokemón es: %s.",unNewPokemon->nombrePokemon);
+            log_info(logger,"La cantidad del pokemón es: %d.", unNewPokemon->cantidadDePokemon);
+
+            int resultadoOperacionPokemon;
+
+            if(existePokemon(unNewPokemon->nombrePokemon)){
+
+                log_info(logger,"El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.");
+
+                while(false/*carpetaAbierta(unNewPokemon->nombrePokemon)*/){
+
+                    log_info(logger,"La carpeta del pokemón esta abierta en este momento, se intentará nuevamente en %d segundos.",unGameCardConfig->tiempoReintentoOperacion);
+                    sleep(unGameCardConfig->tiempoReintentoOperacion);
+
+                }
+
+                //Posible mutex
+                resultadoOperacionPokemon = 1;//modificarPokemon(unNewPokemon->nombrePokemon,unNewPokemon->posicionEnElMapaX,unNewPokemon->posicionEnElMapaY,unNewPokemon->cantidad);
+                //Fin posible mutex
+
+            }else{
+
+                log_info(logger,"El pokemon solicitado no existia en Game Card. Se procederá a crearlo.");
+                //Posible mutex
+                resultadoOperacionPokemon = crearPokemon(unNewPokemon->nombrePokemon,unNewPokemon->posicionEnElMapaX,unNewPokemon->posicionEnElMapaY,unNewPokemon->cantidadDePokemon);
+                //Fin posible mutex
+
+            }
+            
+            enviarInt(socketCliente,resultadoOperacionPokemon);
+            log_info(logger,"Se envió el resultado de la operación al Broker.");
+
+            //PREGUNTAR SI HAY QUE MANDAR IGUAL EL APPEARED POKEMON CUANDO EL POKEMON YA EXISTÍA EN UNA POSICIÓN. POR AHORA LO HACEMOS IGUAL.
+
+            t_appearedPokemon* unAppearedPokemon = malloc(sizeof(t_appearedPokemon));
+
+            unAppearedPokemon->identificador = unNewPokemon->identificador;                 //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+            unAppearedPokemon->identificadorCorrelacional = unNewPokemon->identificador;    //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+            unAppearedPokemon->nombrePokemon = unNewPokemon->nombrePokemon;
+            unAppearedPokemon->posicionEnElMapaX = unNewPokemon->posicionEnElMapaX;
+            unAppearedPokemon->posicionEnElMapaY = unNewPokemon->posicionEnElMapaY;
+
+            *tamanioMensaje = 0;
+
+            enviarInt(socketCliente, 3);
+            enviarPaquete(socketCliente, tAppearedPokemon, unAppearedPokemon, tamanioMensaje);
+
+            if((resultado = recibirInt(socketCliente,&tipoResultado)) > 0){
+
+                 if(tipoResultado == 1){
+
+                    log_info(logger,"El APPEARED_POKEMON se envió con éxito al Broker.");
+
+                  }else if(tipoResultado == 0){
+
+                    log_error(logger,"El APPEARED_POKEMON no se envió con éxito al Broker.");
+
+                  }
+
+            }else{
+
+                log_error(logger,"El APPEARED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
+
+            }
+            
+            break;
+
+        }
+
+        case tGetPokemon: {
+ 
+            t_getPokemon* unGetPokemon = (t_getPokemon*) buffer;
+            int resultado;
+            int tipoResultado = 0;
+
+            log_info(logger,"Se recibió un 'GET_POKEMON':");
+            log_info(logger,"El ID del pókemon es %d.", unGetPokemon->identificador);
+            log_info(logger,"El ID correlacional del pókemon es %d.",unGetPokemon->identificadorCorrelacional);
+            log_info(logger,"El nombre del Pokemón es: %s.",unGetPokemon->nombrePokemon);
+
+            int resultadoOperacion = existePokemon(unGetPokemon->nombrePokemon);
+
+            enviarInt(socketCliente, resultadoOperacion);
+            log_info(logger,"Se le envió al Broker el resultado de la operación.");
+            
+            if(resultadoOperacion){
+
+                log_info(logger,"El pokemón requerido existe en Game Card.");
+
+                while(false/*carpetaAbierta(unGetPokemon->nombrePokemon)*/){
+
+                    log_info(logger,"La carpeta del pokemón esta abierta en este momento, se intentará nuevamente en %d segundos.",unGameCardConfig->tiempoReintentoOperacion);
+                    sleep(unGameCardConfig->tiempoReintentoOperacion);
+
+                }
+
+                t_localizedPokemon* unLocalizedPokemon = malloc(sizeof(t_localizedPokemon));
+
+                //Posible mutex
+                //unLocalizedPokemon->listaDatosPokemon = dameDatosPokemon(unGetPokemon->nombrePokemon);
+                //Fin posible mutex
+
+                unLocalizedPokemon->identificador = unGetPokemon->identificador;                 //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+                unLocalizedPokemon->identificadorCorrelacional = unGetPokemon->identificador;    //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+                unLocalizedPokemon->nombrePokemon = unGetPokemon->nombrePokemon;
+
+                *tamanioMensaje = 0;
+
+                enviarInt(socketCliente, 3);
+                enviarPaquete(socketCliente, tLocalizedPokemon, unLocalizedPokemon, tamanioMensaje);
+
+                if((resultado = recibirInt(socketCliente,&tipoResultado)) > 0){
+
+                    if(tipoResultado == 1){
+
+                        log_info(logger,"El LOCALIZED_POKEMON se envió con éxito al Broker.");
+
+                    }else if(tipoResultado == 0){
+
+                        log_error(logger,"El LOCALIZED_POKEMON no se envió con éxito al Broker.");
+
+                    }
+
+                }else{
+
+                    log_error(logger,"El LOCALIZED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
+
+                }
+
+
+            }else{
+
+                log_error(logger,"El pokemón requerido no existe en Game Card.");
+
+            }
+
+            break;
+
+        }
+
+        case tCatchPokemon: {
+            
+            t_catchPokemon* unCatchPokemon = (t_catchPokemon*) buffer;
+            int resultado;
+            int tipoResultado = 0;
+
+            log_info(logger,"Se recibió un 'CATCH_POKEMON':");
+            log_info(logger,"El ID del mensaje es: %d.",unCatchPokemon->identificador);
+            log_info(logger,"El ID correlacional del mensaje es: %d.",unCatchPokemon->identificadorCorrelacional);
+            log_info(logger,"El nombre del pokemón es: %s.",unCatchPokemon->nombrePokemon);
+            log_info(logger,"La posicion del pokémon en el mapa es: [%d,%d].", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
+
+            int resultadoOperacion = existePokemon(unCatchPokemon->nombrePokemon);
+
+            if(resultadoOperacion){
+
+                log_info(logger,"El pokemón a atrapar existe en Game Card.");
+
+                while(false/*carpetaAbierta(unCatchPokemon->nombrePokemon)*/){
+
+                    log_info(logger,"La carpeta del pokemón esta abierta en este momento, se intentará nuevamente en %d segundos.",unGameCardConfig->tiempoReintentoOperacion);
+                    sleep(unGameCardConfig->tiempoReintentoOperacion);
+
+                }
+
+                t_caughtPokemon* unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
+
+                //Posible mutex
+                //unCaughtPokemon->resultado = atraparPokemon(unCaughtPokemon->nombrePokemon);
+                //Fin posible mutex
+
+                unCaughtPokemon->identificador = unCatchPokemon->identificador;                 //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+                unCaughtPokemon->identificadorCorrelacional = unCatchPokemon->identificador;    //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+                unCaughtPokemon->nombrePokemon = unCatchPokemon->nombrePokemon;
+
+                enviarInt(socketCliente, unCaughtPokemon->resultado);
+                log_info(logger,"Se le envió al Broker el resultado de la operación.");
+
+                *tamanioMensaje = 0;
+
+                enviarInt(socketCliente, 3);
+                enviarPaquete(socketCliente, tCaughtPokemon, unCaughtPokemon, tamanioMensaje);
+
+                if((resultado = recibirInt(socketCliente,&tipoResultado)) > 0){
+
+                    if(tipoResultado == 1){
+
+                        log_info(logger,"El CAUGHT_POKEMON se envió con éxito al Broker.");
+
+                    }else if(tipoResultado == 0){
+
+                        log_error(logger,"El CAUGHT_POKEMON no se envió con éxito al Broker.");
+
+                    }
+
+                }else{
+
+                    log_error(logger,"El CAUGHT_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
+
+                }
+
+
+            }else{
+
+                log_error(logger,"El pokemón requerido no existe en Game Card.");
+
+            }
+
+            break;
+
+        }
+
+        default:{
+
+            log_error(logger,"Recibimos algo del Game Boy que no sabemos manejar: %d",*tipoMensaje);
+            abort();
+            break;
+
+        }
+
+    }
+
+    free(tipoMensaje);
+    free(tamanioMensaje);
+	free(buffer);
+
+    return;
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////BITMAP///////////////////////////////////////////////////////////////
@@ -490,8 +858,6 @@ void mostrarEstadoBitmap(){
     //pthread_mutex_unlock(&mutexMemtable);
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////MANEJO BLOQUES/////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -520,7 +886,6 @@ void crearBloquesFileSystem(){
         }
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////MANEJO BLOQUES/////////////////////////////////////////////////////////
@@ -687,14 +1052,4 @@ int escribirEnBloques(char* ubicaciones, int arregloBloques[], int cantBloques){
     
     return 1;
 
-}
-
-
-void casoDePrueba(){
-    if(crearPokemon("AlvaritoGUEI", 15, 24, 51)){
-        printf("\nSo un cra");
-    } else{
-
-        printf("\nfalló, boludazo");
-    }
 }

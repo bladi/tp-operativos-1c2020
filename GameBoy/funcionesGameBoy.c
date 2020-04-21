@@ -422,7 +422,7 @@ void enviarNewPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posic
             
             log_info(logger,"Pókemon creado con éxito");
 
-          }else if(tipoResultado == 2){
+          }else if(tipoResultado == 0){
 
             log_info(logger,"No se pudo crear el pókemon");
 
