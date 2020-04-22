@@ -70,7 +70,7 @@ typedef struct {
 	uint32_t idMensaje;
 	uint32_t idMensajeCorrelacional;
 	uint32_t tipoMensaje;
-	uint32_t posicionEnMemoria;
+	char* posicionEnMemoria;
 	t_list* suscriptoresEnviados; // uint32_t
 	t_list* acknowledgement; // uint32_t
 	
@@ -140,7 +140,9 @@ pthread_t hiloActualizadorConfigBroker;
 
 char *MEMORIA_PRINCIPAL;
 uint32_t NUM_SUSCRIPTOR;
-pthread_mutex_t mutex_NUM_SUSCRIPTOR;
+pthread_mutex_t mutex_NUM_SUSCRIPTOR;//??*preguntar si va
+uint32_t ID_MENSAJE;
+pthread_mutex_t mutex_ID_MENSAJE;//??*preguntar si va
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -159,6 +161,9 @@ void manejarRespuestaAGameCard(int socketCliente,int idCliente);
 void manejarRespuestaATeam(int socketCliente,int idCliente);
 
 void inicializarMemoria();
+uint32_t generarNuevoIdMensajeBroker();
+uint32_t generarNuevoIdSuscriptor();
+char* getDireccionMemoriaLibre(uint32_t tamanio);
 
 void ingresarNuevoSuscriber(t_suscribeQueue* nuevaSuscripcion);
 
@@ -205,6 +210,6 @@ uint32_t ackABuscar;
 pthread_mutex_t mutex_ackABuscar;
 
 
-
+ // 1 NEW_POKEMON 2 APPEARED_POKEMON 3 CATCH_POKEMON 4 CAUGHT_POKEMON 5 GET_POKEMON 6 LOCALIZED_POKEMON
 
 #endif
