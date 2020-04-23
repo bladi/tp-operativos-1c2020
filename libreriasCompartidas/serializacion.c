@@ -146,7 +146,7 @@ void* recibirPaquete(int fdCliente, int* tipoMensaje, int* tamanioMensaje){
 	return buffer;
 
 } // Recordar castear
-
+ 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////SERIALIZACION/DESERIALIZACION DE PAQUETES/////////////////////////////////
@@ -344,8 +344,9 @@ void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
 
 	int desplazamiento = 0;
 	int tamanioColaDeMensajes = string_length(unSuscriptor->colaDeMensajes);
+	int tamanioIp = string_length(unSuscriptor->ip);
 
-	*tamanio = sizeof(int) + tamanioColaDeMensajes + 3 * sizeof(uint32_t);
+	*tamanio = 2 * sizeof(int) + tamanioColaDeMensajes + tamanioIp + 4 * sizeof(uint32_t);
 
 	void* suscriptorSerializado = malloc(*tamanio);
 
@@ -363,6 +364,15 @@ void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
 
 	memcpy(suscriptorSerializado + desplazamiento, &unSuscriptor->tiempoDeSuscripcion, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
+
+	memcpy(suscriptorSerializado + desplazamiento, &unSuscriptor->puerto, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(suscriptorSerializado + desplazamiento, &tamanioIp, sizeof(int));
+	desplazamiento += sizeof(int);
+
+	memcpy(suscriptorSerializado + desplazamiento, unSuscriptor->ip, tamanioIp);
+	desplazamiento += tamanioIp;
 
 	///////////////////////////////////////CASO DE PRUEBA SERIALIZACION SUSCRIPTOR///////////////////////////////////////////////
 	
@@ -395,6 +405,7 @@ t_suscriptor* deserializarSuscriptor(void* buffer){
 
 	int desplazamiento = 0;
 	int tamanioColaDeMensajes = 0;
+	int tamanioIp = 0;
 
 	memcpy(&unSuscriptor->identificador, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
@@ -418,6 +429,23 @@ t_suscriptor* deserializarSuscriptor(void* buffer){
 
 	memcpy(&unSuscriptor->tiempoDeSuscripcion, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
+
+	memcpy(&unSuscriptor->puerto, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(&tamanioIp, buffer + desplazamiento, sizeof(int));
+	desplazamiento += sizeof(int);
+
+	char* bufferIp = malloc(tamanioIp+1);
+	memcpy(bufferIp, buffer + desplazamiento, tamanioIp);
+	bufferIp[tamanioIp] = '\0';
+	desplazamiento += tamanioIp;
+
+	unSuscriptor->ip = string_new();
+
+	string_append(&unSuscriptor->ip, bufferIp);
+
+	free(bufferIp);
 
 	return unSuscriptor;
 
@@ -527,7 +555,7 @@ void* serializarCaughtPokemon(t_caughtPokemon* caughtPokemon, int* tamanio){
 	int desplazamiento = 0;
 	int tamanioNombrePokemon = string_length(unCaughtPokemon->nombrePokemon);
 
-	*tamanio = sizeof(int) + tamanioNombrePokemon + 2 * sizeof(uint32_t) + sizeof(bool);
+	*tamanio = sizeof(int) + tamanioNombrePokemon + 3 * sizeof(uint32_t);
 
 	void* caughtPokemonSerializado = malloc(*tamanio);
 
@@ -543,30 +571,31 @@ void* serializarCaughtPokemon(t_caughtPokemon* caughtPokemon, int* tamanio){
 	memcpy(caughtPokemonSerializado + desplazamiento, unCaughtPokemon->nombrePokemon, tamanioNombrePokemon);
 	desplazamiento += tamanioNombrePokemon;
 
-	memcpy(caughtPokemonSerializado + desplazamiento, &unCaughtPokemon->resultado, sizeof(bool));
-	desplazamiento += sizeof(bool);
+	memcpy(caughtPokemonSerializado + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
 	///////////////////////////////////////CASO DE PRUEBA SERIALIZACION CAUGHT_POKEMON///////////////////////////////////////////////
 	
-	printf("\n\nCAUGHT_POKEMON A SERIALIZAR: \n");
-	printf("\nIdentificador: %d", unCaughtPokemon->identificador);
-	printf("\nIdentificador Correlacional: %d", unCaughtPokemon->identificadorCorrelacional);
-	printf("\nNombre del Pokemón: %s", unCaughtPokemon->nombrePokemon);
-	printf("\nResultado de la atrapada: %s", unCaughtPokemon->resultado ? "true" : "false");
-	printf("\nTamaño del CAUGHT_POKEMON: %d", *tamanio);
+	// printf("\n\nCAUGHT_POKEMON A SERIALIZAR: \n");
+	// printf("\nIdentificador: %d", unCaughtPokemon->identificador);
+	// printf("\nIdentificador Correlacional: %d", unCaughtPokemon->identificadorCorrelacional);
+	// printf("\nNombre del Pokemón: %s", unCaughtPokemon->nombrePokemon);
+	// printf("\nResultado de la atrapada: %s", unCaughtPokemon->resultado ? "true" : "false");
+	// printf("\nTamaño del CAUGHT_POKEMON: %d", *tamanio);
 	
-	t_caughtPokemon* caughtPokemonDeserializado = deserializarCaughtPokemon(caughtPokemonSerializado);
+	// t_caughtPokemon* caughtPokemonDeserializado = deserializarCaughtPokemon(caughtPokemonSerializado);
 
-	printf("\n\nCAUGHT_POKEMON DESERIALIZADO: \n");
-	printf("\nIdentificador: %d", caughtPokemonDeserializado->identificador);
-	printf("\nIdentificador Correlacional: %d", caughtPokemonDeserializado->identificadorCorrelacional);
-	printf("\nNombre del Pokemón: %s", caughtPokemonDeserializado->nombrePokemon);
-	printf("\nResultado de la atrapada: %s", caughtPokemonDeserializado->resultado ? "true" : "false");
+	// printf("\n\nCAUGHT_POKEMON DESERIALIZADO: \n");
+	// printf("\nIdentificador: %d", caughtPokemonDeserializado->identificador);
+	// printf("\nIdentificador Correlacional: %d", caughtPokemonDeserializado->identificadorCorrelacional);
+	// printf("\nNombre del Pokemón: %s", caughtPokemonDeserializado->nombrePokemon);
+	// printf("\nResultado de la atrapada: %s", caughtPokemonDeserializado->resultado ? "true" : "false");
 
-	free(caughtPokemonDeserializado);
+	// free(caughtPokemonDeserializado);
 	
 	///////////////////////////////////////FIN CASO DE PRUEBA SERIALIZACION CAUGHT_POKEMON////////////////////////////////////////////
 
+	return caughtPokemonSerializado;
 
 }
 
@@ -591,8 +620,8 @@ t_caughtPokemon* deserializarCaughtPokemon(void* buffer){
 	bufferNombrePokemon[tamanioNombrePokemon] = '\0';
 	desplazamiento += tamanioNombrePokemon;
 
-	memcpy(&unCaughtPokemon->resultado, buffer + desplazamiento, sizeof(bool));
-	desplazamiento += sizeof(bool);
+	memcpy(&unCaughtPokemon->resultado, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
 	unCaughtPokemon->nombrePokemon = string_new();
 

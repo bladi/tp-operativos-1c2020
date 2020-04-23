@@ -26,17 +26,21 @@ void cargarConfiguracionGameBoy(){
         unGameBoyConfig->ipBroker = config_get_string_value(unGameBoyArchivoConfig, IP_BROKER);
         unGameBoyConfig->ipTeam = config_get_string_value(unGameBoyArchivoConfig, IP_TEAM);
         unGameBoyConfig->ipGameCard = config_get_string_value(unGameBoyArchivoConfig, IP_GAMECARD);
+        unGameBoyConfig->ipGameBoy = config_get_string_value(unGameBoyArchivoConfig, IP_GAMEBOY);
         unGameBoyConfig->puertoBroker = config_get_int_value(unGameBoyArchivoConfig, PUERTO_BROKER);
         unGameBoyConfig->puertoTeam = config_get_int_value(unGameBoyArchivoConfig, PUERTO_TEAM);
         unGameBoyConfig->puertoGameCard = config_get_int_value(unGameBoyArchivoConfig, PUERTO_GAMECARD);
+        unGameBoyConfig->puertoGameBoy = config_get_int_value(unGameBoyArchivoConfig, PUERTO_GAMEBOY);
         unGameBoyConfig->logFile = config_get_string_value(unGameBoyArchivoConfig, LOG_FILE);
 
         printf("\n\n· IP del Broker = %s\n", unGameBoyConfig->ipBroker);
         printf("· IP del Team = %s\n", unGameBoyConfig->ipTeam);
         printf("· IP del Game Card = %s\n", unGameBoyConfig->ipGameCard);
+        printf("· IP del Game Boy = %s\n", unGameBoyConfig->ipGameBoy);        
         printf("· Puerto del Broker = %d\n", unGameBoyConfig->puertoBroker);
         printf("· Puerto del Team = %d\n", unGameBoyConfig->puertoTeam);
         printf("· Puerto del Game Card = %d\n", unGameBoyConfig->puertoGameCard);
+        printf("· Puerto del Game Boy = %d\n", unGameBoyConfig->puertoGameBoy);
         printf("· Ruta del Archivo Log del Game Boy = %s\n\n", unGameBoyConfig->logFile);
 
         free(unGameBoyArchivoConfig);
@@ -63,7 +67,33 @@ void finalizarGameBoy(){
 }
 
 void administradorDeConexiones(void* infoAdmin){
+
+    infoAdminConexiones_t* unaInfoAdmin = (infoAdminConexiones_t*) infoAdmin;
+
+    int idCliente = 0;
+    int resultado;
+
+    while((resultado = recibirInt(unaInfoAdmin->socketCliente,&idCliente)) > 0){
+
+        manejarRespuestaABroker(unaInfoAdmin->socketCliente,idCliente);
+
+    }
+
+    if(resultado == 0){
+
+        log_warning(logger, "Se desconectó el broker, o bien, terminó el tiempo de suscripcióna la cola de mensajes.");
+        fflush(stdout);
+        close(unaInfoAdmin->socketCliente);
+        
+    }else if(resultado < 0){
+        
+        log_warning(logger, "Se desconectó el broker, o bien, terminó el tiempo de suscripcióna la cola de mensajes.");
+        close(unaInfoAdmin->socketCliente);
+       
+    }
+
     return;
+
 }
 
 void actualizarConfiguracionGameBoy(){
@@ -538,6 +568,23 @@ void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion){
 	string_append(&unSuscriptor->colaDeMensajes,colaDeMensajes);
 
     unSuscriptor->tiempoDeSuscripcion = atoi(tiempoDeSuscripcion);
+    unSuscriptor->puerto = unGameBoyConfig->puertoGameBoy;
+
+    unSuscriptor->ip = string_new();
+    string_append(&unSuscriptor->ip,"0");
+    //string_append(&unSuscriptor->ip,unGameBoyConfig->ipGameBoy); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
+
+    infoServidor_t* unaInfoServidorGameBoy;
+
+    unaInfoServidorGameBoy = malloc(sizeof(infoServidor_t));
+
+    unaInfoServidorGameBoy->puerto = unGameBoyConfig->puertoGameBoy;
+    unaInfoServidorGameBoy->ip = string_new();
+    //string_append(&unaInfoServidorGameBoy->ip,unGameBoyConfig->ipGameBoy); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
+    string_append(&unaInfoServidorGameBoy->ip,"0");
+
+    pthread_create(&hiloServidorGameBoy,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorGameBoy);
+    pthread_join(hiloServidorGameBoy, NULL);
 
     int tamanioSuscriptor = 0;
 
@@ -566,5 +613,155 @@ void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion){
     }
 
     free(unSuscriptor);
+
+}
+
+void manejarRespuestaABroker(int socketCliente,int idCliente){
+
+    int* tipoMensaje = malloc(sizeof(int));
+	int* tamanioMensaje = malloc(sizeof(int));
+
+    int* cantidadListaDatosPokemon = malloc(sizeof(int));
+	int* contador = malloc(sizeof(int));
+    datosPokemon* nodoDatosPokemon;
+
+	void* buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
+
+    switch(*tipoMensaje){
+
+        case tNewPokemon: {
+            
+            t_newPokemon* unNewPokemon = (t_newPokemon*) buffer;
+
+            log_info(logger,"Se recibió un 'NEW_POKEMON': \n");
+            log_info(logger,"El ID del mensaje es: %d",unNewPokemon->identificador);
+            log_info(logger,"El ID correlacional del mensaje es: %d.",unNewPokemon->identificadorCorrelacional);
+            log_info(logger,"La posición del Pokémon en el mapa es: [%d,%d].", unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY);
+            log_info(logger,"El nombre del Pokemón es: %s.",unNewPokemon->nombrePokemon);
+            log_info(logger,"La cantidad del pokemón es: %d.", unNewPokemon->cantidadDePokemon);
+
+            log_info(logger,"Se le avisará al Broker que se recibió correctamente el NEW_POKEMON");
+            enviarInt(socketCliente, 1);
+            
+            break;
+
+        }
+
+        case tGetPokemon: {
+ 
+            t_getPokemon* unGetPokemon = (t_getPokemon*) buffer;
+
+            log_info(logger,"Se recibió un 'GET_POKEMON' del Broker: \n");
+            log_info(logger,"El ID del pókemon es %d.", unGetPokemon->identificador);
+            log_info(logger,"El ID correlacional del pókemon es %d.",unGetPokemon->identificadorCorrelacional);
+            log_info(logger,"El nombre del Pokemón es: %s.",unGetPokemon->nombrePokemon);
+
+            log_info(logger,"Se le avisará al Broker que se recibió correctamente el GET_POKEMON");
+            enviarInt(socketCliente, 1);
+
+            break;
+
+        }
+
+        case tCatchPokemon: {
+            
+            t_catchPokemon* unCatchPokemon = (t_catchPokemon*) buffer;
+
+            log_info(logger,"Se recibió un 'CATCH_POKEMON' del Broker: \n");
+            log_info(logger,"El ID del mensaje es: %d.",unCatchPokemon->identificador);
+            log_info(logger,"El ID correlacional del mensaje es: %d.",unCatchPokemon->identificadorCorrelacional);
+            log_info(logger,"El nombre del pokemón es: %s.",unCatchPokemon->nombrePokemon);
+            log_info(logger,"La posicion del pokémon en el mapa es: [%d,%d].", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
+
+            log_info(logger,"Se le avisará al Broker que se recibió correctamente el CATCH_POKEMON");
+            enviarInt(socketCliente, 1);
+
+            break;
+
+        }
+
+        case tAppearedPokemon: {
+            
+            t_appearedPokemon* unAppearedPokemon = (t_appearedPokemon*) buffer;
+
+            log_info(logger,"Se recibió un 'APPEARED_POKEMON' del Broker: \n");
+            log_info(logger,"El ID del mensaje es: %d.",unAppearedPokemon->identificador);
+            log_info(logger,"El ID correlacional del mensaje es: %d.",unAppearedPokemon->identificadorCorrelacional);
+            log_info(logger,"El nombre del pokemón es: %s.",unAppearedPokemon->nombrePokemon);
+            log_info(logger,"La posicion del pokémon en el mapa es: [%d,%d].", unAppearedPokemon->posicionEnElMapaX, unAppearedPokemon->posicionEnElMapaY);
+
+            log_info(logger,"Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON");
+            enviarInt(socketCliente, 1);
+
+            break;
+
+        }
+
+        case tCaughtPokemon: {
+            
+            t_caughtPokemon* unCaughtPokemon = (t_caughtPokemon*) buffer;
+
+            log_info(logger,"Se recibió un 'CAUGHT_POKEMON' del Broker: \n");
+            log_info(logger,"El ID del mensaje es: %d.",unCaughtPokemon->identificador);
+            log_info(logger,"El ID correlacional del mensaje es: %d.",unCaughtPokemon->identificadorCorrelacional);
+            log_info(logger,"El nombre del pokemón es: %s.",unCaughtPokemon->nombrePokemon);
+
+
+            log_info(logger,"Se le avisará al Broker que se recibió correctamente el CAUGHT_POKEMON");
+            enviarInt(socketCliente, 1);
+
+            break;
+
+        }
+
+        case tLocalizedPokemon: {
+            
+            t_localizedPokemon* unLocalizedPokemon = (t_localizedPokemon*) buffer;
+
+            log_info(logger,"Se recibió un 'LOCALIZED_POKEMON' del Broker: \n");
+            log_info(logger,"El ID del mensaje es: %d.",unLocalizedPokemon->identificador);
+            log_info(logger,"El ID correlacional del mensaje es: %d.",unLocalizedPokemon->identificadorCorrelacional);
+            log_info(logger,"El nombre del pokemón es: %s.",unLocalizedPokemon->nombrePokemon);
+
+
+            *cantidadListaDatosPokemon = list_size(unLocalizedPokemon->listaDatosPokemon);
+	        *contador = 0;
+
+            while(*contador < *cantidadListaDatosPokemon){
+
+		        nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon,contador);
+		
+		        printf("\nCantidad de pokemón en %d° ubicación: %d", *contador, nodoDatosPokemon->cantidad);
+		        printf("\nUbicacion en 'x': %d", nodoDatosPokemon->posicionEnElMapaX);
+		        printf("\nUbicacion en 'y': %d\n", nodoDatosPokemon->posicionEnElMapaY);
+
+		        *contador+=1;
+
+	        }
+
+            log_info(logger,"Se le avisará al Broker que se recibió correctamente el LOCALIZED_POKEMON");
+            enviarInt(socketCliente, 1);
+
+            break;
+
+        }
+
+        default:{
+
+            log_error(logger,"Recibimos algo del Broker que no sabemos manejar: %d",*tipoMensaje);
+            abort();
+            break;
+
+        }
+
+    }
+
+    free(cantidadListaDatosPokemon);
+	free(contador);
+    free(tipoMensaje);
+    free(tamanioMensaje);
+	free(buffer);
+
+    return;
 
 }

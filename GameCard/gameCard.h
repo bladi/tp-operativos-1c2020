@@ -100,6 +100,7 @@ int socketBroker;
 
 pthread_t hiloServidorGameCard;
 pthread_t hiloActualizadorConfigGameCard;
+pthread_t hiloActualizadorSocketBrocker;
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -115,6 +116,8 @@ void finalizarGameCard();
 void administradorDeConexiones(void* infoAdmin);
 void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
 void manejarRespuestaABroker(int socketCliente,int idCliente);
+
+void actualizarConexionConBroker();
 
 int existePokemon(char* pokemon);
 int crearPokemon(char* pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t cantidad);

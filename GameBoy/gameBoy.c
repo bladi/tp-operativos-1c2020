@@ -2,7 +2,7 @@
 
 uint32_t main(int argc, char **argv) {
 
-	printf("\n\n Cantidad de argumentos: %d", argc);
+	printf("\nCantidad de argumentos: %d", argc);
 
 	for(int i=0;i<argc;i++){
 
@@ -13,6 +13,17 @@ uint32_t main(int argc, char **argv) {
 	if(argc > MAX_CANTIDAD_ARGUMENTOS || MIN_CANTIDAD_ARGUMENTOS > argc){
 
 		printf("\n\n Se ingresaron %d argumentos. El máximo son %d y el mínimo son %d. Intente nuevamente.\n",argc, MAX_CANTIDAD_ARGUMENTOS, MIN_CANTIDAD_ARGUMENTOS);
+		printf("\n Posibles solicitudes: \n");
+		printf("\n./gameboy BROKER NEW_POKEMON [POKEMON] [POSX] [POSY] [CANTIDAD]");
+		printf("\n./gameboy BROKER APPEARED_POKEMON [POKEMON] [POSX] [POSY] [ID_MENSAJE]");
+		printf("\n./gameboy BROKER CATCH_POKEMON [POKEMON] [POSX] [POSY]");
+		printf("\n./gameboy BROKER CAUGHT_POKEMON [ID_MENSAJE] [OK/FAIL]");
+		printf("\n./gameboy BROKER GET_POKEMON [POKEMON]");
+		printf("\n./gameboy TEAM APPEARED_POKEMON [POKEMON] [POSX] [POSY]");
+		printf("\n./gameboy GAMECARD CATCH_POKEMON [POKEMON] [POSX] [POSY]");
+		printf("\n./gameboy GAMECARD GET_POKEMON [POKEMON]");
+		printf("\n./gameboy SUSCRIPTOR [COLA_DE_MENSAJES] [TIEMPO]\n\n");
+
 		return 0;
 
 	}else{

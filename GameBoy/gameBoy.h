@@ -36,9 +36,11 @@
 #define IP_BROKER "IP_BROKER"
 #define IP_TEAM "IP_TEAM"
 #define IP_GAMECARD "IP_GAMECARD"
+#define IP_GAMEBOY "IP_GAMECARD"
 #define PUERTO_BROKER "PUERTO_BROKER"
 #define PUERTO_TEAM "PUERTO_TEAM"
 #define PUERTO_GAMECARD "PUERTO_GAMECARD"
+#define PUERTO_GAMEBOY "PUERTO_GAMECARD"
 #define LOG_FILE "LOG_FILE"
 
 //////////////////////////////////////////////////////////////////////VARIABLES ESTATICAS/////////////////////////////////////////////////////////////////////////////////
@@ -65,9 +67,11 @@ typedef struct gameBoyConfig_s{
 	char* ipBroker;
 	char* ipTeam;
 	char* ipGameCard;
+	char* ipGameBoy;
     uint32_t puertoBroker;
     uint32_t puertoTeam;
     uint32_t puertoGameCard;
+	uint32_t puertoGameBoy;
 	char* logFile;
 
 } gameBoyConfig_t;
@@ -88,6 +92,7 @@ int socketGameCard;
 int socketTeam;
 
 pthread_t hiloActualizadorConfigGameBoy;
+pthread_t hiloServidorGameBoy;
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,6 +106,7 @@ void inicializarHilosYVariablesGameBoy();
 void finalizarGameBoy();
 
 void administradorDeConexiones(void* infoAdmin);
+void manejarRespuestaABroker(int socketCliente,int idCliente);
 
 void enviarNewPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* cantidad);
 void enviarAppearedPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* id);
