@@ -97,7 +97,7 @@ typedef struct t_suscriptor{
 
 	uint32_t identificador;
 	uint32_t identificadorCorrelacional;
-	char* colaDeMensajes;
+	uint32_t colaDeMensajes;
 	uint32_t tiempoDeSuscripcion;
 	uint32_t puerto;
 	char* ip;

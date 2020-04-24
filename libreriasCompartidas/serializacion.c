@@ -346,7 +346,7 @@ void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
 	int tamanioColaDeMensajes = string_length(unSuscriptor->colaDeMensajes);
 	int tamanioIp = string_length(unSuscriptor->ip);
 
-	*tamanio = 2 * sizeof(int) + tamanioColaDeMensajes + tamanioIp + 4 * sizeof(uint32_t);
+	*tamanio = sizeof(int) + tamanioIp + 5 * sizeof(uint32_t);
 
 	void* suscriptorSerializado = malloc(*tamanio);
 
@@ -356,11 +356,8 @@ void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
 	memcpy(suscriptorSerializado + desplazamiento, &unSuscriptor->identificadorCorrelacional, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(suscriptorSerializado + desplazamiento, &tamanioColaDeMensajes, sizeof(int));
-	desplazamiento += sizeof(int);
-
-	memcpy(suscriptorSerializado + desplazamiento, unSuscriptor->colaDeMensajes, tamanioColaDeMensajes);
-	desplazamiento += tamanioColaDeMensajes;
+	memcpy(suscriptorSerializado + desplazamiento, unSuscriptor->colaDeMensajes, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
 	memcpy(suscriptorSerializado + desplazamiento, &unSuscriptor->tiempoDeSuscripcion, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
@@ -379,7 +376,7 @@ void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
 	// printf("\n\nSUSCRIPTOR A SERIALIZAR: \n");
 	// printf("\nIdentificador: %d", unSuscriptor->identificador);
 	// printf("\nIdentificador Correlacional: %d", unSuscriptor->identificadorCorrelacional);
-	// printf("\nNombre de cola de mensajes a suscribirse: %s", unSuscriptor->colaDeMensajes);
+	// printf("\nCola de mensajes a suscribirse: %d", unSuscriptor->colaDeMensajes);
 	// printf("\nTiempo de suscripción: %d", unSuscriptor->tiempoDeSuscripcion);	
 	// printf("\nTamaño del SUSCRIPTOR: %d", *tamanio);
 	
@@ -388,7 +385,7 @@ void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
 	// printf("\n\nSUSCRIPTOR DESERIALIZADO: \n");
 	// printf("\nIdentificador: %d", suscriptorDeserializado->identificador);
 	// printf("\nIdentificador Correlacional: %d", suscriptorDeserializado->identificadorCorrelacional);
-	// printf("\nNombre de cola de mensajes a suscribirse: %s", suscriptorDeserializado->colaDeMensajes);
+	// printf("\nCola de mensajes a suscribirse: %d", suscriptorDeserializado->colaDeMensajes);
 	// printf("\nTiempo de suscripción: %d", suscriptorDeserializado->tiempoDeSuscripcion);	
 
 	// free(suscriptorDeserializado);
@@ -404,7 +401,6 @@ t_suscriptor* deserializarSuscriptor(void* buffer){
 	t_suscriptor* unSuscriptor = malloc(sizeof(t_suscriptor));
 
 	int desplazamiento = 0;
-	int tamanioColaDeMensajes = 0;
 	int tamanioIp = 0;
 
 	memcpy(&unSuscriptor->identificador, buffer + desplazamiento, sizeof(uint32_t));
@@ -413,19 +409,8 @@ t_suscriptor* deserializarSuscriptor(void* buffer){
 	memcpy(&unSuscriptor->identificadorCorrelacional, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(&tamanioColaDeMensajes, buffer + desplazamiento, sizeof(int));
-	desplazamiento += sizeof(int);
-
-	char* bufferColaDeMensajes = malloc(tamanioColaDeMensajes+1);
-	memcpy(bufferColaDeMensajes, buffer + desplazamiento, tamanioColaDeMensajes);
-	bufferColaDeMensajes[tamanioColaDeMensajes] = '\0';
-	desplazamiento += tamanioColaDeMensajes;
-
-	unSuscriptor->colaDeMensajes = string_new();
-
-	string_append(&unSuscriptor->colaDeMensajes, bufferColaDeMensajes);
-
-	free(bufferColaDeMensajes);
+	memcpy(&unSuscriptor->colaDeMensajes, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
 	memcpy(&unSuscriptor->tiempoDeSuscripcion, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
