@@ -93,7 +93,7 @@ typedef struct {
 			
 } tParticion;
 
-t_list* METADATA_MEMORIA_LISTA; //tparticion
+t_list* METADATA_MEMORIA; //tparticion
 
 t_list* SUSCRIPTORES_LISTA; // tSuscriptor
 
@@ -121,10 +121,16 @@ t_log* logger;
 unsigned char idConfigBroker;
 unsigned char nuevoIdConfigBroker;
 
-uint32_t cantidadDeActualizacionesConfigBroker;
+uint32_t cantidadDeActualizacionesConfigBroker;  // 1 NEW_POKEMON_LISTA 2 APPEARED_POKEMON_LISTA 3 CATCH_POKEMON_LISTA 4 CAUGHT_POKEMON_LISTA 5 GET_POKEMON_LISTA 6 LOCALIZED_POKEMON_LISTA
 
 pthread_t hiloServidorBroker;
 pthread_t hiloActualizadorConfigBroker;
+pthread_t hiloNew;
+pthread_t hiloAppeared;
+pthread_t hiloCatch;
+pthread_t hiloCaught;
+pthread_t hiloGet;
+pthread_t hiloLocalized;
 
 
 char *MEMORIA_PRINCIPAL;
