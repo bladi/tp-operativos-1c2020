@@ -1,0 +1,135 @@
+[INFO] 18:12:04:521 GAME CARD/(8903:8903): LOG INICIALIZADO CON EXITO
+[INFO] 18:12:04:521 GAME CARD/(8903:8903): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 18:12:04:521 GAME CARD/(8903:8903): Cantidad de bloques del FS: 50
+[ERROR] 18:12:04:530 GAME CARD/(8903:8903): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:12:04:530 GAME CARD/(8903:8903): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:12:14:531 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:12:14:531 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:12:14:531 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:12:14:531 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:12:24:532 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:12:24:532 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:12:24:536 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:12:24:536 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[INFO] 18:12:31:758 GAME CARD/(8903:8906): Cliente conectado!
+[INFO] 18:12:31:758 GAME CARD/(8903:8906): Creando hilo de administracion de conexion con cliente ....
+[INFO] 18:12:31:759 GAME CARD/(8903:8906): Hilo creado correctamente
+[INFO] 18:12:31:760 GAME CARD/(8903:8911): Tipo de mensaje recibido: 1
+[INFO] 18:12:31:760 GAME CARD/(8903:8911): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 18:12:31:760 GAME CARD/(8903:8911): El ID del mensaje es: 5
+[INFO] 18:12:31:760 GAME CARD/(8903:8911): El ID correlacional del mensaje es: 5.
+[INFO] 18:12:31:760 GAME CARD/(8903:8911): La posición del Pokémon en el mapa es: [10,10].
+[INFO] 18:12:31:760 GAME CARD/(8903:8911): El nombre del Pokemón es: Pikachu.
+[INFO] 18:12:31:761 GAME CARD/(8903:8911): La cantidad del pokemón es: 10.
+[INFO] 18:12:31:761 GAME CARD/(8903:8911): El pokemon solicitado no existia en Game Card. Se procederá a crearlo.
+[ERROR] 18:12:31:761 GAME CARD/(8903:8911): NO SE PUDO CREAR EL ARCHIVO METADATA PARA EL POKEMON Pikachu
+[INFO] 18:12:31:761 GAME CARD/(8903:8911): Se envió el resultado de la operación al Game Boy.
+[INFO] 18:12:31:765 GAME CARD/(8903:8911): - SE HAN ENVIADO -1 BYTES CON EXITO
+[ERROR] 18:12:31:765 GAME CARD/(8903:8911): El APPEARED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.
+[WARNING] 18:12:31:767 GAME CARD/(8903:8911): CLIENTE DESCONECTADO
+[ERROR] 18:12:34:536 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:12:34:536 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:12:34:537 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:12:34:537 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:12:44:537 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:12:44:537 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:12:44:537 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:12:44:537 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:12:54:538 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:12:54:538 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:12:54:539 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:12:54:539 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:13:04:539 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:13:04:539 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:13:04:540 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:13:04:540 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:13:14:540 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:13:14:540 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:13:14:540 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:13:14:540 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:13:24:541 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:13:24:541 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:13:24:541 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:13:24:541 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:13:34:541 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:13:34:542 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:13:34:542 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:13:34:542 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:13:44:542 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:13:44:543 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:13:44:543 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:13:44:543 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:13:54:543 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:13:54:544 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:13:54:544 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:13:54:544 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:14:04:544 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:14:04:544 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:14:04:544 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:14:04:544 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:14:14:545 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:14:14:545 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:14:14:545 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:14:14:545 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:14:24:546 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:14:24:546 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:14:24:547 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:14:24:547 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:14:34:548 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:14:34:548 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:14:34:548 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:14:34:548 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:14:44:548 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:14:44:549 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:14:44:550 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:14:44:550 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:14:54:550 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:14:54:550 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:14:54:551 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:14:54:551 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:15:04:551 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:15:04:551 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:15:04:551 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:15:04:551 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:15:14:552 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:15:14:556 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:15:14:556 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:15:14:556 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:15:24:556 GAME CARD/(8903:8904): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:15:24:556 GAME CARD/(8903:8904): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:15:24:556 GAME CARD/(8903:8904): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:15:24:556 GAME CARD/(8903:8904): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[INFO] 18:15:32:568 GAME CARD/(9053:9053): LOG INICIALIZADO CON EXITO
+[INFO] 18:15:32:568 GAME CARD/(9053:9053): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[ERROR] 18:15:32:569 GAME CARD/(9053:9053): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:15:32:569 GAME CARD/(9053:9053): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[INFO] 18:15:40:272 GAME CARD/(9053:9056): Cliente conectado!
+[INFO] 18:15:40:272 GAME CARD/(9053:9056): Creando hilo de administracion de conexion con cliente ....
+[INFO] 18:15:40:272 GAME CARD/(9053:9056): Hilo creado correctamente
+[INFO] 18:15:40:273 GAME CARD/(9053:9059): Tipo de mensaje recibido: 1
+[INFO] 18:15:40:273 GAME CARD/(9053:9059): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 18:15:40:274 GAME CARD/(9053:9059): El ID del mensaje es: 5
+[INFO] 18:15:40:274 GAME CARD/(9053:9059): El ID correlacional del mensaje es: 5.
+[INFO] 18:15:40:274 GAME CARD/(9053:9059): La posición del Pokémon en el mapa es: [10,10].
+[INFO] 18:15:40:274 GAME CARD/(9053:9059): El nombre del Pokemón es: Pikachu.
+[INFO] 18:15:40:274 GAME CARD/(9053:9059): La cantidad del pokemón es: 10.
+[INFO] 18:15:40:275 GAME CARD/(9053:9059): El pokemon solicitado no existia en Game Card. Se procederá a crearlo.
+[INFO] 18:15:40:275 GAME CARD/(9053:9059): ARCHIVO METADATA DEL POKEMON Pikachu CREADO CORRECTAMENTE
+[INFO] 18:15:40:276 GAME CARD/(9053:9059): Se envió el resultado de la operación al Game Boy.
+[INFO] 18:15:40:277 GAME CARD/(9053:9059): - SE HAN ENVIADO -1 BYTES CON EXITO
+[ERROR] 18:15:40:277 GAME CARD/(9053:9059): El APPEARED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.
+[WARNING] 18:15:40:287 GAME CARD/(9053:9059): CLIENTE DESCONECTADO
+[ERROR] 18:15:42:569 GAME CARD/(9053:9054): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:15:42:569 GAME CARD/(9053:9054): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:15:42:569 GAME CARD/(9053:9054): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:15:42:569 GAME CARD/(9053:9054): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:15:52:570 GAME CARD/(9053:9054): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:15:52:570 GAME CARD/(9053:9054): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:15:52:570 GAME CARD/(9053:9054): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:15:52:570 GAME CARD/(9053:9054): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 18:16:02:570 GAME CARD/(9053:9054): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 18:16:02:570 GAME CARD/(9053:9054): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 18:16:02:570 GAME CARD/(9053:9054): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 18:16:02:570 GAME CARD/(9053:9054): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.

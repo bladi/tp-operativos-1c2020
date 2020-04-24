@@ -20,7 +20,8 @@ uint32_t main(int argc, char **argv) {
 		printf("\n./gameboy BROKER CAUGHT_POKEMON [ID_MENSAJE] [OK/FAIL]");
 		printf("\n./gameboy BROKER GET_POKEMON [POKEMON]");
 		printf("\n./gameboy TEAM APPEARED_POKEMON [POKEMON] [POSX] [POSY]");
-		printf("\n./gameboy GAMECARD CATCH_POKEMON [POKEMON] [POSX] [POSY]");
+		printf("\n./gameboy GAMECARD NEW_POKEMON [POKEMON] [POSX] [POSY] [CANTIDAD] [ID_MENSAJE]");
+		printf("\n./gameboy GAMECARD CATCH_POKEMON [POKEMON] [POSX] [POSY] [ID_MENSAJE]");
 		printf("\n./gameboy GAMECARD GET_POKEMON [POKEMON]");
 		printf("\n./gameboy SUSCRIPTOR [COLA_DE_MENSAJES] [TIEMPO]\n\n");
 
@@ -226,10 +227,15 @@ uint32_t main(int argc, char **argv) {
 					printf("\n\n No se ingresó una cantidad de pokemón en el 7° argumento. Intente nuevamente.\n");
 					return 0;
 
+				}else if(argv[7] == NULL){
+
+					printf("\n\n No se ingresó un ID del mensaje en el 8° argumento. Intente nuevamente.\n");
+					return 0;
+
 				}else{
 
 					inicializarGameBoy();
-					enviarNewPokemonAGameCard(argv[3], argv[4], argv[5], argv[6]);
+					enviarNewPokemonAGameCard(argv[3], argv[4], argv[5], argv[6], argv[7]);
 					finalizarGameBoy();
 					return 0;
 
@@ -252,10 +258,15 @@ uint32_t main(int argc, char **argv) {
 					printf("\n\n No se ingresó una posición del mapa en 'y' en el 6° argumento. Intente nuevamente.\n");
 					return 0;
 
+				}else if(argv[6] == NULL){
+
+					printf("\n\n No se ingresó un ID del mensaje en el 7° argumento. Intente nuevamente.\n");
+					return 0;
+
 				}else{
 
 					inicializarGameBoy();
-					enviarCatchPokemonAGameCard(argv[3], argv[4], argv[5]);
+					enviarCatchPokemonAGameCard(argv[3], argv[4], argv[5], argv[6]);
 					finalizarGameBoy();
 					return 0;
 

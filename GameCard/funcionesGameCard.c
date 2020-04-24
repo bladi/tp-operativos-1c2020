@@ -232,7 +232,7 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
             log_info(logger,"El ID correlacional del mensaje es: %d.",unNewPokemon->identificadorCorrelacional);
             log_info(logger,"La posición del Pokémon en el mapa es: [%d,%d].", unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY);
             log_info(logger,"El nombre del Pokemón es: %s.",unNewPokemon->nombrePokemon);
-            log_info(logger,"La cantidad del pokemón es: %d.", unNewPokemon->cantidadDePokemon);
+            log_info(logger,"La cantidad del pokemón es: %d.", unNewPokemon->cantidadDePokemon);           
 
             int resultadoOperacionPokemon;
 
@@ -281,15 +281,15 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
 
             if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
 
-                 if(tipoResultado == 1){
+                if(tipoResultado == 1){
 
                     log_info(logger,"El APPEARED_POKEMON se envió con éxito al Broker.");
 
-                  }else if(tipoResultado == 0){
+                }else if(tipoResultado == 0){
 
                     log_error(logger,"El APPEARED_POKEMON no se envió con éxito al Broker.");
 
-                  }
+                }
 
             }else{
 
@@ -359,7 +359,9 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
                 }else{
 
                     log_error(logger,"El LOCALIZED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
-
+                    //Posible mutex
+                    socketBroker = 0;
+                    //Fin posible mutex
                 }
 
 
@@ -432,7 +434,9 @@ void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
                 }else{
 
                     log_error(logger,"El CAUGHT_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
-
+                    //Posible mutex
+                    socketBroker = 0;
+                    //Fin posible mutex
                 }
 
 

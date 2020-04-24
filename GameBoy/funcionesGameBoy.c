@@ -177,7 +177,7 @@ void enviarNewPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicio
             
             log_info(logger,"Pókemon creado con éxito");
 
-          }else if(tipoResultado == 2){
+          }else if(tipoResultado == 0){
 
             log_info(logger,"No se pudo crear el pókemon");
 
@@ -193,13 +193,13 @@ void enviarNewPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicio
 
 }
 
-void enviarAppearedPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* id){
+void enviarAppearedPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* idMensaje){
 
     socketBroker = cliente(unGameBoyConfig->ipBroker, unGameBoyConfig->puertoBroker, ID_BROKER);
 
     t_appearedPokemon* unAppearedPokemon = malloc(sizeof(t_appearedPokemon));
 
-    unAppearedPokemon->identificador = atoi(id);
+    unAppearedPokemon->identificador = atoi(idMensaje);
 	unAppearedPokemon->identificadorCorrelacional = 0;
 
     unAppearedPokemon->nombrePokemon = string_new();
@@ -222,7 +222,7 @@ void enviarAppearedPokemonABroker(char* nombrePokemon,char* posicionEnX,char* po
             
             log_info(logger,"Pókemon apareció con éxito");
 
-          }else if(tipoResultado == 2){
+          }else if(tipoResultado == 0){
 
             log_info(logger,"No se pudo hacer aparecer el pókemon");
 
@@ -267,7 +267,7 @@ void enviarCatchPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posic
             
             log_info(logger,"Pókemon mandado a atrapar con éxito");
 
-          }else if(tipoResultado == 2){
+          }else if(tipoResultado == 0){
 
             log_info(logger,"No se pudo intentar atrapar al pókemon");
 
@@ -319,7 +319,7 @@ void enviarCaughtPokemonABroker(char* nombrePokemon,char* resultado){
             
             log_info(logger,"Aviso de resultado de pokemón atrapado realizado con éxito");
 
-          }else if(tipoResultado == 2){
+          }else if(tipoResultado == 0){
 
             log_info(logger,"No se pudo avisar sobre el resultado de atrapar al pókemon");
 
@@ -361,7 +361,7 @@ void enviarGetPokemonABroker(char* nombrePokemon){
             
             log_info(logger,"Pedido de locación de pokemón realizado con éxito");
 
-          }else if(tipoResultado == 2){
+          }else if(tipoResultado == 0){
 
             log_info(logger,"No se pudo realizar el pedido de locación del pókemon");
 
@@ -406,7 +406,7 @@ void enviarAppearedPokemonATeam(char* nombrePokemon,char* posicionEnX,char* posi
             
             log_info(logger,"Pókemon apareció con éxito");
 
-          }else if(tipoResultado == 2){
+          }else if(tipoResultado == 0){
 
             log_info(logger,"No se pudo hacer aparecer el pókemon");
 
@@ -422,14 +422,14 @@ void enviarAppearedPokemonATeam(char* nombrePokemon,char* posicionEnX,char* posi
 
 }
 
-void enviarNewPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* cantidad){
+void enviarNewPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* cantidad,char* idMensaje){
 
     socketGameCard = cliente(unGameBoyConfig->ipGameCard, unGameBoyConfig->puertoGameCard, ID_GAMECARD);
 
     t_newPokemon* unNewPokemon = malloc(sizeof(t_newPokemon));
 
-    unNewPokemon->identificador = 0;
-	unNewPokemon->identificadorCorrelacional = 0;
+    unNewPokemon->identificador = atoi(idMensaje);
+	unNewPokemon->identificadorCorrelacional = atoi(idMensaje);
 
     unNewPokemon->nombrePokemon = string_new();
 	string_append(&unNewPokemon->nombrePokemon,nombrePokemon);
@@ -468,14 +468,14 @@ void enviarNewPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posic
 
 }
 
-void enviarCatchPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY){
+void enviarCatchPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* idMensaje){
 
     socketGameCard = cliente(unGameBoyConfig->ipGameCard, unGameBoyConfig->puertoGameCard, ID_GAMECARD);
 
     t_catchPokemon* unCatchPokemon = malloc(sizeof(t_catchPokemon));
 
-    unCatchPokemon->identificador = 0;
-	unCatchPokemon->identificadorCorrelacional = 0;
+    unCatchPokemon->identificador = atoi(idMensaje);
+	unCatchPokemon->identificadorCorrelacional = atoi(idMensaje);
 
     unCatchPokemon->nombrePokemon = string_new();
 	string_append(&unCatchPokemon->nombrePokemon,nombrePokemon);
@@ -600,7 +600,7 @@ void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion){
             
             log_info(logger,"Pedido de suscripción realizado con éxito");
 
-          }else if(tipoResultado == 2){
+          }else if(tipoResultado == 0){
 
             log_info(logger,"No se pudo realizar el pedido de suscripción");
 

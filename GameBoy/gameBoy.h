@@ -51,7 +51,7 @@
 #define ID_GAMECARD 2
 #define ID_TEAM 3
 
-#define MAX_CANTIDAD_ARGUMENTOS 7
+#define MAX_CANTIDAD_ARGUMENTOS 8
 #define MIN_CANTIDAD_ARGUMENTOS 4
 
 #define CATCH_POKEMON "CATCH_POKEMON"
@@ -109,13 +109,13 @@ void administradorDeConexiones(void* infoAdmin);
 void manejarRespuestaABroker(int socketCliente,int idCliente);
 
 void enviarNewPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* cantidad);
-void enviarAppearedPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* id);
+void enviarAppearedPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* idMensaje);
 void enviarCatchPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY);
 void enviarCaughtPokemonABroker(char* nombrePokemon,char* resultado);
 void enviarGetPokemonABroker(char* nombrePokemon);
 void enviarAppearedPokemonATeam(char* nombrePokemon,char* posicionEnX,char* posicionEnY);
-void enviarNewPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* cantidad);
-void enviarCatchPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY);
+void enviarNewPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* cantidad, char* idMensaje);
+void enviarCatchPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY, char* idMensaje);
 void enviarGetPokemonAGameCard(char* nombrePokemon);
 void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion);
 

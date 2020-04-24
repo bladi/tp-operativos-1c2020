@@ -741,7 +741,6 @@ void* serializarLocalizedPokemon(t_localizedPokemon* localizedPokemon, int* tama
 
 t_localizedPokemon* deserializarLocalizedPokemon(void* buffer){
 
-
 	int desplazamiento = 0;
 	int tamanioNombrePokemon = 0;
 	int tamanioBuffer = 0;
