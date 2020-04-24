@@ -138,6 +138,9 @@ t_getPokemon* deserializarGetPokemon(void* buffer);
 void* serializarNewPokemon(t_newPokemon* newPokemon, int* tamanio);
 t_newPokemon* deserializarNewPokemon(void* buffer);
 
+void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio);
+t_suscriptor* deserializarSuscriptor(void* buffer);
+
 //////////////////////////////////////////FUNCIONES PARA SERIALIZACION DE LISTAS///////////////////////////////////////
 
 void eliminarNodoDatosPokemon(datosPokemon* unNodoDatosPokemon);

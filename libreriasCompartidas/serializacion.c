@@ -36,6 +36,11 @@ void* serializar(int tipoMensaje, void* mensaje, int* tamanio){
 			break;
 
 		}
+		case tSuscriptor: {
+			buffer = serializarSuscriptor(mensaje, tamanio);
+			break;
+
+		}
 
 		case 0: {
 			//printf("Desconexion. \n");
@@ -85,6 +90,12 @@ void* deserializar(uint16_t tipoMensaje, void* mensaje){
 
 			case tAppearedPokemon: {
 				buffer = deserializarAppearedPokemon(mensaje);
+				break;
+
+			}
+
+			case tSuscriptor: {
+				buffer = deserializarSuscriptor(mensaje);
 				break;
 
 			}

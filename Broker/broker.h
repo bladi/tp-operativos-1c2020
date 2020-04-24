@@ -63,10 +63,59 @@ typedef struct brokerConfig_s{
 
 } brokerConfig_t;
 
+//typedef enum tipoMensaje {M_NEW, M_APPEARED, M_CATCH, M_CAUGHT, M_GET, M_LOCALIZED} tipoMensaje_t;
+
+typedef struct {
+
+	uint32_t idMensaje;
+	uint32_t idMensajeCorrelacional;
+	uint32_t tipoMensaje;
+	char* posicionEnMemoria;
+	t_list* suscriptoresEnviados; // uint32_t
+	t_list* acknowledgement; // uint32_t
+	
+} tMensaje;// ??* revisar
+
+typedef struct {
+
+	uint32_t identificador;
+	uint32_t startTime;
+	uint32_t timeToLive;
+	
+		
+} tSuscriptorEnCola;
+
+typedef struct {
+
+	char* posicion;
+	uint32_t tamanio;
+	bool free;
+			
+} tParticion;
+
+t_list* METADATA_MEMORIA_LISTA; //tparticion
+
+t_list* SUSCRIPTORES_LISTA; // tSuscriptor
+
+t_list* NEW_POKEMON_LISTA; //tSuscriptorEnCola
+
+t_list* APPEARED_POKEMON_LISTA; //tSuscriptorEnCola
+
+t_list* CATCH_POKEMON_LISTA; //tSuscriptorEnCola
+
+t_list* CAUGHT_POKEMON_LISTA; //tSuscriptorEnCola
+
+t_list* GET_POKEMON_LISTA; //tSuscriptorEnCola
+
+t_list* LOCALIZED_POKEMON_LISTA; //tSuscriptorEnCola
+
+t_list* MENSAJES_LISTA; //tMensaje
+
+
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
 
-t_config* unBrokerArchivoConfig;
-brokerConfig_t* unBrokerConfig;
+
+brokerConfig_t* CONFIG_BROKER;
 t_log* logger;
 
 unsigned char idConfigBroker;
@@ -76,6 +125,13 @@ uint32_t cantidadDeActualizacionesConfigBroker;
 
 pthread_t hiloServidorBroker;
 pthread_t hiloActualizadorConfigBroker;
+
+
+char *MEMORIA_PRINCIPAL;
+uint32_t NUM_SUSCRIPTOR;
+pthread_mutex_t mutex_NUM_SUSCRIPTOR;//??*preguntar si va
+uint32_t ID_MENSAJE;
+pthread_mutex_t mutex_ID_MENSAJE;//??*preguntar si va
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -92,5 +148,57 @@ void administradorDeConexiones(void* infoAdmin);
 void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
 void manejarRespuestaAGameCard(int socketCliente,int idCliente);
 void manejarRespuestaATeam(int socketCliente,int idCliente);
+
+void inicializarMemoria();
+uint32_t generarNuevoIdMensajeBroker();
+uint32_t generarNuevoIdSuscriptor();
+char* getDireccionMemoriaLibre(uint32_t tamanio);
+
+void ingresarNuevoSuscriber(void* nuevaSuscripcion);
+
+void enviarMensajeNewPokemon(tMensaje* unMensaje,void* unSuscriptor);
+void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void* unSuscriptor);
+void enviarMensajeCatchPokemon(tMensaje *unMensaje, void* unSuscriptor);
+void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void* unSuscriptor);
+void enviarMensajeGetPokemon(tMensaje *unMensaje, void* unSuscriptor);
+void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void* unSuscriptor);
+
+void ejecutarColaNewPokemon();
+void ejecutarColaAppearedPokemon();
+void ejecutarColaCatchPokemon();
+void ejecutarColaCaughtPokemon();
+void ejecutarColaGetPokemon();
+void ejecutarColaLocalizedPokemon();
+
+//////////////////////////////////////////////////FUNCIONES LISTAS//////////////////////////////////////////////////////////////////////////////////////
+
+bool existeNuevoSuscriber(void *tSuscriptor);
+char* ipServerABuscar;
+uint32_t PuertoEschuchaABuscar;
+pthread_mutex_t mutex_ipServerABuscar;
+pthread_mutex_t mutex_PuertoEschuchaABuscar;
+
+
+bool existeIdSuscriberEnCola(void *suscriptorEnCola);
+uint32_t idSuscriberABuscar;
+pthread_mutex_t mutex_idSuscriberABuscar;
+
+
+bool existeIdSuscriptor(void *suscriptor);
+uint32_t idSuscriptorABuscar;
+pthread_mutex_t mutex_idSuscriptorABuscar;
+
+
+bool existeTipoMensaje(void *mensaje);
+uint32_t tipoMensajeABuscar;
+pthread_mutex_t mutex_tipoMensajeABuscar;
+
+
+bool existeAck(void *mensaje);
+uint32_t ackABuscar;
+pthread_mutex_t mutex_ackABuscar;
+
+
+ // 1 NEW_POKEMON_LISTA 2 APPEARED_POKEMON_LISTA 3 CATCH_POKEMON_LISTA 4 CAUGHT_POKEMON_LISTA 5 GET_POKEMON_LISTA 6 LOCALIZED_POKEMON_LISTA
 
 #endif
