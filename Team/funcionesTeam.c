@@ -462,7 +462,7 @@ void agregarPokeALista(t_list* pLista, char* pPokemon)
     {
         t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
         unPokemon->nombre = string_new();
-        strcpy(unPokemon->nombre,pPokemon);
+        string_append(&unPokemon->nombre, pPokemon);
         //unPokemon->nombre = pPokemon;
         unPokemon->cantidad = 1;
         list_add(pLista, unPokemon);
