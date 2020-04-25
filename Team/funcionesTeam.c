@@ -305,6 +305,59 @@ void cargarEntrenadores()
     int cantidadDeEntrenadores = 0;
     for (int i = 0; unTeamConfig->posicionEntrenadores[i] != NULL; i++)
 	{
+        cantidadDeEntrenadores++;
+    }
+    for (int i = 0; i < cantidadDeEntrenadores; i++)
+    {
+        char** posiciones = string_split(unTeamConfig->posicionEntrenadores[i], "|");
+        t_Entrenador *unEntrenador = malloc(sizeof(t_Entrenador));
+        unEntrenador->pokemons = list_create();
+        unEntrenador->objetivos = list_create();
+        unEntrenador->id = i;
+        unEntrenador->posicionX = atoi(posiciones[0]);
+        unEntrenador->posicionY = atoi(posiciones[1]);
+        free(posiciones[0]);
+        free(posiciones[1]);
+        free(posiciones);
+        char** pokemones = string_split(unTeamConfig->pokemonEntrenadores[i], "|");
+        for (int j = 0; pokemones[j] != NULL; j++)
+        {
+            agregarPokeALista(unEntrenador->pokemons, pokemones[j]);
+        }
+        string_iterate_lines(pokemones, (void*) free);
+        free(pokemones);
+        char** objetivos = string_split(unTeamConfig->objetivosEntrenadores[i], "|");
+        int cantidadDeObjetivos = 0;
+        for (int j = 0; objetivos[j] != NULL; j++)
+        {
+            agregarPokeALista(unEntrenador->objetivos, objetivos[j]);
+            cantidadDeObjetivos++;
+        }
+        string_iterate_lines(objetivos, (void*) free);
+        free(objetivos);
+        unEntrenador->estado = NEW;
+        unEntrenador->cuantosPuedeAtrapar = cantidadDeObjetivos;
+        printf("Entrenador n°: %d \n", unEntrenador->id);
+        printf("Posicion X: %d \n", unEntrenador->posicionX);
+        printf("Posicion Y: %d \n", unEntrenador->posicionY);
+        t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
+        unPokemon = list_get(unEntrenador->pokemons,0);
+        printf("Primer pokemon que tiene: %s \n", unPokemon->nombre);
+        printf("Cantidad de ese primer pokemon que tiene: %d \n", unPokemon->cantidad);
+        t_Pokemon* otroPokemon = malloc(sizeof(t_Pokemon));
+        otroPokemon = list_get(unEntrenador->objetivos,0);
+        printf("Primer pokemon que necesita: %s \n", otroPokemon->nombre);
+        printf("Cantidad de ese primer pokemon que necesita: %d \n", otroPokemon->cantidad);
+        list_add(listaDeEntrenadores, unEntrenador);
+        list_add(NUEVOS, unEntrenador);
+    }
+}
+
+void cargarEntrenadoresVersionAnterior()
+{
+    int cantidadDeEntrenadores = 0;
+    for (int i = 0; unTeamConfig->posicionEntrenadores[i] != NULL; i++)
+	{
         if(string_ends_with(unTeamConfig->posicionEntrenadores[i],"]"))
             cantidadDeEntrenadores++;
     }
@@ -372,11 +425,18 @@ void cargarEntrenadores()
             }
         }
         unEntrenador->estado = NEW;
+        unEntrenador->cuantosPuedeAtrapar = auxObjetivos;
 		list_add(listaDeEntrenadores, unEntrenador);
         list_add(NUEVOS, unEntrenador);
         idEntrenador++;
     }
 }
+
+////////////////////////// Metricas ///////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////// Funciones para listas de pokemon ///////////////////////////////////////////////
 
 int posicionPokeEnLista(t_list* pLista, char* pPokemon) //Retorna la posicion donde se encuentra o -1 si no esta
 {
@@ -401,11 +461,15 @@ void agregarPokeALista(t_list* pLista, char* pPokemon)
     else
     {
         t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
-        unPokemon->nombre = pPokemon;
+        unPokemon->nombre = string_new();
+        strcpy(unPokemon->nombre,pPokemon);
+        //unPokemon->nombre = pPokemon;
         unPokemon->cantidad = 1;
         list_add(pLista, unPokemon);
     }
 }
+
+////////////////////////// Funciones de planificacion /////////////////////////////////////////////////////
 
 void planificar()
 {
@@ -433,7 +497,7 @@ void planificar()
 
 void planificarFIFO()
 {
-
+    printf("Planifique FIFO\n");
 }
 
 void planificarRR()
@@ -443,12 +507,12 @@ void planificarRR()
 
 void planificarSJF()
 {
-
+    printf("Planifique SJF sin desalojo\n");
 }
 
 void planificarSRT()
 {
-
+    printf("Planifique SJF con desalojo\n");
 }
 
 //////////////////////// Cosas Comentadas /////////////////////////////////////////////////////////////////

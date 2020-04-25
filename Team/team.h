@@ -92,6 +92,7 @@ typedef struct entrenador
 	t_list* pokemons;
 	t_list* objetivos;
 	Estado estado;
+	int cuantosPuedeAtrapar;
 } t_Entrenador;
 
 typedef struct
