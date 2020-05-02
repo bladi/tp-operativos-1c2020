@@ -391,6 +391,17 @@ void agregarPokeALista(t_list* pLista, char* pPokemon)
     }
 }
 
+int cantidadTotalDePokemonesEnLista(t_list* pLista)
+{
+    int cantidad = 0;
+    for(int i = 0; i < list_size(pLista); i++)
+    {
+        t_Pokemon* unPokemon = list_get(pLista,i);
+        cantidad += unPokemon->cantidad;
+    }
+    return cantidad;
+}
+
 ////////////////////////// Funciones de planificacion /////////////////////////////////////////////////////
 
 void planificar()
@@ -437,11 +448,11 @@ void planificarSRT()
     printf("Planifique SJF con desalojo\n");
 }
 
-//////////////////////// Funciones auxiliares /////////////////////////////////////////////////////////////
+//////////////////////// Funciones auxiliares de entrenador ////////////////////////////////////////////////
 
 bool puedeAtrapar(t_Entrenador* pEntrenador)
 {
-    if(pEntrenador->cuantosPuedeAtrapar > list_size(pEntrenador->pokemones))
+    if(pEntrenador->cuantosPuedeAtrapar > cantidadTotalDePokemonesEnLista(pEntrenador->pokemones))
     {
         return true;
     }
@@ -468,7 +479,7 @@ bool puedeAtrapar(t_Entrenador* pEntrenador)
     while(idEntrenador <= cantidadDeEntrenadores)
     {
         t_Entrenador *unEntrenador = malloc(sizeof(t_Entrenador));
-        unEntrenador->pokemons = list_create();
+        unEntrenador->pokemones = list_create();
         unEntrenador->objetivos = list_create();
         unEntrenador->id = idEntrenador;
 		for(auxPosiciones;unTeamConfig->posicionEntrenadores[auxPosiciones] != NULL;auxPosiciones++)
@@ -488,19 +499,19 @@ bool puedeAtrapar(t_Entrenador* pEntrenador)
         {
             if(string_starts_with(unTeamConfig->pokemonEntrenadores[auxPokemones],"["))
             {    
-                agregarPokeALista(unEntrenador->pokemons, (string_substring_from(unTeamConfig->pokemonEntrenadores[auxPokemones],1)));
+                agregarPokeALista(unEntrenador->pokemones, (string_substring_from(unTeamConfig->pokemonEntrenadores[auxPokemones],1)));
             }
             else
             {
                 if(string_ends_with(unTeamConfig->pokemonEntrenadores[auxPokemones],"]"))
                 {
-                    agregarPokeALista(unEntrenador->pokemons, (string_substring_until(unTeamConfig->pokemonEntrenadores[auxPokemones],strlen(unTeamConfig->pokemonEntrenadores[auxPokemones])-1)));
+                    agregarPokeALista(unEntrenador->pokemones, (string_substring_until(unTeamConfig->pokemonEntrenadores[auxPokemones],strlen(unTeamConfig->pokemonEntrenadores[auxPokemones])-1)));
                     auxPokemones++;
                     break;
                 }
                 else
                 {
-                    agregarPokeALista(unEntrenador->pokemons, unTeamConfig->pokemonEntrenadores[auxPokemones]);
+                    agregarPokeALista(unEntrenador->pokemones, unTeamConfig->pokemonEntrenadores[auxPokemones]);
                 }
             }
         }
