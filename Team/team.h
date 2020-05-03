@@ -101,6 +101,13 @@ typedef struct
 	int cantidad;
 } t_Pokemon;
 
+typedef struct
+{
+	char* nombre;
+	int posicionX;
+	int posicionY;
+} t_posicionPokemon;
+
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
 
 t_config* unTeamArchivoConfig;
@@ -110,6 +117,9 @@ t_log* logger;
 //t_list* pokemones;
 //t_list* objetivos;
 t_list* listaDeEntrenadores;
+t_list* mapa;
+t_list* pokemonesAtrapados;
+t_list* pokemonesObjetivos;
 
 unsigned char idConfigTeam;
 unsigned char nuevoIdConfigTeam;
@@ -130,11 +140,30 @@ void configurarLoggerTeam();
 void cargarConfiguracionTeam();
 void actualizarConfiguracionTeam();
 
-void inicializarTeam();
-void inicializarHilosYVariablesTeam();
-void finalizarTeam();
-
 void administradorDeConexiones(void* infoAdmin);
 //void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
+
+void cambiarEstado(t_Entrenador *unEntrenador, Estado unEstado);
+
+void inicializarTeam();
+void finalizarTeam();
+void inicializarHilosYVariablesTeam();
+void cargarEntrenadoresYListasGlobales();
+
+int posicionPokeEnLista(t_list* pLista, char* pPokemon);
+void agregarPokeALista(t_list* pLista, char* pPokemon);
+int cantidadDeUnPokemonEnLista(t_list* pLista, char* pPokemon);
+int cantidadTotalDePokemonesEnLista(t_list* pLista);
+
+void planificar();
+void planificarFIFO();
+void planificarRR();
+void planificarSJF();
+void planificarSRT();
+
+bool puedeAtrapar(t_Entrenador* pEntrenador);
+bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador);
+
+bool teamCumplioObjetivos();
 
 #endif

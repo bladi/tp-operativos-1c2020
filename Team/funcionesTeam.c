@@ -280,10 +280,30 @@ void inicializarHilosYVariablesTeam()
     BLOQUEADOS = list_create();
     EJECUTANDO = list_create();
     FINALIZADOS = list_create();
+    pokemonesAtrapados = list_create();
+    pokemonesObjetivos = list_create();
+    mapa = list_create();
     
-    cargarEntrenadores();
-
+    cargarEntrenadoresYListasGlobales();
+    t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
+    unPokemon = list_get(pokemonesAtrapados,0);
+    printf("El primer pokemon atrapado global: %s \n", unPokemon->nombre);
+    printf("La cantidad del primer pokemon atrapado global: %d \n", unPokemon->cantidad);
+    free(unPokemon);
+    unPokemon = malloc(sizeof(t_Pokemon));
+    unPokemon = list_get(pokemonesObjetivos,0);
+    printf("El primer pokemon objetivo global: %s \n", unPokemon->nombre);
+    printf("La cantidad del primer pokemon objetivo global: %d \n", unPokemon->cantidad);
+    free(unPokemon);
     planificar();
+    if(teamCumplioObjetivos())
+    {
+        printf("Se cumplieron todos los objetivos \n");
+    }
+    else
+    {
+        printf("Todavia no se cumplieron todos los objetivos \n");
+    }
     //socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
     // unaInfoServidorTeam = malloc(sizeof(infoServidor_t));
@@ -300,7 +320,7 @@ void inicializarHilosYVariablesTeam()
 
 }
 
-void cargarEntrenadores()
+void cargarEntrenadoresYListasGlobales()
 {
     int cantidadDeEntrenadores = 0;
     for (int i = 0; unTeamConfig->posicionEntrenadores[i] != NULL; i++)
@@ -309,11 +329,11 @@ void cargarEntrenadores()
     }
     for (int i = 0; i < cantidadDeEntrenadores; i++)
     {
-        char** posiciones = string_split(unTeamConfig->posicionEntrenadores[i], "|");
         t_Entrenador *unEntrenador = malloc(sizeof(t_Entrenador));
         unEntrenador->pokemones = list_create();
         unEntrenador->objetivos = list_create();
         unEntrenador->id = i;
+        char** posiciones = string_split(unTeamConfig->posicionEntrenadores[i], "|");
         unEntrenador->posicionX = atoi(posiciones[0]);
         unEntrenador->posicionY = atoi(posiciones[1]);
         free(posiciones[0]);
@@ -323,37 +343,38 @@ void cargarEntrenadores()
         for (int j = 0; pokemones[j] != NULL; j++)
         {
             agregarPokeALista(unEntrenador->pokemones, pokemones[j]);
+            agregarPokeALista(pokemonesAtrapados, pokemones[j]);
         }
         string_iterate_lines(pokemones, (void*) free);
         free(pokemones);
         char** objetivos = string_split(unTeamConfig->objetivosEntrenadores[i], "|");
-        int cantidadDeObjetivos = 0;
         for (int j = 0; objetivos[j] != NULL; j++)
         {
             agregarPokeALista(unEntrenador->objetivos, objetivos[j]);
-            cantidadDeObjetivos++;
+            agregarPokeALista(pokemonesObjetivos, objetivos[j]);
         }
         string_iterate_lines(objetivos, (void*) free);
         free(objetivos);
         unEntrenador->estado = NEW;
-        unEntrenador->cuantosPuedeAtrapar = cantidadDeObjetivos;
+        unEntrenador->cuantosPuedeAtrapar = cantidadTotalDePokemonesEnLista(unEntrenador->objetivos);
         printf("Entrenador n°: %d \n", unEntrenador->id);
         printf("Posicion X: %d \n", unEntrenador->posicionX);
         printf("Posicion Y: %d \n", unEntrenador->posicionY);
         t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
         unPokemon = list_get(unEntrenador->pokemones,0);
         printf("Primer pokemon que tiene: %s \n", unPokemon->nombre);
-        printf("Cantidad de ese primer pokemon que tiene: %d \n", unPokemon->cantidad);
+        printf("Cantidad de ese primer pokemon que tiene: %d \n", cantidadDeUnPokemonEnLista(unEntrenador->pokemones, unPokemon->nombre));
         t_Pokemon* otroPokemon = malloc(sizeof(t_Pokemon));
         otroPokemon = list_get(unEntrenador->objetivos,0);
+        printf("Cantidad de objetivos: %d \n", unEntrenador->cuantosPuedeAtrapar);
         printf("Primer pokemon que necesita: %s \n", otroPokemon->nombre);
-        printf("Cantidad de ese primer pokemon que necesita: %d \n", otroPokemon->cantidad);
+        printf("Cantidad de ese primer pokemon que necesita: %d \n", cantidadDeUnPokemonEnLista(unEntrenador->objetivos, otroPokemon->nombre));
+        free(unPokemon);
+        free(otroPokemon);
         list_add(listaDeEntrenadores, unEntrenador);
         list_add(NUEVOS, unEntrenador);
     }
 }
-
-
 
 ////////////////////////// Metricas ///////////////////////////////////////////////////////////////////////
 
@@ -389,6 +410,12 @@ void agregarPokeALista(t_list* pLista, char* pPokemon)
         unPokemon->cantidad = 1;
         list_add(pLista, unPokemon);
     }
+}
+
+int cantidadDeUnPokemonEnLista(t_list* pLista, char* pPokemon)
+{
+    t_Pokemon* unPokemon = list_get(pLista, posicionPokeEnLista(pLista, pPokemon));
+    return unPokemon->cantidad;
 }
 
 int cantidadTotalDePokemonesEnLista(t_list* pLista)
@@ -460,6 +487,35 @@ bool puedeAtrapar(t_Entrenador* pEntrenador)
     {
         return false;
     }
+}
+
+bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador)
+{
+    for(int i = 0; i < list_size(pEntrenador->objetivos); i++)
+    {
+        t_Pokemon* unPokemon = list_get(pEntrenador->objetivos, i);
+        if(unPokemon->cantidad != cantidadDeUnPokemonEnLista(pEntrenador->pokemones, unPokemon->nombre))
+        //Ver si un entrenador puede cumplir sus objetivos si tiene mas cantidad de la necesaria
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+//////////////////////// Funciones auxiliares de Team /////////////////////////////////////////////////////
+
+bool teamCumplioObjetivos()
+{
+    for(int i = 0; i < list_size(listaDeEntrenadores); i++)
+    {
+        t_Entrenador* unEntrenador = list_get(listaDeEntrenadores, i);
+        if(!entrenadorCumplioObjetivos(unEntrenador))
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 //////////////////////// Cosas Comentadas /////////////////////////////////////////////////////////////////
