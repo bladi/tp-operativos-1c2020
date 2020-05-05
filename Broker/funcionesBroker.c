@@ -60,9 +60,8 @@ void inicializarBroker()
     cargarConfiguracionBroker();
 
     configurarLoggerBroker();
-
-    inicializarHilosYVariablesBroker();
     inicializarMemoria();
+    inicializarHilosYVariablesBroker();
 
     /*
 
@@ -204,6 +203,13 @@ void inicializarMemoria()
     GET_POKEMON_LISTA = list_create();
     LOCALIZED_POKEMON_LISTA = list_create();
     SUSCRIPTORES_LISTA = list_create();
+    MENSAJES_LISTA = list_create();
+
+    // log_info(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
+    // log_trace(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
+    // log_debug(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
+    // log_warning(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
+    // log_error(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
 }
 
 uint32_t generarNuevoIdMensajeBroker()
@@ -232,7 +238,7 @@ char *getDireccionMemoriaLibre(uint32_t tamanio)
     return malloc(tamanio);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////MANEJAR NUEVOS MENSAJES EN COLA////////////////////////////////////////////////
 
 void administradorDeConexiones(void *infoAdmin)
 {
@@ -268,7 +274,7 @@ void administradorDeConexiones(void *infoAdmin)
             manejarRespuestaATeam(unaInfoAdmin->socketCliente, idCliente);
             break;
         }
-
+        
         case -1:
         {
 
@@ -292,11 +298,23 @@ void administradorDeConexiones(void *infoAdmin)
         fflush(stdout);
         close(unaInfoAdmin->socketCliente);
     }
-    else if (resultado < 0)
+    else if (resultado == -1)
     {
 
-        log_warning(logger, "ERROR AL RECIBIR");
+        log_warning(logger, "Cliente Desconectado");
         close(unaInfoAdmin->socketCliente);
+    }
+    else if (resultado == -2)
+    {
+
+        log_info(logger, "ME HICIERON UN PING\n\n\n");
+        
+    }
+    else if(resultado < -2){
+        
+        log_warning(logger, "Se desconectó el broker, o bien, terminó el tiempo de suscripcióna la cola de mensajes.");
+        close(unaInfoAdmin->socketCliente);
+       
     }
 
     return;
@@ -308,7 +326,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
     int *tipoMensaje = malloc(sizeof(int));
     int *tamanioMensaje = malloc(sizeof(int));
 
-    void *buffer = recibirPaquete(socket, tipoMensaje, tamanioMensaje);
+    void *buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
 
     switch (*tipoMensaje)
     {
@@ -318,27 +336,28 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         t_suscriptor *nuevaSuscripcion = (t_suscriptor *)buffer;
 
-        log_info(logger, "Se suscribe a cola: : %d", nuevaSuscripcion->colaDeMensajes);
-        log_info(logger, "Tiempo de Suscripcion: %d", nuevaSuscripcion->tiempoDeSuscripcion);
+        //log_debug(logger, "\n\t--GAMEBOY SUSCRIBE TO : %d", nuevaSuscripcion->colaDeMensajes);
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
+        enviarInt(socketCliente, 1);
 
         break;
     }
 
     case tNewPokemon:
     {
+        log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE NEW --> DE GAMEBOY");
 
         t_newPokemon *unNewPokemon = (t_newPokemon *)buffer;
 
-        log_info(logger, "Recibi Pokemon\n El nombre del Pokemón es: %s", unNewPokemon->nombrePokemon);
+        //log_debug(logger, "\n\t--GAMEBOY PUBLISH -> NEWPOKEMON: %s", unNewPokemon->nombrePokemon);
         //log_info(logger, "La posicion del Pokémon es: %d %d", unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY);
 
         unNewPokemon->identificador = generarNuevoIdMensajeBroker();
 
-        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
+        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN NEWPOKEMON DE GAMEBOY
 
-        enviarInt(socket, unNewPokemon->identificador);
+        //enviarInt(socketCliente, unNewPokemon->identificador);
 
         uint32_t desplazamiento = 0;
         uint32_t tamanioNombrePokemon = string_length(unNewPokemon->nombrePokemon);
@@ -350,8 +369,8 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         unMensaje->acknowledgement = list_create();
         unMensaje->suscriptoresEnviados = list_create();
-        unMensaje->idMensaje = unNewPokemon->identificador;
-        unMensaje->idMensajeCorrelacional = -1;
+        unMensaje->idMensaje = generarNuevoIdMensajeBroker();
+        unMensaje->idMensajeCorrelacional = 0;
         unMensaje->tipoMensaje = tNewPokemon; //NEW
         unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
 
@@ -373,21 +392,24 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
         //??* falta eliminar unNewPokemon
 
         list_add(MENSAJES_LISTA, unMensaje);
+        enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
         break;
     }
 
     case tGetPokemon:
     {
+        log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE GET --> DE GAMEBOY");
+
         t_getPokemon *unGetPokemon = (t_getPokemon *)buffer;
 
-        log_info(logger, "El nombre del Pokemón es: %s", unGetPokemon->nombrePokemon);
+        //log_debug(logger, "\n\t--GAMEBOY PUBLISH -> El nombre del Pokemón es: %s", unGetPokemon->nombrePokemon);
 
         unGetPokemon->identificador = generarNuevoIdMensajeBroker();
 
-        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
+        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN GAMEBOY
 
-        enviarInt(socket, unGetPokemon->identificador);
+        // enviarInt(socketCliente, unGetPokemon->identificador);
 
         uint32_t desplazamiento = 0;
         uint32_t tamanioNombrePokemon = string_length(unGetPokemon->nombrePokemon);
@@ -414,53 +436,26 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         list_add(MENSAJES_LISTA, unMensaje);
 
-        /*
-            
-            Casteo de estructura (ejemplo): 
-            
-            t_getPokemon* unGetPokemon = (t_getPokemon*) buffer;
-
-            */
-
-        /*
-            
-            Logueo de lo recibido (ejemplo):
-
-            log_info(logger,"El nombre del Pokemón es: %s",unGetPokemon->nombrePokemon);
-            log_info(logger,"Las posiciones del Pokémon son: %d %d", unGetPokemon->posicion[0], unGetPokemon->posicion[1]);
-            log_info(logger,"La cantidad que hay de ese Pokémon es: %d",unGetPokemon->cantidad);
-            
-            */
-
-        /*
-
-           Funciones que se invocan luego de recibir un GET_POKEMON_LISTA (ejemplo):
-
-           int idNuevoMensaje = generarNuevoIdMensajeBroker();
-
-           pedirAGameCardPosicionesDePokemon(unGetPokemon->nombrePokemon, idNuevoMensaje);
-           recibirRespuestaGameCard(idNuevoMensaje);
-           avisarATeamPokemonLocalizado(unGetPokemon->nombrePokemon,idNuevoMensaje);
-
-            */
+        enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
         break;
     }
 
     case tCatchPokemon:
     {
+        log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE CATCH --> DE GAMEBOY");
 
         t_catchPokemon *unCatchPokemon = (t_catchPokemon *)buffer;
 
-        log_info(logger, "El nombre del Pokemón es: %s", unCatchPokemon->nombrePokemon);
-        log_info(logger, "La posicion del Pokémon era: %d %d", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
-        log_info(logger, "El nombre del entrenador es: %s", unCatchPokemon->nombrePokemon);
+        //log_info(logger, "El nombre del Pokemón es: %s", unCatchPokemon->nombrePokemon);
+        //log_info(logger, "La posicion del Pokémon era: %d %d", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
+        //log_info(logger, "El nombre del entrenador es: %s", unCatchPokemon->nombrePokemon);
 
         unCatchPokemon->identificador = generarNuevoIdMensajeBroker();
 
-        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
+        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN GAMEBOY
 
-        enviarInt(socket, unCatchPokemon->identificador);
+        // enviarInt(socketCliente, unCatchPokemon->identificador);
 
         uint32_t desplazamiento = 0;
         uint32_t tamanioNombrePokemon = string_length(unCatchPokemon->nombrePokemon);
@@ -492,36 +487,61 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
         //??* falta eliminar unCatchPokemon
 
         list_add(MENSAJES_LISTA, unMensaje);
+        enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
-        /*
-            
-            Casteo de estructura (ejemplo): 
-            
-            t_catchPokemon* unCatchPokemon = (t_catchPokemon*) buffer;
+        break;
+    }
 
-            */
+    case tAppearedPokemon:
+    {
+        log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE APPEARED --> DE GAMEBOY");
 
-        /*
-            
-            Logueo de lo recibido (ejemplo):
+        t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
 
-            log_info(logger,"El nombre del Pokemón es: %s",unCatchPokemon->nombrePokemon);
-            log_info(logger,"La posicion del Pokémon era: %d %d", unCatchPokemon->posicion[0], unCatchPokemon->posicion[1]);
-            log_info(logger,"El nombre del entrenador es: %s",unCatchPokemon->nombreEntrenador);
-            
-            */
+        //log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
+        //log_info(logger, "La posicion del Pokémon era: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
 
-        /*
+        if (unAppeardPokemon->identificador == 0)
+        {
+            unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
+        }
 
-            Funciones que se invocan luego de recibir un CATCH_POKEMON_LISTA (ejemplo):
+        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER-> NO EN GAMEBOY
 
-            int idNuevoMensaje = generarNuevoIdMensajeBroker();
+        //enviarInt(socketCliente, unAppeardPokemon->identificador);
 
-            darAGameCardPokemonAtrapado(unCatchPokemon->nombrePokemon,unCatchPokemon->posicion, idNuevoMensaje);
-            recibirRespuestaGameCard(idNuevoMensaje);
-            avisarATeamPokemonAtrapado(unGetPokemon->nombrePokemon,idNuevoMensaje);
+        uint32_t desplazamiento = 0;
+        uint32_t tamanioNombrePokemon = string_length(unAppeardPokemon->nombrePokemon);
+        uint32_t tamanio = 0;
 
-            */
+        tamanio = tamanioNombrePokemon + 3 * sizeof(uint32_t);
+
+        tMensaje *unMensaje = malloc(sizeof(tMensaje));
+
+        unMensaje->acknowledgement = list_create();
+        unMensaje->suscriptoresEnviados = list_create();
+        unMensaje->idMensaje = unAppeardPokemon->identificador;
+        unMensaje->idMensajeCorrelacional = 0;
+        unMensaje->tipoMensaje = tAppearedPokemon; //APPEARED
+        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
+
+        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        memcpy(unMensaje->posicionEnMemoria + desplazamiento, unAppeardPokemon->nombrePokemon, tamanioNombrePokemon);
+        desplazamiento += tamanioNombrePokemon;
+
+        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unAppeardPokemon->posicionEnElMapaX, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unAppeardPokemon->posicionEnElMapaY, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        //??* falta eliminar unAppeardPokemon
+
+        list_add(MENSAJES_LISTA, unMensaje);
+
+        enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
         break;
     }
@@ -529,7 +549,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
     default:
     {
 
-        log_error(logger, "Recibimos algo del Game Boy que no sabemos manejar: %d", *tipoMensaje);
+        log_error(logger, "\n\t--ERROR PAQUETE GAMEBOY: %d NO IDENTIFICADO", *tipoMensaje);
         abort();
         break;
     }
@@ -548,7 +568,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
     int *tipoMensaje = malloc(sizeof(int));
     int *tamanioMensaje = malloc(sizeof(int));
 
-    void *buffer = recibirPaquete(socket, tipoMensaje, tamanioMensaje);
+    void *buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
 
     switch (*tipoMensaje)
     {
@@ -558,26 +578,41 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         t_suscriptor *nuevaSuscripcion = (t_suscriptor *)buffer;
 
-        log_info(logger, "Se suscribe a cola: : %d", nuevaSuscripcion->colaDeMensajes);
-        log_info(logger, "Tiempo de Suscripcion: %d", nuevaSuscripcion->tiempoDeSuscripcion);
+        // log_debug(logger, "\n\t--GAMECARD SUSCRIBE TO NEW ");
+        // log_debug(logger, "\n\t--GAMECARD SUSCRIBE TO GET");
+        // log_debug(logger, "\n\t--GAMECARD SUSCRIBE TO CATCH");
+
+        // EL GAMECARD SE SUSCRIBE A LAS TRES COLAS GLOBALES
+
+        nuevaSuscripcion->colaDeMensajes = tNewPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
+        nuevaSuscripcion->colaDeMensajes = tGetPokemon;
+
+        ingresarNuevoSuscriber(nuevaSuscripcion);
+
+        nuevaSuscripcion->colaDeMensajes = tCatchPokemon;
+
+        ingresarNuevoSuscriber(nuevaSuscripcion);
+
+        enviarInt(socketCliente, 1);
         break;
     }
 
     case tCaughtPokemon:
     {
+        log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE CAUGHT --> DE GAMECARD");
 
         t_caughtPokemon *unCaughtPokemon = (t_caughtPokemon *)buffer; //??* LA ESTRUCTURA ESTA MAL SOLO TIENE QUE SER ID + O/1 unCaughtPokemon->RESULTADO TIENE QUE SER UINT32
 
-        log_info(logger, "El nombre del Pokemón es: %s", unCaughtPokemon->nombrePokemon);
+        // log_info(logger, "El nombre del Pokemón es: %s", unCaughtPokemon->nombrePokemon);
 
         unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
-        enviarInt(socket, unCaughtPokemon->identificador);
+        enviarInt(socketCliente, unCaughtPokemon->identificador);
 
         uint32_t desplazamiento = 0;
         uint32_t tamanio = 0;
@@ -600,47 +635,49 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         list_add(MENSAJES_LISTA, unMensaje);
 
-        /*
-            
-            Casteo de estructura (ejemplo): 
-            
-            t_caughtPokemon* unCaughtPokemon = (t_caughtPokemon*) buffer;
-
-            */
-
-        /*
-            
-            Logueo de lo recibido (ejemplo):
-
-            log_info(logger,"El nombre del Pokemón es: %s",unCaughtPokemon->nombre);
-            log_info(logger,"La posicion del Pokémon es: %d %d", unCaughtPokemon->posicion[0], unCaughtPokemon->posicion[1]);
-            
-            */
-
-        /*
-        
-           Funciones que se invocan luego de recibir un CAUGHT_POKEMON_LISTA (ejemplo):
-
-           int idNuevoMensaje = generarNuevoIdMensajeBroker();
-
-           avisarATeamPokemonAtrapado(unCaughtPokemon->nombrePokemon,idNuevoMensaje);
-
-            */
+        enviarInt(socketCliente, 1);
 
         break;
     }
 
     case tLocalizedPokemon:
     {
+        log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE LOCALIZED --> DE GAMECARD");
+
         t_localizedPokemon *unLocalizedPokemon = (t_localizedPokemon *)buffer;
 
-        log_info(logger, "El nombre del Pokemón es: %s", unLocalizedPokemon->nombrePokemon);
+        //log_info(logger, "El nombre del Pokemón es: %s", unLocalizedPokemon->nombrePokemon);
+
+        int cantidadListaDatosPokemon = list_size(unLocalizedPokemon->listaDatosPokemon);
+
+        int contadorito = 0;
+
+        printf("\n\nLOCALIZED_POKEMON DESERIALIZADO: \n");
+        printf("\nIdentificador: %d", unLocalizedPokemon->identificador);
+        printf("\nIdentificador Correlacional: %d", unLocalizedPokemon->identificadorCorrelacional);
+        printf("\nNombre del Pokemón: %s", unLocalizedPokemon->nombrePokemon);
+
+        datosPokemon *nodoDatosPokemon;
+
+        while (contadorito < cantidadListaDatosPokemon)
+        {
+
+            nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contadorito);
+
+            printf("\nCantidad de pokemón en %d° ubicación: %d", contadorito, nodoDatosPokemon->cantidad);
+            printf("\nUbicacion en 'x': %d", nodoDatosPokemon->posicionEnElMapaX);
+            printf("\nUbicacion en 'y': %d\n", nodoDatosPokemon->posicionEnElMapaY);
+
+            contadorito += 1;
+        }
+
+        //HAsta aca
 
         unLocalizedPokemon->identificador = generarNuevoIdMensajeBroker();
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
-        enviarInt(socket, unLocalizedPokemon->identificador);
+        enviarInt(socketCliente, unLocalizedPokemon->identificador);
 
         uint32_t desplazamiento = 0;
         uint32_t tamanioNombrePokemon = string_length(unLocalizedPokemon->nombrePokemon);
@@ -686,49 +723,25 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         list_add(MENSAJES_LISTA, unMensaje);
 
-        /*
-            
-            Casteo de estructura (ejemplo): 
-            
-            t_localizedPokemon* unLocalizedPokemon = (t_localizedPokemon*) buffer;
-
-            */
-
-        /*
-            
-            Logueo de lo recibido (ejemplo):
-
-            log_info(logger,"El nombre del Pokemón es: %s",unLocalizedPokemon->nombrePokemon);
-            log_info(logger,"Las posiciones del Pokémon son: %d %d", unLocalizedPokemon->posicion[0], unLocalizedPokemon->posicion[1]);
-            log_info(logger,"La cantidad que hay de ese Pokémon es: %d",unLocalizedPokemon->cantidad);
-            
-            */
-
-        /*
-
-           Funciones que se invocan luego de recibir un LOCALIZED_POKEMON_LISTA (ejemplo):
-
-           int idNuevoMensaje = generarNuevoIdMensajeBroker();
-
-           avisarATeamPokemonLocalizado(unGetPokemon->nombrePokemon,idNuevoMensaje);
-
-            */
+        //enviarInt(socketCliente, 1);
 
         break;
     }
 
     case tAppearedPokemon:
     {
+        log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE APPEARED --> DE GAMECARD");
+
         t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
 
-        log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
-        log_info(logger, "La posicion del Pokémon era: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
+        //log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
+        //log_info(logger, "La posicion del Pokémon era: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
 
         unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
-        enviarInt(socket, unAppeardPokemon->identificador);
+        enviarInt(socketCliente, unAppeardPokemon->identificador);
 
         uint32_t desplazamiento = 0;
         uint32_t tamanioNombrePokemon = string_length(unAppeardPokemon->nombrePokemon);
@@ -761,23 +774,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         list_add(MENSAJES_LISTA, unMensaje);
 
-        /*
-            
-            Logueo de lo recibido (ejemplo):
-
-           
-            
-            */
-
-        /*
-
-            Funciones que se invocan luego de recibir un APPEARED_POKEMON_LISTA (ejemplo):
-
-            int idNuevoMensaje = generarNuevoIdMensajeBroker();
-
-            avisarATeamPokemonAparecido(unAppeardPokemon->nombrePokemon,idNuevoMensaje);
-
-            */
+       // enviarInt(socketCliente, 1);
 
         break;
     }
@@ -785,7 +782,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
     default:
     {
 
-        log_error(logger, "Recibimos algo del Game Card que no sabemos manejar: %d", *tipoMensaje);
+        log_error(logger, "\n\t--ERROR PAQUETE GAMECAR: %d NO IDENTIFICADO", *tipoMensaje);
         abort();
         break;
     }
@@ -804,7 +801,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
     int *tipoMensaje = malloc(sizeof(int));
     int *tamanioMensaje = malloc(sizeof(int));
 
-    void *buffer = recibirPaquete(socket, tipoMensaje, tamanioMensaje);
+    void *buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
 
     switch (*tipoMensaje)
     {
@@ -814,16 +811,21 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         t_suscriptor *nuevaSuscripcion = (t_suscriptor *)buffer;
 
+        log_debug(logger, "\n\t--TEAM SUSCRIBE TO : %d", nuevaSuscripcion->colaDeMensajes);
+
         log_info(logger, "Se suscribe a cola: : %d", nuevaSuscripcion->colaDeMensajes);
         log_info(logger, "Tiempo de Suscripcion: %d", nuevaSuscripcion->tiempoDeSuscripcion);
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
+        enviarInt(socketCliente, 1);
 
         break;
     }
 
     case tGetPokemon:
     {
+        log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE GET --> DE TEAM");
+
         t_getPokemon *unGetPokemon = (t_getPokemon *)buffer;
 
         log_info(logger, "El nombre del Pokemón es: %s", unGetPokemon->nombrePokemon);
@@ -832,7 +834,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
-        enviarInt(socket, unGetPokemon->identificador);
+        enviarInt(socketCliente, unGetPokemon->identificador);
 
         uint32_t desplazamiento = 0;
         uint32_t tamanioNombrePokemon = string_length(unGetPokemon->nombrePokemon);
@@ -858,6 +860,8 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
         //??* falta eliminar unGetPokemon
 
         list_add(MENSAJES_LISTA, unMensaje);
+
+        enviarInt(socketCliente, 1);
 
         /*
             
@@ -894,6 +898,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
     case tCatchPokemon:
     {
+        log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE CATCH --> DE TEAM");
 
         t_catchPokemon *unCatchPokemon = (t_catchPokemon *)buffer;
 
@@ -905,7 +910,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
-        enviarInt(socket, unCatchPokemon->identificador);
+        enviarInt(socketCliente, unCatchPokemon->identificador);
 
         uint32_t desplazamiento = 0;
         uint32_t tamanioNombrePokemon = string_length(unCatchPokemon->nombrePokemon);
@@ -938,6 +943,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         list_add(MENSAJES_LISTA, unMensaje);
 
+        enviarInt(socketCliente, 1);
         /*
             
             Casteo de estructura (ejemplo): 
@@ -974,7 +980,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
     default:
     {
 
-        log_error(logger, "Recibimos algo del Game Boy que no sabemos manejar: %d", *tipoMensaje);
+        log_error(logger, "\n\t--ERROR PAQUETE TEAM: %d NO IDENTIFICADO", *tipoMensaje);
         abort();
         break;
     }
@@ -987,7 +993,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
     return;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////FUNCION NUEVO SUSCRIBER////////////////////////////////////////////////
 
 void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
 {
@@ -1018,7 +1024,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
         {
             // LO BUSCO EN LISTA DE NEW
 
-            log_info(logger, "Nuevo Suscriber a New");
+            log_trace(logger, "\n\t--NUEVO SUSCRIPTOR ID:%d A LA COLA DE NEW", unSuscriptor->identificador);
 
             pthread_mutex_lock(&mutex_idSuscriberABuscar);
 
@@ -1035,7 +1041,6 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
                 unSuscriptorEnCola->startTime = (uint32_t)time(NULL);
                 unSuscriptorEnCola->timeToLive = nuevaSuscripcion->tiempoDeSuscripcion;
                 list_add(NEW_POKEMON_LISTA, unSuscriptorEnCola);
-                // enviarMensajesAnteriores(1, unSuscriptorEnCola); //??* agregar en los otros
             }
 
             break;
@@ -1045,7 +1050,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
         {
             // LO BUSCO EN LISTA DE APPEARED
 
-            log_info(logger, "Nuevo Suscriber a Appeared");
+            log_trace(logger, "\n\t--NUEVO SUSCRIPTOR ID:%d A LA COLA DE APPEARED", unSuscriptor->identificador);
 
             pthread_mutex_lock(&mutex_idSuscriberABuscar);
 
@@ -1070,7 +1075,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
         {
             // LO BUSCO EN LISTA DE CATCH
 
-            log_info(logger, "Nuevo Suscriber a Catch");
+            log_trace(logger, "\n\t--NUEVO SUSCRIPTOR ID:%d A LA COLA DE CATCH", unSuscriptor->identificador);
 
             pthread_mutex_lock(&mutex_idSuscriberABuscar);
 
@@ -1096,7 +1101,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
         {
             // LO BUSCO EN LISTA DE CAUGHT
 
-            log_info(logger, "Nuevo Suscriber a Caught");
+            log_trace(logger, "\n\t--NUEVO SUSCRIPTOR ID:%d A LA COLA DE CAUGHT", unSuscriptor->identificador);
 
             pthread_mutex_lock(&mutex_idSuscriberABuscar);
 
@@ -1122,7 +1127,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
         {
             // LO BUSCO EN LISTA DE GET
 
-            log_info(logger, "Nuevo Suscriber a Get");
+            log_trace(logger, "\n\t--NUEVO SUSCRIPTOR ID:%d A LA COLA DE GET", unSuscriptor->identificador);
 
             pthread_mutex_lock(&mutex_idSuscriberABuscar);
 
@@ -1147,7 +1152,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
         {
             // LO BUSCO EN LISTA DE LOCALIZED_POKEMON_LISTA
 
-            log_info(logger, "Nuevo Suscriber a Localized");
+            log_trace(logger, "\n\t--NUEVO SUSCRIPTOR ID:%d A LA COLA DE LOCALIZED", unSuscriptor->identificador);
 
             pthread_mutex_lock(&mutex_idSuscriberABuscar);
 
@@ -1171,14 +1176,17 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
         default:
         {
 
-            log_warning(logger, "SUSCRIPCION DE COLA NO VALIDA");
+            log_error(logger, "\n\t--ERROR SUSCRIPCION A COLA: %d NO IDENTIFICADA", nuevaSuscripcion->colaDeMensajes);
             break;
         }
         }
     }
     else
     {
-        //AGREGO NUEVO t_suscriptor Y AUMENTO NUM_SUSCRIPTOR
+
+        log_debug(logger, "\n\t--INGRESA SUSCRIPTOR A LA LISTA DE SUSCRIPTORES");
+
+        //AGREGO NUEVO t_suscriptor
 
         unSuscriptor = malloc(sizeof(t_suscriptor));
         unSuscriptor->identificador = generarNuevoIdSuscriptor();
@@ -1189,83 +1197,44 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
 
         //ME HAGO CLIENTE DEL SUSCRIPTOR
 
-        unSuscriptor->identificadorCorrelacional = cliente(unSuscriptor->ip, unSuscriptor->puerto, 1);
+        unSuscriptor->identificadorCorrelacional = cliente(unSuscriptor->ip, unSuscriptor->puerto, 5);
+
+        log_warning(logger, "\n\t--NUEVO CLIENTE: %d\n\t--IP: %s\n\t--PUERTO: %d\n\t--SOCKET: %d ", unSuscriptor->identificador, unSuscriptor->ip, unSuscriptor->puerto, unSuscriptor->identificadorCorrelacional);
 
         list_add(SUSCRIPTORES_LISTA, unSuscriptor);
 
-        log_info(logger, "Nuevo Suscriber a SUSCRIPTORES_LISTA");
+        // log_info(logger, "\n\nSUSCRIPTOR ............................: \n");
+        // log_info(logger, "\nip: %s", unSuscriptor->ip);
+        // log_info(logger, "\npuerto: %d", unSuscriptor->puerto);
+        // log_info(logger, "\nIdentificador: %d", unSuscriptor->identificador);
+        // log_info(logger, "\nIdentificador Correlacional: %d", unSuscriptor->identificadorCorrelacional);
+        // log_info(logger, "\nCola de mensajes a suscribirse: %d", unSuscriptor->colaDeMensajes);
+        // log_info(logger, "\nTiempo de suscripción: %d", unSuscriptor->tiempoDeSuscripcion);
+
         ingresarNuevoSuscriber(nuevaSuscripcion);
     }
 }
 
-/*
-
-typedef struct t_suscriptor{
-
-	uint32_t colaDeMensajes;
-	uint32_t tiempoDeSuscripcion;
-	char* ip;
-	uint32_t puerto;
-
-	
-} __attribute__((packed)) t_suscriptor;
-
-*/
-
-/*
-
-void enviarMensajesAnteriores(uint32_t nroCola, tSuscriptorEnCola *unSuscriptorEnCola) //??* sacar quedo obsoleto
+void reconectarSuscriptor(void *unaNuevaSuscripcion)
 {
 
-    uint32_t tiempoActual = (uint32_t)time(NULL);
+    t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
-    if (unSuscriptorEnCola->timeToLive == 0 || unSuscriptorEnCola->timeToLive >= (tiempoActual - unSuscriptorEnCola->startTime))
-    {
+    if(enviarInt(unSuscriptor->identificadorCorrelacional, PING ) < 0){
 
-        t_list *mensajesAEnviar = list_create();
+        log_warning(logger, "\n\t----------Reconectando con Suscriptor-----------------");    
 
-        pthread_mutex_lock(&mutex_tipoMensajeABuscar);
+        unSuscriptor->identificadorCorrelacional = cliente(unSuscriptor->ip, unSuscriptor->puerto, 5);
 
-        tipoMensajeABuscar = nroCola;
-
-        mensajesAEnviar = list_filter(MENSAJES_LISTA, &existeTipoMensaje);
-
-        pthread_mutex_unlock(&mutex_tipoMensajeABuscar);
-
-        //??* enviar todos los mensaje ANteriores
-
-        pthread_mutex_lock(&mutex_idSuscriptorABuscar);
-
-        idSuscriptorABuscar = unSuscriptorEnCola->identificador;
-        t_suscriptor *suscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
-
-        pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
-
-        uint32_t tamLista = list_size(mensajesAEnviar);
-        tMensaje *unMensaje;
-
-        for (int i = 0; i < tamLista; i++)
-        {
-            unMensaje = list_get(mensajesAEnviar, i);
-
-            switch (nroCola)
-            {
-            case 1:
-            {
-                enviarMensajeNewPokemon(unMensaje, suscriptor); //??* falta completar con resto de MENSAJES_LISTA
-            }
-            default:
-            {
-
-                log_error(logger, "ERROR EN enviarMensajesAnteriores() ");
-                abort();
-                break;
-            }
-            }
-        }
+        log_warning(logger, "\n\t--Suscriptor reconectado: %d\n\t--IP: %s\n\t--PUERTO: %d\n\t--SOCKET: %d ", 
+        unSuscriptor->identificador, unSuscriptor->ip, unSuscriptor->puerto, unSuscriptor->identificadorCorrelacional);
     }
+
+
+
 }
-*/
+
+////////////////////////////////////////FUNCIONES ENVIAR MENSAJES A SUSCRIBER////////////////////////////////////////////////
 
 void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
 {
@@ -1303,8 +1272,12 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
 
     int tamanioNewPokemon = 0;
 
-    enviarInt(unSuscriptor->identificadorCorrelacional, 4);
+    enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tNewPokemon, unNewPokemon, tamanioNewPokemon);
+
+    log_trace(logger, "\n\t--> SE ENVIO EL MENSAJE %d DE LA COLA NEW AL SUSCRIPTOR %d", unMensaje->idMensaje, unSuscriptor->identificador);
+
+    //LO AGREGO A LA COLA DE ENVIADOS
 
     bool anyAck = false;
 
@@ -1312,7 +1285,7 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
 
     ackABuscar = unSuscriptor->identificador;
 
-    anyAck = list_any_satisfy(unMensaje->suscriptoresEnviados, &existeAck); //ANTES DE AGREGAR EL MENSAJE a MENSAJES_LISTA CREAR LISTAS ACK Y ENVIADOS
+    anyAck = list_any_satisfy(unMensaje->suscriptoresEnviados, &existeAck);
 
     pthread_mutex_unlock(&mutex_ackABuscar);
 
@@ -1330,19 +1303,29 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
         if (tipoResultado == 1)
         {
 
-            log_info(logger, "enviarMensajeNewPokemon() ok realizando ack");
+            log_trace(logger, "\n\t-- RECIBI ACK DE NEWPOKEMON --> DE BROKER");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 2)
         {
-
-            log_info(logger, "ERROR enviarMensajeNewPokemon()"); //??* este caso no contemplar nunca ocurre creo, preguntar por las dudas
+            log_trace(logger, "\n\t-- RECIBI ACK DE NEWPOKEMON -->DE GAMEBOY");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 3)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE NEWPOKEMON -->DE GAMECARD");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 4)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE NEWPOKEMON -->DE TEAM");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
     }
     else
     {
-
-        log_error(logger, "ERROR enviarMensajeNewPokemon() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
+        log_error(logger, "ERROR enviarMensaje-NewPokemon no recibi nada server apagado ");
+        reconectarSuscriptor(unSuscriptor);
     }
 
     free(unNewPokemon);
@@ -1384,8 +1367,10 @@ void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion
 
     int tamanioPokemon = 0;
 
-    enviarInt(unSuscriptor->identificadorCorrelacional, 4);
+    enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tAppearedPokemon, unAppearedPokemon, tamanioPokemon);
+
+    log_trace(logger, "\n\t--> SE ENVIO EL MENSAJE %d DE LA COLA APPEARED AL SUSCRIPTOR %d", unMensaje->idMensaje, unSuscriptor->identificador);
 
     bool anyAck = false;
 
@@ -1411,19 +1396,30 @@ void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion
         if (tipoResultado == 1)
         {
 
-            log_info(logger, "enviarMensajeNewPokemon() ok realizando ack");
+            log_trace(logger, "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE BROKER");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 2)
         {
-
-            log_info(logger, "ERROR enviarMensajeNewPokemon()"); //??* este caso no contemplar nunca ocurre creo, preguntar por las dudas
+            log_trace(logger, "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE GAMEBOY");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 3)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE GAMECARD");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 4)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE TEAM");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
     }
     else
     {
 
-        log_error(logger, "ERROR enviarMensajeNewPokemon() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
+        log_error(logger, "ERROR enviarMensajeAPPEARED() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
+        reconectarSuscriptor(unSuscriptor);
     }
 
     free(unAppearedPokemon);
@@ -1464,8 +1460,10 @@ void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
 
     int tamanioPokemon = 0;
 
-    enviarInt(unSuscriptor->identificadorCorrelacional, 4);
+    enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tCatchPokemon, unCatchPokemon, tamanioPokemon);
+
+    log_trace(logger, "\n\t--> SE ENVIO EL MENSAJE %d DE LA COLA CATCH AL SUSCRIPTOR %d", unMensaje->idMensaje, unSuscriptor->identificador);
 
     bool anyAck = false;
 
@@ -1487,23 +1485,32 @@ void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
 
     if ((resultado = recibirInt(unSuscriptor->identificadorCorrelacional, &tipoResultado)) > 0)
     {
-
         if (tipoResultado == 1)
         {
 
-            log_info(logger, "enviarMensajeNewPokemon() ok realizando ack");
+            log_trace(logger, "\n\t-- RECIBI ACK DE CATCHPOKEMON -->DE BROKER");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 2)
         {
-
-            log_info(logger, "ERROR enviarMensajeNewPokemon()"); //??* este caso no contemplar nunca ocurre creo, preguntar por las dudas
+            log_trace(logger, "\n\t-- RECIBI ACK DE CATCHPOKEMON -->DE GAMEBOY");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 3)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE CATCHPOKEMON -->DE GAMECARD");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 4)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE CATCHPOKEMON -->DE TEAM");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
     }
     else
     {
-
-        log_error(logger, "ERROR enviarMensajeNewPokemon() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
+        log_error(logger, "ERROR enviarMensajecatch() no recibi nada server apagado ");
+        reconectarSuscriptor(unSuscriptor);
     }
 
     free(unCatchPokemon);
@@ -1523,8 +1530,10 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
 
     int tamanioPokemon = 0;
 
-    enviarInt(unSuscriptor->identificadorCorrelacional, 4);
+    enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tCaughtPokemon, unCaughtPokemon, tamanioPokemon);
+
+    log_trace(logger, "\n\t--> SE ENVIO EL MENSAJE %d DE LA COLA CAUGHT AL SUSCRIPTOR %d", unMensaje->idMensaje, unSuscriptor->identificador);
 
     bool anyAck = false;
 
@@ -1546,23 +1555,32 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
 
     if ((resultado = recibirInt(unSuscriptor->identificadorCorrelacional, &tipoResultado)) > 0)
     {
-
         if (tipoResultado == 1)
         {
 
-            log_info(logger, "enviarMensajeNewPokemon() ok realizando ack");
+            log_trace(logger, "\n\t-- RECIBI ACK DE CAUGHTPOKEMON -->DE BROKER");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 2)
         {
-
-            log_info(logger, "ERROR enviarMensajeNewPokemon()"); //??* este caso no contemplar nunca ocurre creo, preguntar por las dudas
+            log_trace(logger, "\n\t-- RECIBI ACK DE CAUGHTPOKEMON -->DE GAMEBOY");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 3)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE CAUGHTPOKEMON -->DE GAMECARD");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 4)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE CAUGHTPOKEMON -->DE TEAM");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
     }
     else
     {
 
-        log_error(logger, "ERROR enviarMensajeNewPokemon() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
+        log_error(logger, "ERROR enviarMensaje-CAUGHT no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
     }
 
     free(unCaughtPokemon);
@@ -1597,8 +1615,10 @@ void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
 
     int tamanioPokemon = 0;
 
-    enviarInt(unSuscriptor->identificadorCorrelacional, 4);
+    enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tGetPokemon, unGetPokemon, tamanioPokemon);
+
+    log_trace(logger, "\n\t--> SE ENVIO EL MENSAJE %d DE LA COLA GET AL SUSCRIPTOR %d", unMensaje->idMensaje, unSuscriptor->identificador);
 
     bool anyAck = false;
 
@@ -1624,19 +1644,29 @@ void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
         if (tipoResultado == 1)
         {
 
-            log_info(logger, "enviarMensajeNewPokemon() ok realizando ack");
+            log_trace(logger, "\n\t-- RECIBI ACK DE GETPOKEMON -->DE BROKER");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 2)
         {
-
-            log_info(logger, "ERROR enviarMensajeNewPokemon()"); //??* este caso no contemplar nunca ocurre creo, preguntar por las dudas
+            log_trace(logger, "\n\t-- RECIBI ACK DE GETPOKEMON -->DE GAMEBOY");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 3)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE GETPOKEMON -->DE GAMECARD");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 4)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE GETPOKEMON -->DE TEAM");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
     }
     else
     {
 
-        log_error(logger, "ERROR enviarMensajeNewPokemon() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
+        log_error(logger, "ERROR enviarMensajeGET() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
     }
 
     free(unGetPokemon);
@@ -1701,8 +1731,10 @@ void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcio
 
     int tamanioPokemon = 0;
 
-    enviarInt(unSuscriptor->identificadorCorrelacional, 4);
+    enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tLocalizedPokemon, unLocalizedPokemon, tamanioPokemon);
+
+    log_trace(logger, "\n\t--> SE ENVIO EL MENSAJE %d DE LA COLA LOCALIZED AL SUSCRIPTOR %d", unMensaje->idMensaje, unSuscriptor->identificador);
 
     bool anyAck = false;
 
@@ -1710,7 +1742,7 @@ void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcio
 
     ackABuscar = unSuscriptor->identificador;
 
-    anyAck = list_any_satisfy(unMensaje->suscriptoresEnviados, &existeAck); //ANTES DE AGREGAR EL MENSAJE a MENSAJES_LISTA CREAR LISTAS ACK Y ENVIADOS
+    anyAck = list_any_satisfy(unMensaje->suscriptoresEnviados, &existeAck);
 
     pthread_mutex_unlock(&mutex_ackABuscar);
 
@@ -1728,23 +1760,35 @@ void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcio
         if (tipoResultado == 1)
         {
 
-            log_info(logger, "enviarMensajeNewPokemon() ok realizando ack");
+            log_trace(logger, "\n\t-- RECIBI ACK DE LOCALIZED -->DE BROKER");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 2)
         {
-
-            log_info(logger, "ERROR enviarMensajeNewPokemon()"); //??* este caso no contemplar nunca ocurre creo, preguntar por las dudas
+            log_trace(logger, "\n\t-- RECIBI ACK DE LOCALIZED -->DE GAMEBOY");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 3)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE LOCALIZED -->DE GAMECARD");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
+        }
+        else if (tipoResultado == 4)
+        {
+            log_trace(logger, "\n\t-- RECIBI ACK DE LOCALIZED -->DE TEAM");
+            list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
     }
     else
     {
-
-        log_error(logger, "ERROR enviarMensajeNewPokemon() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
+        log_error(logger, "ERROR enviarMensajeunLocalizedPokemon() no recibi nada server apagado "); 
+        reconectarSuscriptor(unSuscriptor);
     }
 
     free(unLocalizedPokemon);
 }
+
+////////////////////////////////////////HILOS DE COLAS////////////////////////////////////////////////
 
 void ejecutarColaNewPokemon()
 {
@@ -1765,7 +1809,7 @@ void ejecutarColaNewPokemon()
 
             pthread_mutex_lock(&mutex_tipoMensajeABuscar);
 
-            tipoMensajeABuscar = tNewPokemon; // 1== newPokemon
+            tipoMensajeABuscar = tNewPokemon; // BUSCO DE LA LISTA GLOBAL MENSAJES LOS DE LA COLA NEW
 
             mensajesAEnviar = list_filter(MENSAJES_LISTA, &existeTipoMensaje);
 
@@ -1784,13 +1828,13 @@ void ejecutarColaNewPokemon()
 
                     tiempoActual = (uint32_t)time(NULL);
 
-                    if (unSuscriptorCola->timeToLive == 0 || unSuscriptorCola->timeToLive >= (tiempoActual - unSuscriptorCola->startTime))
+                    if (unSuscriptorCola->timeToLive == 0 || unSuscriptorCola->timeToLive >= (tiempoActual - unSuscriptorCola->startTime)) //??*FALTA ELIMINAR SUSCRIPTORES SI EL TIME SE ACABA
                     {
                         pthread_mutex_lock(&mutex_ackABuscar);
 
                         ackABuscar = unSuscriptorCola->identificador;
 
-                        anyAck = list_any_satisfy(unMensaje->acknowledgement, &existeAck); //ANTES DE AGREGAR EL MENSAJE a MENSAJES_LISTA CREAR LISTAS ACK Y ENVIADOS
+                        anyAck = list_any_satisfy(unMensaje->acknowledgement, &existeAck);
 
                         pthread_mutex_unlock(&mutex_ackABuscar);
 
@@ -2224,3 +2268,72 @@ bool existeAck(void *numero)
 
     return existe;
 }
+
+/*
+
+typedef struct t_suscriptor{
+
+	uint32_t colaDeMensajes;
+	uint32_t tiempoDeSuscripcion;
+	char* ip;
+	uint32_t puerto;
+
+	
+} __attribute__((packed)) t_suscriptor;
+
+*/
+
+/*
+
+void enviarMensajesAnteriores(uint32_t nroCola, tSuscriptorEnCola *unSuscriptorEnCola) //??* sacar quedo obsoleto
+{
+
+    uint32_t tiempoActual = (uint32_t)time(NULL);
+
+    if (unSuscriptorEnCola->timeToLive == 0 || unSuscriptorEnCola->timeToLive >= (tiempoActual - unSuscriptorEnCola->startTime))
+    {
+
+        t_list *mensajesAEnviar = list_create();
+
+        pthread_mutex_lock(&mutex_tipoMensajeABuscar);
+
+        tipoMensajeABuscar = nroCola;
+
+        mensajesAEnviar = list_filter(MENSAJES_LISTA, &existeTipoMensaje);
+
+        pthread_mutex_unlock(&mutex_tipoMensajeABuscar);
+
+        //??* enviar todos los mensaje ANteriores
+
+        pthread_mutex_lock(&mutex_idSuscriptorABuscar);
+
+        idSuscriptorABuscar = unSuscriptorEnCola->identificador;
+        t_suscriptor *suscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
+
+        pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+
+        uint32_t tamLista = list_size(mensajesAEnviar);
+        tMensaje *unMensaje;
+
+        for (int i = 0; i < tamLista; i++)
+        {
+            unMensaje = list_get(mensajesAEnviar, i);
+
+            switch (nroCola)
+            {
+            case 1:
+            {
+                enviarMensajeNewPokemon(unMensaje, suscriptor); //??* falta completar con resto de MENSAJES_LISTA
+            }
+            default:
+            {
+
+                log_error(logger, "ERROR EN enviarMensajesAnteriores() ");
+                abort();
+                break;
+            }
+            }
+        }
+    }
+}
+*/

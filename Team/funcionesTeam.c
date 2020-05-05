@@ -170,7 +170,12 @@ void administradorDeConexiones(void* infoAdmin){
         fflush(stdout);
         close(unaInfoAdmin->socketCliente);
         
-    }else if(resultado < 0){
+    }else if (resultado == -2){
+
+        log_info(logger, "ME HICIERON UN PING\n\n\n");
+        
+    }
+    else if(resultado == -1 || resultado < -2){
         
         log_warning(logger, "ERROR AL RECIBIR");
         close(unaInfoAdmin->socketCliente);

@@ -297,7 +297,7 @@ uint32_t main(int argc, char **argv) {
 
 		}else if(strcmp(argv[1], "SUSCRIPTOR") == 0){
 
-			if(strcmp(argv[2], NEW_POKEMON) == 0 || strcmp(argv[2], CATCH_POKEMON) == 0 || strcmp(argv[2], CAUGHT_POKEMON) == 0 || strcmp(argv[2], GET_POKEMON) == 0 || strcmp(argv[2], APPEARED_POKEMON) == 0){
+			if(strcmp(argv[2], NEW_POKEMON) == 0 || strcmp(argv[2], CATCH_POKEMON) == 0 || strcmp(argv[2], CAUGHT_POKEMON) == 0 || strcmp(argv[2], GET_POKEMON) == 0 || strcmp(argv[2], APPEARED_POKEMON) == 0 || strcmp(argv[2], LOCALIZED_POKEMON) == 0){
 
 				if(argv[3] == NULL){
 

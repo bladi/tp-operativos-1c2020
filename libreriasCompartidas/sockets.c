@@ -14,6 +14,7 @@ int escucharSocket(int puertoObjetivo) {
   	if (setsockopt(socketEscucha, SOL_SOCKET, SO_REUSEADDR, (char *) &activador, sizeof(activador)) < 0) {
   		return -1;
   	}
+	  
 
   	direccion.sin_family = AF_INET;
   	direccion.sin_addr.s_addr = INADDR_ANY;
@@ -231,6 +232,10 @@ char* devuelveNombreProceso(int idProceso) {
 		}
 		case 4: {
 			string_append(&nombreProceso,"Team");
+			break;
+		}
+		case 5: {
+			string_append(&nombreProceso,"Suscriptor");
 			break;
 		}
 		case -1:{

@@ -1,0 +1,237 @@
+[INFO] 20:11:09:338 GAME CARD/(18273:18273): LOG INICIALIZADO CON EXITO
+[INFO] 20:11:09:338 GAME CARD/(18273:18273): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 20:11:09:343 GAME CARD/(18273:18273): - CONEXION EXITOSA
+[TRACE] 20:11:09:343 GAME CARD/(18273:18273): - Conectado a Broker a través del socket 4
+[INFO] 20:11:09:343 GAME CARD/(18273:18273): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 20:11:09:378 GAME CARD/(18273:18278): Cliente conectado!
+[INFO] 20:11:09:378 GAME CARD/(18273:18278): Creando hilo de administracion de conexion con cliente ....
+[INFO] 20:11:09:379 GAME CARD/(18273:18278): Hilo creado correctamente
+[INFO] 20:11:09:381 GAME CARD/(18273:18273): Pedido de suscripción realizado con éxito
+[INFO] 20:11:22:280 GAME CARD/(18273:18280): Tipo de mensaje recibido: 2
+[INFO] 20:11:22:280 GAME CARD/(18273:18280): Se recibió un 'GET_POKEMON': 
+
+[INFO] 20:11:22:280 GAME CARD/(18273:18280): El ID del pókemon es 1.
+[INFO] 20:11:22:280 GAME CARD/(18273:18280): El ID correlacional del pókemon es 0.
+[INFO] 20:11:22:280 GAME CARD/(18273:18280): El nombre del Pokemón es: PIKACHU.
+[INFO] 20:11:22:280 GAME CARD/(18273:18280): Se le envió al Broker el resultado de la operación.
+[INFO] 20:11:22:280 GAME CARD/(18273:18280): El pokemón requerido existe en Game Card.
+[INFO] 20:11:22:280 GAME CARD/(18273:18280): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/PIKACHU/Metadata.bin
+[DEBUG] 20:11:22:281 GAME CARD/(18273:18280): +++++socket :  4 segundos.
+[INFO] 20:11:22:281 GAME CARD/(18273:18280): - SE HAN ENVIADO 47 BYTES CON EXITO
+[DEBUG] 20:11:22:281 GAME CARD/(18273:18280): ---socket :  4 segundos.
+[INFO] 20:11:48:752 GAME CARD/(18273:18280): Tipo de mensaje recibido: 2
+[INFO] 20:11:48:755 GAME CARD/(18273:18280): Se recibió un 'GET_POKEMON': 
+
+[INFO] 20:11:48:756 GAME CARD/(18273:18280): El ID del pókemon es 3.
+[INFO] 20:11:48:756 GAME CARD/(18273:18280): El ID correlacional del pókemon es 0.
+[INFO] 20:11:48:757 GAME CARD/(18273:18280): El nombre del Pokemón es: PIKACHU.
+[INFO] 20:11:48:758 GAME CARD/(18273:18280): Se le envió al Broker el resultado de la operación.
+[INFO] 20:11:48:759 GAME CARD/(18273:18280): El pokemón requerido existe en Game Card.
+[INFO] 20:11:48:759 GAME CARD/(18273:18280): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/PIKACHU/Metadata.bin
+[DEBUG] 20:11:48:760 GAME CARD/(18273:18280): +++++socket :  4 segundos.
+[INFO] 20:11:48:761 GAME CARD/(18273:18280): - SE HAN ENVIADO 47 BYTES CON EXITO
+[DEBUG] 20:11:48:761 GAME CARD/(18273:18280): ---socket :  4 segundos.
+[INFO] 20:11:48:761 GAME CARD/(18273:18280): El LOCALIZED_POKEMON se envió con éxito al Broker.
+[INFO] 20:12:02:759 GAME CARD/(18273:18280): Tipo de mensaje recibido: 2
+[INFO] 20:12:02:760 GAME CARD/(18273:18280): Se recibió un 'GET_POKEMON': 
+
+[INFO] 20:12:02:760 GAME CARD/(18273:18280): El ID del pókemon es 5.
+[INFO] 20:12:02:760 GAME CARD/(18273:18280): El ID correlacional del pókemon es 0.
+[INFO] 20:12:02:760 GAME CARD/(18273:18280): El nombre del Pokemón es: PIKACHU.
+[INFO] 20:12:02:760 GAME CARD/(18273:18280): Se le envió al Broker el resultado de la operación.
+[INFO] 20:12:02:761 GAME CARD/(18273:18280): El pokemón requerido existe en Game Card.
+[INFO] 20:12:02:762 GAME CARD/(18273:18280): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/PIKACHU/Metadata.bin
+[DEBUG] 20:12:02:762 GAME CARD/(18273:18280): +++++socket :  4 segundos.
+[INFO] 20:12:02:763 GAME CARD/(18273:18280): - SE HAN ENVIADO 47 BYTES CON EXITO
+[DEBUG] 20:12:02:763 GAME CARD/(18273:18280): ---socket :  4 segundos.
+[WARNING] 20:12:28:244 GAME CARD/(18273:18280): CLIENTE DESCONECTADO
+[INFO] 01:15:20:693 GAME CARD/(19437:19437): LOG INICIALIZADO CON EXITO
+[INFO] 01:15:20:694 GAME CARD/(19437:19437): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 01:15:20:694 GAME CARD/(19437:19437): - CONEXION EXITOSA
+[TRACE] 01:15:20:694 GAME CARD/(19437:19437): - Conectado a Broker a través del socket 4
+[INFO] 01:15:20:695 GAME CARD/(19437:19437): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 01:15:20:714 GAME CARD/(19437:19440): Cliente conectado!
+[INFO] 01:15:20:714 GAME CARD/(19437:19440): Creando hilo de administracion de conexion con cliente ....
+[INFO] 01:15:20:715 GAME CARD/(19437:19440): Hilo creado correctamente
+[INFO] 01:15:20:718 GAME CARD/(19437:19437): Pedido de suscripción realizado con éxito
+[INFO] 01:15:38:311 GAME CARD/(19437:19442): Tipo de mensaje recibido: 1
+[INFO] 01:15:38:311 GAME CARD/(19437:19442): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 01:15:38:312 GAME CARD/(19437:19442): El ID del mensaje es: 2
+[INFO] 01:15:38:312 GAME CARD/(19437:19442): El ID correlacional del mensaje es: 0.
+[INFO] 01:15:38:312 GAME CARD/(19437:19442): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 01:15:38:312 GAME CARD/(19437:19442): El nombre del Pokemón es: NONOs.
+[INFO] 01:15:38:312 GAME CARD/(19437:19442): La cantidad del pokemón es: 10.
+[INFO] 01:15:38:312 GAME CARD/(19437:19442): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 01:15:38:312 GAME CARD/(19437:19442): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 01:15:38:312 GAME CARD/(19437:19442): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 01:15:38:312 GAME CARD/(19437:19442): Bloque 0 del pokemon NONOs: 5
+[TRACE] 01:15:38:312 GAME CARD/(19437:19442): Bloque pasado a int: 5
+[INFO] 01:15:38:313 GAME CARD/(19437:19442): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 01:15:38:313 GAME CARD/(19437:19442): - SE HAN ENVIADO 33 BYTES CON EXITO
+[WARNING] 01:16:02:567 GAME CARD/(19437:19442): CLIENTE DESCONECTADO
+[INFO] 01:59:23:372 GAME CARD/(20379:20379): LOG INICIALIZADO CON EXITO
+[INFO] 01:59:23:372 GAME CARD/(20379:20379): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 01:59:23:373 GAME CARD/(20379:20379): - CONEXION EXITOSA
+[TRACE] 01:59:23:373 GAME CARD/(20379:20379): - Conectado a Broker a través del socket 4
+[INFO] 01:59:23:374 GAME CARD/(20379:20379): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 01:59:23:380 GAME CARD/(20379:20383): Cliente conectado!
+[INFO] 01:59:23:380 GAME CARD/(20379:20383): Creando hilo de administracion de conexion con cliente ....
+[INFO] 01:59:23:380 GAME CARD/(20379:20383): Hilo creado correctamente
+[INFO] 01:59:23:385 GAME CARD/(20379:20379): Pedido de suscripción realizado con éxito
+[INFO] 01:59:29:242 GAME CARD/(20379:20384): Tipo de mensaje recibido: 1
+[INFO] 01:59:29:242 GAME CARD/(20379:20384): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 01:59:29:242 GAME CARD/(20379:20384): El ID del mensaje es: 2
+[INFO] 01:59:29:242 GAME CARD/(20379:20384): El ID correlacional del mensaje es: 0.
+[INFO] 01:59:29:242 GAME CARD/(20379:20384): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 01:59:29:243 GAME CARD/(20379:20384): El nombre del Pokemón es: NONOs.
+[INFO] 01:59:29:243 GAME CARD/(20379:20384): La cantidad del pokemón es: 10.
+[INFO] 01:59:29:243 GAME CARD/(20379:20384): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 01:59:29:243 GAME CARD/(20379:20384): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 01:59:29:245 GAME CARD/(20379:20384): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 01:59:29:245 GAME CARD/(20379:20384): Bloque 0 del pokemon NONOs: 5
+[TRACE] 01:59:29:245 GAME CARD/(20379:20384): Bloque pasado a int: 5
+[INFO] 01:59:29:246 GAME CARD/(20379:20384): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 01:59:29:246 GAME CARD/(20379:20384): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 02:03:20:160 GAME CARD/(20379:20384): Tipo de mensaje recibido: 1
+[INFO] 02:03:20:160 GAME CARD/(20379:20384): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 02:03:20:160 GAME CARD/(20379:20384): El ID del mensaje es: 5
+[INFO] 02:03:20:160 GAME CARD/(20379:20384): El ID correlacional del mensaje es: 0.
+[INFO] 02:03:20:160 GAME CARD/(20379:20384): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 02:03:20:160 GAME CARD/(20379:20384): El nombre del Pokemón es: NONOs.
+[INFO] 02:03:20:160 GAME CARD/(20379:20384): La cantidad del pokemón es: 10.
+[INFO] 02:03:20:160 GAME CARD/(20379:20384): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 02:03:20:160 GAME CARD/(20379:20384): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:03:20:160 GAME CARD/(20379:20384): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:03:20:160 GAME CARD/(20379:20384): Bloque 0 del pokemon NONOs: 5
+[TRACE] 02:03:20:160 GAME CARD/(20379:20384): Bloque pasado a int: 5
+[INFO] 02:03:20:161 GAME CARD/(20379:20384): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 02:03:20:161 GAME CARD/(20379:20384): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 02:03:20:161 GAME CARD/(20379:20384): El APPEARED_POKEMON se envió con éxito al Broker.
+[WARNING] 02:03:20:400 GAME CARD/(20379:20384): CLIENTE DESCONECTADO
+[INFO] 02:04:46:24 GAME CARD/(20536:20536): LOG INICIALIZADO CON EXITO
+[INFO] 02:04:46:24 GAME CARD/(20536:20536): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 02:04:46:25 GAME CARD/(20536:20536): - CONEXION EXITOSA
+[TRACE] 02:04:46:25 GAME CARD/(20536:20536): - Conectado a Broker a través del socket 4
+[INFO] 02:04:46:25 GAME CARD/(20536:20536): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 02:04:46:39 GAME CARD/(20536:20540): Cliente conectado!
+[INFO] 02:04:46:39 GAME CARD/(20536:20540): Creando hilo de administracion de conexion con cliente ....
+[INFO] 02:04:46:40 GAME CARD/(20536:20540): Hilo creado correctamente
+[INFO] 02:04:46:44 GAME CARD/(20536:20536): Pedido de suscripción realizado con éxito
+[INFO] 02:05:20:503 GAME CARD/(20536:20541): Tipo de mensaje recibido: 1
+[INFO] 02:05:20:503 GAME CARD/(20536:20541): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 02:05:20:503 GAME CARD/(20536:20541): El ID del mensaje es: 2
+[INFO] 02:05:20:504 GAME CARD/(20536:20541): El ID correlacional del mensaje es: 0.
+[INFO] 02:05:20:504 GAME CARD/(20536:20541): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 02:05:20:504 GAME CARD/(20536:20541): El nombre del Pokemón es: NONOs.
+[INFO] 02:05:20:504 GAME CARD/(20536:20541): La cantidad del pokemón es: 10.
+[INFO] 02:05:20:504 GAME CARD/(20536:20541): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 02:05:20:504 GAME CARD/(20536:20541): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:05:20:504 GAME CARD/(20536:20541): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:05:20:504 GAME CARD/(20536:20541): Bloque 0 del pokemon NONOs: 5
+[TRACE] 02:05:20:504 GAME CARD/(20536:20541): Bloque pasado a int: 5
+[INFO] 02:05:20:504 GAME CARD/(20536:20541): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 02:05:20:505 GAME CARD/(20536:20541): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 02:05:25:139 GAME CARD/(20536:20541): Tipo de mensaje recibido: 1
+[INFO] 02:05:25:141 GAME CARD/(20536:20541): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 02:05:25:141 GAME CARD/(20536:20541): El ID del mensaje es: 5
+[INFO] 02:05:25:141 GAME CARD/(20536:20541): El ID correlacional del mensaje es: 0.
+[INFO] 02:05:25:141 GAME CARD/(20536:20541): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 02:05:25:141 GAME CARD/(20536:20541): El nombre del Pokemón es: NONOs.
+[INFO] 02:05:25:141 GAME CARD/(20536:20541): La cantidad del pokemón es: 10.
+[INFO] 02:05:25:141 GAME CARD/(20536:20541): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 02:05:25:142 GAME CARD/(20536:20541): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:05:25:142 GAME CARD/(20536:20541): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:05:25:147 GAME CARD/(20536:20541): Bloque 0 del pokemon NONOs: 5
+[TRACE] 02:05:25:147 GAME CARD/(20536:20541): Bloque pasado a int: 5
+[INFO] 02:05:25:147 GAME CARD/(20536:20541): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 02:05:25:148 GAME CARD/(20536:20541): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 02:05:25:148 GAME CARD/(20536:20541): El APPEARED_POKEMON se envió con éxito al Broker.
+[INFO] 02:05:27:247 GAME CARD/(20536:20541): Tipo de mensaje recibido: 1
+[INFO] 02:05:27:247 GAME CARD/(20536:20541): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 02:05:27:247 GAME CARD/(20536:20541): El ID del mensaje es: 8
+[INFO] 02:05:27:247 GAME CARD/(20536:20541): El ID correlacional del mensaje es: 0.
+[INFO] 02:05:27:247 GAME CARD/(20536:20541): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 02:05:27:247 GAME CARD/(20536:20541): El nombre del Pokemón es: NONOs.
+[INFO] 02:05:27:247 GAME CARD/(20536:20541): La cantidad del pokemón es: 10.
+[INFO] 02:05:27:247 GAME CARD/(20536:20541): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 02:05:27:247 GAME CARD/(20536:20541): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:05:27:248 GAME CARD/(20536:20541): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:05:27:248 GAME CARD/(20536:20541): Bloque 0 del pokemon NONOs: 5
+[TRACE] 02:05:27:248 GAME CARD/(20536:20541): Bloque pasado a int: 5
+[INFO] 02:05:27:248 GAME CARD/(20536:20541): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 02:05:27:249 GAME CARD/(20536:20541): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 02:06:33:732 GAME CARD/(20536:20541): Tipo de mensaje recibido: 1
+[INFO] 02:06:33:732 GAME CARD/(20536:20541): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 02:06:33:732 GAME CARD/(20536:20541): El ID del mensaje es: 11
+[INFO] 02:06:33:732 GAME CARD/(20536:20541): El ID correlacional del mensaje es: 0.
+[INFO] 02:06:33:732 GAME CARD/(20536:20541): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 02:06:33:732 GAME CARD/(20536:20541): El nombre del Pokemón es: NONOs.
+[INFO] 02:06:33:732 GAME CARD/(20536:20541): La cantidad del pokemón es: 10.
+[INFO] 02:06:33:732 GAME CARD/(20536:20541): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 02:06:33:733 GAME CARD/(20536:20541): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:06:33:733 GAME CARD/(20536:20541): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:06:33:733 GAME CARD/(20536:20541): Bloque 0 del pokemon NONOs: 5
+[TRACE] 02:06:33:733 GAME CARD/(20536:20541): Bloque pasado a int: 5
+[INFO] 02:06:33:733 GAME CARD/(20536:20541): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 02:06:33:734 GAME CARD/(20536:20541): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 02:06:33:734 GAME CARD/(20536:20541): El APPEARED_POKEMON se envió con éxito al Broker.
+[WARNING] 02:06:33:891 GAME CARD/(20536:20541): CLIENTE DESCONECTADO
+[INFO] 02:58:34:48 GAME CARD/(21371:21371): LOG INICIALIZADO CON EXITO
+[INFO] 02:58:34:51 GAME CARD/(21371:21371): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 02:58:34:57 GAME CARD/(21371:21371): - CONEXION EXITOSA
+[TRACE] 02:58:34:58 GAME CARD/(21371:21371): - Conectado a Broker a través del socket 4
+[INFO] 02:58:34:59 GAME CARD/(21371:21371): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 02:58:34:72 GAME CARD/(21371:21371): Pedido de suscripción realizado con éxito
+[INFO] 02:59:08:830 GAME CARD/(21371:21375): Cliente conectado!
+[INFO] 02:59:08:830 GAME CARD/(21371:21375): Creando hilo de administracion de conexion con cliente ....
+[INFO] 02:59:08:830 GAME CARD/(21371:21375): Hilo creado correctamente
+[INFO] 02:59:08:838 GAME CARD/(21371:21381): Tipo de mensaje recibido: 1
+[INFO] 02:59:08:838 GAME CARD/(21371:21381): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 02:59:08:838 GAME CARD/(21371:21381): El ID del mensaje es: 2
+[INFO] 02:59:08:839 GAME CARD/(21371:21381): El ID correlacional del mensaje es: 0.
+[INFO] 02:59:08:839 GAME CARD/(21371:21381): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 02:59:08:839 GAME CARD/(21371:21381): El nombre del Pokemón es: NONOs.
+[INFO] 02:59:08:839 GAME CARD/(21371:21381): La cantidad del pokemón es: 10.
+[INFO] 02:59:08:839 GAME CARD/(21371:21381): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 02:59:08:839 GAME CARD/(21371:21381): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:59:08:840 GAME CARD/(21371:21381): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 02:59:08:849 GAME CARD/(21371:21381): Bloque 0 del pokemon NONOs: 5
+[TRACE] 02:59:08:852 GAME CARD/(21371:21381): Bloque pasado a int: 5
+[INFO] 02:59:08:852 GAME CARD/(21371:21381): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 02:59:08:853 GAME CARD/(21371:21381): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 03:02:14:608 GAME CARD/(21371:21381): Tipo de mensaje recibido: 2
+[INFO] 03:02:14:608 GAME CARD/(21371:21381): Se recibió un 'GET_POKEMON': 
+
+[INFO] 03:02:14:608 GAME CARD/(21371:21381): El ID del pókemon es 4.
+[INFO] 03:02:14:608 GAME CARD/(21371:21381): El ID correlacional del pókemon es 0.
+[INFO] 03:02:14:608 GAME CARD/(21371:21381): El nombre del Pokemón es: PIKACHU.
+[INFO] 03:02:14:608 GAME CARD/(21371:21381): Se le envió al Broker el resultado de la operación.
+[INFO] 03:02:14:608 GAME CARD/(21371:21381): El pokemón requerido existe en Game Card.
+[INFO] 03:02:14:608 GAME CARD/(21371:21381): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/PIKACHU/Metadata.bin
+[DEBUG] 03:02:14:609 GAME CARD/(21371:21381): +++++socket :  4 segundos.
+[INFO] 03:02:14:609 GAME CARD/(21371:21381): - SE HAN ENVIADO 47 BYTES CON EXITO
+[DEBUG] 03:02:14:609 GAME CARD/(21371:21381): ---socket :  4 segundos.
+[INFO] 03:02:14:609 GAME CARD/(21371:21381): El LOCALIZED_POKEMON se envió con éxito al Broker.
+[WARNING] 03:02:29:210 GAME CARD/(21371:21381): CLIENTE DESCONECTADO
+[INFO] 03:02:48:963 GAME CARD/(21413:21413): LOG INICIALIZADO CON EXITO
+[INFO] 03:02:48:963 GAME CARD/(21413:21413): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[ERROR] 03:02:48:973 GAME CARD/(21413:21413): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 03:02:48:973 GAME CARD/(21413:21413): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[INFO] 03:02:48:973 GAME CARD/(21413:21413): - SE HAN ENVIADO -1 BYTES CON EXITO
+[ERROR] 03:02:48:973 GAME CARD/(21413:21413): Hubo un error al recibir el resultado de la operación desde el Broker
+[ERROR] 03:02:58:974 GAME CARD/(21413:21415): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 03:02:58:975 GAME CARD/(21413:21415): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 03:02:58:975 GAME CARD/(21413:21415): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 03:02:58:975 GAME CARD/(21413:21415): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[ERROR] 03:03:08:975 GAME CARD/(21413:21415): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 03:03:08:976 GAME CARD/(21413:21415): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 03:03:08:976 GAME CARD/(21413:21415): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 03:03:08:976 GAME CARD/(21413:21415): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.

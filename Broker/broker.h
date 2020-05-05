@@ -46,6 +46,7 @@
 //////////////////////////////////////////////////////////////////////VARIABLES ESTATICAS/////////////////////////////////////////////////////////////////////////////////
 
 #define PATH_CONFIG_BROKER "configs/configBroker.config"
+#define PING -2
 
 ///////////////////////////////////////////////////////////////////////////ESTRUCTURAS////////////////////////////////////////////////////////////////////////////////////
 
@@ -135,7 +136,7 @@ pthread_t hiloLocalized;
 
 char *MEMORIA_PRINCIPAL;
 uint32_t NUM_SUSCRIPTOR;
-pthread_mutex_t mutex_NUM_SUSCRIPTOR;//??*preguntar si va
+pthread_mutex_t mutex_NUM_SUSCRIPTOR;
 uint32_t ID_MENSAJE;
 pthread_mutex_t mutex_ID_MENSAJE;//??*preguntar si va
 
@@ -161,6 +162,7 @@ uint32_t generarNuevoIdSuscriptor();
 char* getDireccionMemoriaLibre(uint32_t tamanio);
 
 void ingresarNuevoSuscriber(void* nuevaSuscripcion);
+void reconectarSuscriptor(void *unaNuevaSuscripcion);
 
 void enviarMensajeNewPokemon(tMensaje* unMensaje,void* unSuscriptor);
 void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void* unSuscriptor);
@@ -206,5 +208,7 @@ pthread_mutex_t mutex_ackABuscar;
 
 
  // 1 NEW_POKEMON_LISTA 2 APPEARED_POKEMON_LISTA 3 CATCH_POKEMON_LISTA 4 CAUGHT_POKEMON_LISTA 5 GET_POKEMON_LISTA 6 LOCALIZED_POKEMON_LISTA
+
+ // EL NUMERO DE IDENTIFICACION DEL PROCESO 1 BROKER 2 GAMEBOY 3 GAMECARD 4 TEAM
 
 #endif

@@ -36,7 +36,7 @@ void cargarConfiguracionGameBoy(){
         printf("\n\n· IP del Broker = %s\n", unGameBoyConfig->ipBroker);
         printf("· IP del Team = %s\n", unGameBoyConfig->ipTeam);
         printf("· IP del Game Card = %s\n", unGameBoyConfig->ipGameCard);
-        printf("· IP del Game Boy = %s\n", unGameBoyConfig->ipGameBoy);        
+        printf("· IP del Game Boy = %s\n", unGameBoyConfig->ipGameBoy);       
         printf("· Puerto del Broker = %d\n", unGameBoyConfig->puertoBroker);
         printf("· Puerto del Team = %d\n", unGameBoyConfig->puertoTeam);
         printf("· Puerto del Game Card = %d\n", unGameBoyConfig->puertoGameCard);
@@ -85,7 +85,12 @@ void administradorDeConexiones(void* infoAdmin){
         fflush(stdout);
         close(unaInfoAdmin->socketCliente);
         
-    }else if(resultado < 0){
+    }else if (resultado == -2){
+
+        log_info(logger, "ME HICIERON UN PING\n\n\n");
+        
+    }
+    else if(resultado == -1 || resultado < -2){
         
         log_warning(logger, "Se desconectó el broker, o bien, terminó el tiempo de suscripcióna la cola de mensajes.");
         close(unaInfoAdmin->socketCliente);
@@ -164,7 +169,6 @@ void enviarNewPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicio
 	unNewPokemon->cantidadDePokemon = atoi(cantidad);
 
     int tamanioNewPokemon = 0;
-
     enviarInt(socketBroker, 2);
     enviarPaquete(socketBroker, tNewPokemon, unNewPokemon, tamanioNewPokemon);
 
@@ -564,15 +568,37 @@ void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion){
     unSuscriptor->identificador = 0;
 	unSuscriptor->identificadorCorrelacional = 0;
 
-    unSuscriptor->colaDeMensajes = string_new();
-	string_append(&unSuscriptor->colaDeMensajes,colaDeMensajes);
+    if(strcmp(colaDeMensajes, APPEARED_POKEMON) == 0){
+
+        unSuscriptor->colaDeMensajes = tAppearedPokemon;
+
+    }else if(strcmp(colaDeMensajes, NEW_POKEMON) == 0){
+
+        unSuscriptor->colaDeMensajes = tNewPokemon;
+
+    }else if(strcmp(colaDeMensajes, GET_POKEMON) == 0){
+
+        unSuscriptor->colaDeMensajes = tGetPokemon;
+
+    }else if(strcmp(colaDeMensajes, CATCH_POKEMON) == 0){
+
+        unSuscriptor->colaDeMensajes = tCatchPokemon;
+
+     }else if(strcmp(colaDeMensajes, CAUGHT_POKEMON) == 0){
+
+        unSuscriptor->colaDeMensajes = tCaughtPokemon;
+
+    }else if(strcmp(colaDeMensajes, LOCALIZED_POKEMON) == 0){
+
+        unSuscriptor->colaDeMensajes = tLocalizedPokemon;
+
+    }
 
     unSuscriptor->tiempoDeSuscripcion = atoi(tiempoDeSuscripcion);
     unSuscriptor->puerto = unGameBoyConfig->puertoGameBoy;
 
     unSuscriptor->ip = string_new();
-    string_append(&unSuscriptor->ip,"0");
-    //string_append(&unSuscriptor->ip,unGameBoyConfig->ipGameBoy); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
+    string_append(&unSuscriptor->ip,unGameBoyConfig->ipGameBoy); 
 
     infoServidor_t* unaInfoServidorGameBoy;
 
@@ -584,7 +610,8 @@ void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion){
     string_append(&unaInfoServidorGameBoy->ip,"0");
 
     pthread_create(&hiloServidorGameBoy,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorGameBoy);
-    pthread_join(hiloServidorGameBoy, NULL);
+    
+
 
     int tamanioSuscriptor = 0;
 
@@ -611,7 +638,8 @@ void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion){
         log_error(logger,"Hubo un error al recibir el resultado de la operación desde el Broker");
 
     }
-
+    
+    pthread_join(hiloServidorGameBoy, NULL);
     free(unSuscriptor);
 
 }
@@ -641,7 +669,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
             log_info(logger,"La cantidad del pokemón es: %d.", unNewPokemon->cantidadDePokemon);
 
             log_info(logger,"Se le avisará al Broker que se recibió correctamente el NEW_POKEMON");
-            enviarInt(socketCliente, 1);
+            enviarInt(socketCliente, 2);
             
             break;
 
@@ -657,7 +685,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
             log_info(logger,"El nombre del Pokemón es: %s.",unGetPokemon->nombrePokemon);
 
             log_info(logger,"Se le avisará al Broker que se recibió correctamente el GET_POKEMON");
-            enviarInt(socketCliente, 1);
+            enviarInt(socketCliente, 2);
 
             break;
 
@@ -674,7 +702,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
             log_info(logger,"La posicion del pokémon en el mapa es: [%d,%d].", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
 
             log_info(logger,"Se le avisará al Broker que se recibió correctamente el CATCH_POKEMON");
-            enviarInt(socketCliente, 1);
+            enviarInt(socketCliente, 2);
 
             break;
 
@@ -691,7 +719,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
             log_info(logger,"La posicion del pokémon en el mapa es: [%d,%d].", unAppearedPokemon->posicionEnElMapaX, unAppearedPokemon->posicionEnElMapaY);
 
             log_info(logger,"Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON");
-            enviarInt(socketCliente, 1);
+            enviarInt(socketCliente, 2);
 
             break;
 
@@ -708,7 +736,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
 
 
             log_info(logger,"Se le avisará al Broker que se recibió correctamente el CAUGHT_POKEMON");
-            enviarInt(socketCliente, 1);
+            enviarInt(socketCliente, 2);
 
             break;
 
@@ -740,7 +768,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
 	        }
 
             log_info(logger,"Se le avisará al Broker que se recibió correctamente el LOCALIZED_POKEMON");
-            enviarInt(socketCliente, 1);
+            enviarInt(socketCliente, 2);
 
             break;
 

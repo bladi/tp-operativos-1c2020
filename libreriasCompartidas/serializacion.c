@@ -354,7 +354,6 @@ void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
 	t_suscriptor* unSuscriptor = (t_suscriptor*) suscriptor;
 
 	int desplazamiento = 0;
-	int tamanioColaDeMensajes = string_length(unSuscriptor->colaDeMensajes);
 	int tamanioIp = string_length(unSuscriptor->ip);
 
 	*tamanio = sizeof(int) + tamanioIp + 5 * sizeof(uint32_t);
@@ -367,7 +366,7 @@ void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
 	memcpy(suscriptorSerializado + desplazamiento, &unSuscriptor->identificadorCorrelacional, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(suscriptorSerializado + desplazamiento, unSuscriptor->colaDeMensajes, sizeof(uint32_t));
+	memcpy(suscriptorSerializado + desplazamiento, &unSuscriptor->colaDeMensajes, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
 	memcpy(suscriptorSerializado + desplazamiento, &unSuscriptor->tiempoDeSuscripcion, sizeof(uint32_t));
@@ -388,7 +387,9 @@ void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
 	// printf("\nIdentificador: %d", unSuscriptor->identificador);
 	// printf("\nIdentificador Correlacional: %d", unSuscriptor->identificadorCorrelacional);
 	// printf("\nCola de mensajes a suscribirse: %d", unSuscriptor->colaDeMensajes);
-	// printf("\nTiempo de suscripción: %d", unSuscriptor->tiempoDeSuscripcion);	
+	// printf("\nTiempo de suscripción: %d", unSuscriptor->tiempoDeSuscripcion);
+	// printf("\nTiempo de suscripción: %s", unSuscriptor->ip);
+	// printf("\nTiempo de suscripción: %d", unSuscriptor->puerto);
 	// printf("\nTamaño del SUSCRIPTOR: %d", *tamanio);
 	
 	// t_suscriptor* suscriptorDeserializado = deserializarSuscriptor(suscriptorSerializado);
@@ -398,6 +399,8 @@ void* serializarSuscriptor(t_suscriptor* suscriptor, int* tamanio){
 	// printf("\nIdentificador Correlacional: %d", suscriptorDeserializado->identificadorCorrelacional);
 	// printf("\nCola de mensajes a suscribirse: %d", suscriptorDeserializado->colaDeMensajes);
 	// printf("\nTiempo de suscripción: %d", suscriptorDeserializado->tiempoDeSuscripcion);	
+	// printf("\nTiempo de suscripción: %s", suscriptorDeserializado->ip);
+	// printf("\nTiempo de suscripción: %d", suscriptorDeserializado->puerto);
 
 	// free(suscriptorDeserializado);
 	
@@ -834,7 +837,7 @@ void* serializarAppearedPokemon(t_appearedPokemon* appearedPokemon, int* tamanio
 	memcpy(appearedPokemonSerializado + desplazamiento, &unAppearedPokemon->posicionEnElMapaY, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	///////////////////////////////////////CASO DE PRUEBA SERIALIZACION APPEARED_POKEMON///////////////////////////////////////////////
+/*	///////////////////////////////////////CASO DE PRUEBA SERIALIZACION APPEARED_POKEMON///////////////////////////////////////////////
 	
 	printf("\n\nAPPEARED_POKEMON A SERIALIZAR: \n");
 	printf("\nIdentificador: %d", unAppearedPokemon->identificador);
@@ -856,7 +859,7 @@ void* serializarAppearedPokemon(t_appearedPokemon* appearedPokemon, int* tamanio
 	free(appearedPokemonDeserializado);
 	
 	///////////////////////////////////////FIN CASO DE PRUEBA SERIALIZACION APPEARED_POKEMON////////////////////////////////////////////
-
+*/
 	return appearedPokemonSerializado;
 
 }

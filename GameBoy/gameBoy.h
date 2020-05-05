@@ -36,11 +36,11 @@
 #define IP_BROKER "IP_BROKER"
 #define IP_TEAM "IP_TEAM"
 #define IP_GAMECARD "IP_GAMECARD"
-#define IP_GAMEBOY "IP_GAMECARD"
+#define IP_GAMEBOY "IP_GAMEBOY"
 #define PUERTO_BROKER "PUERTO_BROKER"
 #define PUERTO_TEAM "PUERTO_TEAM"
 #define PUERTO_GAMECARD "PUERTO_GAMECARD"
-#define PUERTO_GAMEBOY "PUERTO_GAMECARD"
+#define PUERTO_GAMEBOY "PUERTO_GAMEBOY"
 #define LOG_FILE "LOG_FILE"
 
 //////////////////////////////////////////////////////////////////////VARIABLES ESTATICAS/////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +59,7 @@
 #define GET_POKEMON "GET_POKEMON"
 #define APPEARED_POKEMON "APPEARED_POKEMON"
 #define NEW_POKEMON "NEW_POKEMON"
+#define LOCALIZED_POKEMON "LOCALIZED_POKEMON"
 
 ///////////////////////////////////////////////////////////////////////////ESTRUCTURAS////////////////////////////////////////////////////////////////////////////////////
 
