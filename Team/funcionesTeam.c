@@ -1,12 +1,16 @@
 #include "team.h"
 
-void configurarLoggerTeam() {
+///////////////////////// Manejo de Configuracion y Logger ////////////////////////////////////////////////
+
+void configurarLoggerTeam()
+{
 
 	logger = log_create(unTeamConfig->logFile, "TEAM", true, LOG_LEVEL_TRACE);
     log_info(logger, "LOG INICIALIZADO CON EXITO");
 }
 
-void cargarConfiguracionTeam() {
+void cargarConfiguracionTeam()
+{
 
     unTeamConfig = malloc(sizeof(teamConfig_t));
 
@@ -37,7 +41,7 @@ void cargarConfiguracionTeam() {
         unTeamConfig->ipTeam = config_get_string_value(unTeamArchivoConfig, IP_TEAM);
         unTeamConfig->puertoTeam = config_get_int_value(unTeamArchivoConfig, PUERTO_TEAM);
         unTeamConfig->logFile = config_get_string_value(unTeamArchivoConfig, LOG_FILE);
-
+        
         char *stringPosicionEntrenadores = string_new();
 	    char *stringPokemonEntrenadores = string_new();
 	    char *stringObjetivosEntrenadores = string_new();
@@ -100,35 +104,65 @@ void cargarConfiguracionTeam() {
         printf("· IP del Team = %s\n", unTeamConfig->ipTeam);
         printf("· Puerto del Team = %d\n", unTeamConfig->puertoTeam);
         printf("· Ruta del Archivo Log del Team = %s\n\n", unTeamConfig->logFile);
-
+        
         free(stringPosicionEntrenadores);
         free(stringPokemonEntrenadores);
         free(stringObjetivosEntrenadores);
-
+        
         free(unTeamArchivoConfig);
 
     }
 
 }
 
-void inicializarTeam() {
+void actualizarConfiguracionTeam()
+{
 
-    cargarConfiguracionTeam();
+    FILE *archivoConfigFp;
 
-	configurarLoggerTeam();
+	while(1){
 
-    inicializarHilosYVariablesTeam();
+		sleep(10);
+
+		archivoConfigFp = fopen(PATH_CONFIG_TEAM,"rb");
+
+		nuevoIdConfigTeam = 0;
+
+		while (!feof(archivoConfigFp) && !ferror(archivoConfigFp)) {
+
+   			nuevoIdConfigTeam ^= fgetc(archivoConfigFp);
+
+		}
+
+        fclose(archivoConfigFp);
+
+
+        if(cantidadDeActualizacionesConfigTeam == 0){
+
+        cantidadDeActualizacionesConfigTeam += 1;
+
+        }else{
+
+            if (nuevoIdConfigTeam != idConfigTeam) {
+
+                log_info(logger,"El archivo de configuración del Team cambió. Se procederá a actualizar.");
+                cargarConfiguracionTeam();
+                cantidadDeActualizacionesConfigTeam += 1;
+                
+            }
+
+        }
+
+        idConfigTeam = nuevoIdConfigTeam;
+
+	}
 
 }
 
-void finalizarTeam() {
+///////////////////////// Manejo de Conexiones ////////////////////////////////////////////////////////////
 
-    free(unTeamConfig);
-    free(logger);
-
-}
-
-void administradorDeConexiones(void* infoAdmin){
+void administradorDeConexiones(void* infoAdmin)
+{
 
     infoAdminConexiones_t* unaInfoAdmin = (infoAdminConexiones_t*) infoAdmin;
 
@@ -191,68 +225,308 @@ void administradorDeConexiones(void* infoAdmin){
     return;
 }
 
-void actualizarConfiguracionTeam(){
+///////////////////////// Funciones Auxiliares para Estados ///////////////////////////////////////////////
 
-    FILE *archivoConfigFp;
-
-	while(1){
-
-		sleep(10);
-
-		archivoConfigFp = fopen(PATH_CONFIG_TEAM,"rb");
-
-		nuevoIdConfigTeam = 0;
-
-		while (!feof(archivoConfigFp) && !ferror(archivoConfigFp)) {
-
-   			nuevoIdConfigTeam ^= fgetc(archivoConfigFp);
-
+void cambiarEstado(t_Entrenador *unEntrenador, Estado unEstado)
+{
+    switch(unEstado)
+	{
+		case READY:
+		{
+			unEntrenador->estado = READY;
+			break;
+		}
+		
+		case BLOCK:
+		{
+			unEntrenador->estado = BLOCK;
+			break;
 		}
 
-        fclose(archivoConfigFp);
+		case EXEC:
+		{
+			unEntrenador->estado = EXEC;
+			break;
+		}
 
+        case EXIT:
+		{
+			unEntrenador->estado = EXIT;
+			break;
+		}
 
-        if(cantidadDeActualizacionesConfigTeam == 0){
-
-        cantidadDeActualizacionesConfigTeam += 1;
-
-        }else{
-
-            if (nuevoIdConfigTeam != idConfigTeam) {
-
-                log_info(logger,"El archivo de configuración del Team cambió. Se procederá a actualizar.");
-                cargarConfiguracionTeam();
-                cantidadDeActualizacionesConfigTeam += 1;
-                
-            }
-
-        }
-
-        idConfigTeam = nuevoIdConfigTeam;
-
+		default:
+		{
+			break;
+		}
 	}
+}
+
+///////////////////////// Inicio y Fin de Team ////////////////////////////////////////////////////////////
+
+void inicializarTeam() {
+
+    cargarConfiguracionTeam();
+
+	configurarLoggerTeam();
+
+    inicializarHilosYVariablesTeam();
 
 }
 
-void inicializarHilosYVariablesTeam(){
+void finalizarTeam() {
 
+    free(unTeamConfig);
+    free(logger);
+
+}
+
+void inicializarHilosYVariablesTeam()
+{
     cantidadDeActualizacionesConfigTeam = 0;
+    
+    listaDeEntrenadores = list_create();
+    NUEVOS = list_create();
+    LISTOS = list_create();
+    BLOQUEADOS = list_create();
+    EJECUTANDO = list_create();
+    FINALIZADOS = list_create();
+    pokemonesAtrapados = list_create();
+    pokemonesObjetivos = list_create();
+    mapa = list_create();
+    
+    cargarEntrenadoresYListasGlobales();
+    t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
+    unPokemon = list_get(pokemonesAtrapados,0);
+    printf("El primer pokemon atrapado global: %s \n", unPokemon->nombre);
+    printf("La cantidad del primer pokemon atrapado global: %d \n", unPokemon->cantidad);
+    free(unPokemon);
+    unPokemon = malloc(sizeof(t_Pokemon));
+    unPokemon = list_get(pokemonesObjetivos,0);
+    printf("El primer pokemon objetivo global: %s \n", unPokemon->nombre);
+    printf("La cantidad del primer pokemon objetivo global: %d \n", unPokemon->cantidad);
+    free(unPokemon);
+    planificar();
+    if(teamCumplioObjetivos())
+    {
+        printf("Se cumplieron todos los objetivos \n");
+    }
+    else
+    {
+        printf("Todavia no se cumplieron todos los objetivos \n");
+    }
+    //socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
-    socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
+    // unaInfoServidorTeam = malloc(sizeof(infoServidor_t));
 
-    infoServidor_t* unaInfoServidorTeam = malloc(sizeof(infoServidor_t));
+    // unaInfoServidorTeam->puerto = unTeamConfig->puertoTeam;
+    // unaInfoServidorTeam->ip = string_new();
+    // //string_append(&unaInfoServidorTeam->ip,unTeamConfig->ipTeam); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
+    // string_append(&unaInfoServidorTeam->ip,"0");
 
-    unaInfoServidorTeam->puerto = unTeamConfig->puertoTeam;
-    unaInfoServidorTeam->ip = string_new();
-    //string_append(&unaInfoServidorTeam->ip,unTeamConfig->ipTeam); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
-    string_append(&unaInfoServidorTeam->ip,"0");
+    //pthread_create(&hiloActualizadorConfigTeam, NULL, (void*)actualizarConfiguracionTeam, NULL);
+    // pthread_create(&hiloServidorTeam,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorTeam);
 
-    pthread_create(&hiloActualizadorConfigTeam, NULL, (void*)actualizarConfiguracionTeam, NULL);
+    //pthread_join(hiloActualizadorConfigTeam, NULL);
 
-    pthread_create(&hiloServidorTeam,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorTeam);
+}
 
-    pthread_join(hiloActualizadorConfigTeam, NULL);
+void cargarEntrenadoresYListasGlobales()
+{
+    int cantidadDeEntrenadores = 0;
+    for (int i = 0; unTeamConfig->posicionEntrenadores[i] != NULL; i++)
+	{
+        cantidadDeEntrenadores++;
+    }
+    for (int i = 0; i < cantidadDeEntrenadores; i++)
+    {
+        t_Entrenador *unEntrenador = malloc(sizeof(t_Entrenador));
+        unEntrenador->pokemones = list_create();
+        unEntrenador->objetivos = list_create();
+        unEntrenador->id = i;
+        char** posiciones = string_split(unTeamConfig->posicionEntrenadores[i], "|");
+        unEntrenador->posicionX = atoi(posiciones[0]);
+        unEntrenador->posicionY = atoi(posiciones[1]);
+        free(posiciones[0]);
+        free(posiciones[1]);
+        free(posiciones);
+        char** pokemones = string_split(unTeamConfig->pokemonEntrenadores[i], "|");
+        for (int j = 0; pokemones[j] != NULL; j++)
+        {
+            agregarPokeALista(unEntrenador->pokemones, pokemones[j]);
+            agregarPokeALista(pokemonesAtrapados, pokemones[j]);
+        }
+        string_iterate_lines(pokemones, (void*) free);
+        free(pokemones);
+        char** objetivos = string_split(unTeamConfig->objetivosEntrenadores[i], "|");
+        for (int j = 0; objetivos[j] != NULL; j++)
+        {
+            agregarPokeALista(unEntrenador->objetivos, objetivos[j]);
+            agregarPokeALista(pokemonesObjetivos, objetivos[j]);
+        }
+        string_iterate_lines(objetivos, (void*) free);
+        free(objetivos);
+        unEntrenador->estado = NEW;
+        unEntrenador->cuantosPuedeAtrapar = cantidadTotalDePokemonesEnLista(unEntrenador->objetivos);
+        printf("Entrenador n°: %d \n", unEntrenador->id);
+        printf("Posicion X: %d \n", unEntrenador->posicionX);
+        printf("Posicion Y: %d \n", unEntrenador->posicionY);
+        t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
+        unPokemon = list_get(unEntrenador->pokemones,0);
+        printf("Primer pokemon que tiene: %s \n", unPokemon->nombre);
+        printf("Cantidad de ese primer pokemon que tiene: %d \n", cantidadDeUnPokemonEnLista(unEntrenador->pokemones, unPokemon->nombre));
+        t_Pokemon* otroPokemon = malloc(sizeof(t_Pokemon));
+        otroPokemon = list_get(unEntrenador->objetivos,0);
+        printf("Cantidad de objetivos: %d \n", unEntrenador->cuantosPuedeAtrapar);
+        printf("Primer pokemon que necesita: %s \n", otroPokemon->nombre);
+        printf("Cantidad de ese primer pokemon que necesita: %d \n", cantidadDeUnPokemonEnLista(unEntrenador->objetivos, otroPokemon->nombre));
+        free(unPokemon);
+        free(otroPokemon);
+        list_add(listaDeEntrenadores, unEntrenador);
+        list_add(NUEVOS, unEntrenador);
+    }
+}
 
+////////////////////////// Metricas ///////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////// Funciones para listas de pokemon ///////////////////////////////////////////////
+
+int posicionPokeEnLista(t_list* pLista, char* pPokemon) //Retorna la posicion donde se encuentra o -1 si no esta
+{
+    for(int i = 0; i < list_size(pLista); i++)
+    {
+        t_Pokemon* unPokemon = list_get(pLista,i);
+        char* pokeNombre = unPokemon->nombre;
+        if(strcmp(pPokemon, pokeNombre) == 0)
+            return i;
+    }
+    return -1; //Si no existe
+}
+
+void agregarPokeALista(t_list* pLista, char* pPokemon)
+{
+    int posicion = posicionPokeEnLista(pLista, pPokemon);
+    if(posicion != -1)
+    {
+        t_Pokemon* unPokemon = list_get(pLista, posicion);
+        unPokemon->cantidad++;
+    }
+    else
+    {
+        t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
+        unPokemon->nombre = string_new();
+        string_append(&unPokemon->nombre, pPokemon);
+        unPokemon->cantidad = 1;
+        list_add(pLista, unPokemon);
+    }
+}
+
+int cantidadDeUnPokemonEnLista(t_list* pLista, char* pPokemon)
+{
+    t_Pokemon* unPokemon = list_get(pLista, posicionPokeEnLista(pLista, pPokemon));
+    return unPokemon->cantidad;
+}
+
+int cantidadTotalDePokemonesEnLista(t_list* pLista)
+{
+    int cantidad = 0;
+    for(int i = 0; i < list_size(pLista); i++)
+    {
+        t_Pokemon* unPokemon = list_get(pLista,i);
+        cantidad += unPokemon->cantidad;
+    }
+    return cantidad;
+}
+
+////////////////////////// Funciones de planificacion /////////////////////////////////////////////////////
+
+void planificar()
+{
+    if(strcmp(unTeamConfig->algoritmoPlanificacion,"FIFO") == 0)
+    {
+        planificarFIFO();
+    }
+    else if(strcmp(unTeamConfig->algoritmoPlanificacion,"RR") == 0)
+    {
+        planificarRR();
+    }
+    else if(strcmp(unTeamConfig->algoritmoPlanificacion,"SJF-SD") == 0)
+    {
+        planificarSJF();
+    }
+    else if(strcmp(unTeamConfig->algoritmoPlanificacion,"SJF-CD") == 0)
+    {
+        planificarSRT();
+    }
+    else
+    {
+        log_error(logger, "No existe el algoritmo de planificacion especificado\n");
+    }
+}
+
+void planificarFIFO()
+{
+    printf("Planifique FIFO\n");
+}
+
+void planificarRR()
+{
+    printf("Planifique Round Robin\n");
+}
+
+void planificarSJF()
+{
+    printf("Planifique SJF sin desalojo\n");
+}
+
+void planificarSRT()
+{
+    printf("Planifique SJF con desalojo\n");
+}
+
+//////////////////////// Funciones auxiliares de entrenador ////////////////////////////////////////////////
+
+bool puedeAtrapar(t_Entrenador* pEntrenador)
+{
+    if(pEntrenador->cuantosPuedeAtrapar > cantidadTotalDePokemonesEnLista(pEntrenador->pokemones))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador)
+{
+    for(int i = 0; i < list_size(pEntrenador->objetivos); i++)
+    {
+        t_Pokemon* unPokemon = list_get(pEntrenador->objetivos, i);
+        if(unPokemon->cantidad != cantidadDeUnPokemonEnLista(pEntrenador->pokemones, unPokemon->nombre))
+        //Ver si un entrenador puede cumplir sus objetivos si tiene mas cantidad de la necesaria
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+//////////////////////// Funciones auxiliares de Team /////////////////////////////////////////////////////
+
+bool teamCumplioObjetivos()
+{
+    for(int i = 0; i < list_size(listaDeEntrenadores); i++)
+    {
+        t_Entrenador* unEntrenador = list_get(listaDeEntrenadores, i);
+        if(!entrenadorCumplioObjetivos(unEntrenador))
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
@@ -402,4 +676,51 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
     free(buffer);
 
     return;
+}
+
+int entrenadorMasCercano(int posXpokemon,int posYpokemon){//recibir por parametro los parametros del pokemon
+
+	float distancia;
+	
+	float distanciaMenor=1000;
+	int posEntrenador;
+	for(int i = 0; i < list_size(NUEVOS); i++){
+	           	t_Entrenador* unEntrenador = list_get(NUEVOS,i);
+
+	           	printf("----------------COLA DE NEW---------------------------");
+	           	printf("\nEntrenador n°: %d \n", unEntrenador->id);
+	           	printf("Posicion X: %d \n", unEntrenador->posicionX);
+	           	printf("Posicion Y: %d \n", unEntrenador->posicionY);
+	           	printf("-------------------------------------------");
+	           	distancia = calcularDistancia(unEntrenador->posicionX,unEntrenador->posicionY,posXpokemon,posYpokemon);
+	        	printf("\nla distancia al pokemon es:%.2f\n",distancia);
+	        	if(distancia<distanciaMenor){
+	        		distanciaMenor=distancia;
+	        		posEntrenador=unEntrenador->id;
+	        	}
+	 }
+	//t_Entrenador* entrenadorCercano = list_get(NUEVOS,posEntrenador);
+	//printf("\n\n --- El entrenador mas cercano es: %d y su distancia es de : %.2f---",entrenadorCercano->id, distanciaMenor);
+
+
+	//list_add(LISTOS,entrenadorCercano); //agrego a la cola de LISTOS(Ready)
+	return posEntrenador;
+	/*//muestra los entrenadores que hay en LISTOS
+	for(int i = 0; i < list_size(LISTOS); i++){
+		t_Entrenador* otroEnt = list_get(LISTOS,i);
+		printf("\n\n------------------COLA DE READY-------------------------");
+		printf("\nEntrenador n°: %d \n", otroEnt->id);
+		printf("Posicion X: %d \n", otroEnt->posicionX);
+	    printf("Posicion Y: %d \n", otroEnt->posicionY);
+	    printf("Estado:%s ",unEntrenador->estado);
+	    printf("-------------------------------------------");
+	}*/
+
+
+}
+
+float calcularDistancia(int x1,int y1,int x2,int y2)
+{	float distancia;
+	distancia = sqrt(((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1)));
+	return distancia;
 }

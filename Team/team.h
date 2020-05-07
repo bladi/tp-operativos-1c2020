@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <math.h>
 
 ////////////////////////////////////////////////////////////////////////LIBS COMPARTIDAS/////////////////////////////////////////////////////////////////////////////////
 
@@ -50,8 +51,6 @@
 #define PATH_CONFIG_TEAM "configs/configTeam.config"
 
 #define ID_BROKER 1
-#define ID_TEAM 
-#define ID_GAMECARD 
 
 ///////////////////////////////////////////////////////////////////////////ESTRUCTURAS////////////////////////////////////////////////////////////////////////////////////
 
@@ -73,11 +72,53 @@ typedef struct teamConfig_s{
 
 } teamConfig_t;
 
+typedef enum {
+	NEW,
+	READY,
+	BLOCK,
+	EXEC,
+	EXIT
+} Estado;
+
+typedef t_list *EstadoProceso;
+EstadoProceso NUEVOS, LISTOS, BLOQUEADOS, EJECUTANDO, FINALIZADOS; //Puede que no hagan falta todas las listas
+
+typedef struct entrenador
+{
+	int id;
+	int posicionX;
+	int posicionY;
+	t_list* pokemones;
+	t_list* objetivos;
+	Estado estado;
+	int cuantosPuedeAtrapar;
+} t_Entrenador;
+
+typedef struct
+{
+	char* nombre;
+	int cantidad;
+} t_Pokemon;
+
+typedef struct
+{
+	char* nombre;
+	int posicionX;
+	int posicionY;
+} t_posicionPokemon;
+
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
 
 t_config* unTeamArchivoConfig;
 teamConfig_t* unTeamConfig;
 t_log* logger;
+//t_list* posiciones;
+//t_list* pokemones;
+//t_list* objetivos;
+t_list* listaDeEntrenadores;
+t_list* mapa;
+t_list* pokemonesAtrapados;
+t_list* pokemonesObjetivos;
 
 unsigned char idConfigTeam;
 unsigned char nuevoIdConfigTeam;
@@ -96,12 +137,36 @@ void configurarLoggerTeam();
 void cargarConfiguracionTeam();
 void actualizarConfiguracionTeam();
 
+void administradorDeConexiones(void* infoAdmin);
+//void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
+
+void cambiarEstado(t_Entrenador *unEntrenador, Estado unEstado);
+
 void inicializarTeam();
-void inicializarHilosYVariablesTeam();
 void finalizarTeam();
+void inicializarHilosYVariablesTeam();
+void cargarEntrenadoresYListasGlobales();
 
 void administradorDeConexiones(void* infoAdmin);
 void manejarRespuestaABroker(int socketCliente, int idCliente);
 void manejarRespuestaAGameBoy(int socketCliente, int idCliente);
+int posicionPokeEnLista(t_list* pLista, char* pPokemon);
+void agregarPokeALista(t_list* pLista, char* pPokemon);
+int cantidadDeUnPokemonEnLista(t_list* pLista, char* pPokemon);
+int cantidadTotalDePokemonesEnLista(t_list* pLista);
+
+void planificar();
+void planificarFIFO();
+void planificarRR();
+void planificarSJF();
+void planificarSRT();
+
+bool puedeAtrapar(t_Entrenador* pEntrenador);
+bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador);
+
+bool teamCumplioObjetivos();
+
+float calcularDistancia(int x1,int y1,int x2,int y2);
+int entrenadorMasCercano(int posXpokemon,int posYpokemon);
 
 #endif
