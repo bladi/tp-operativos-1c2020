@@ -1,0 +1,12 @@
+[INFO] 17:30:11:751 TEAM/(8041:8041): LOG INICIALIZADO CON EXITO
+[ERROR] 17:30:11:752 TEAM/(8041:8041): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 17:30:11:752 TEAM/(8041:8041): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[INFO] 17:30:17:352 TEAM/(8041:8043): Cliente conectado!
+[INFO] 17:30:17:352 TEAM/(8041:8043): Creando hilo de administracion de conexion con cliente ....
+[INFO] 17:30:17:356 TEAM/(8041:8043): Hilo creado correctamente
+[INFO] 17:30:17:357 TEAM/(8041:8046): Tipo de mensaje recibido: 6
+[TRACE] 17:30:17:357 TEAM/(8041:8046): 
+ Llegó un APPEARD_POKEMON
+[INFO] 17:30:17:357 TEAM/(8041:8046): El nombre del Pokemón es: Pikachu
+[INFO] 17:30:17:357 TEAM/(8041:8046): La posicion del Pokémon es: 10 15
+[WARNING] 17:30:17:357 TEAM/(8041:8046): CLIENTE DESCONECTADO

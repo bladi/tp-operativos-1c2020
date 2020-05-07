@@ -34,8 +34,8 @@ void cargarConfiguracionTeam() {
         unTeamConfig->ipBroker = config_get_string_value(unTeamArchivoConfig, IP_BROKER);
         unTeamConfig->estimacionInicial = config_get_int_value(unTeamArchivoConfig, ESTIMACION_INICIAL);
         unTeamConfig->puertoBroker = config_get_int_value(unTeamArchivoConfig, PUERTO_BROKER);
-        //unTeamConfig->ipTeam = config_get_string_value(unTeamArchivoConfig, IP_TEAM);
-        //unTeamConfig->puertoTeam = config_get_int_value(unTeamArchivoConfig, PUERTO_TEAM);
+        unTeamConfig->ipTeam = config_get_string_value(unTeamArchivoConfig, IP_TEAM);
+        unTeamConfig->puertoTeam = config_get_int_value(unTeamArchivoConfig, PUERTO_TEAM);
         unTeamConfig->logFile = config_get_string_value(unTeamArchivoConfig, LOG_FILE);
 
         char *stringPosicionEntrenadores = string_new();
@@ -97,8 +97,8 @@ void cargarConfiguracionTeam() {
         printf("· IP del Broker = %s\n", unTeamConfig->ipBroker);
         printf("· Estimacion Inicial = %d\n", unTeamConfig->estimacionInicial);
         printf("· Puerto del Broker = %d\n", unTeamConfig->puertoBroker);
-        //printf("· IP del Team = %s\n", unTeamConfig->ipTeam);
-        //printf("· Puerto del Team = %d\n", unTeamConfig->puertoTeam);
+        printf("· IP del Team = %s\n", unTeamConfig->ipTeam);
+        printf("· Puerto del Team = %d\n", unTeamConfig->puertoTeam);
         printf("· Ruta del Archivo Log del Team = %s\n\n", unTeamConfig->logFile);
 
         free(stringPosicionEntrenadores);
@@ -141,9 +141,15 @@ void administradorDeConexiones(void* infoAdmin){
 
             case 2: {
 
-                //manejarRespuestaAGameBoy(unaInfoAdmin->socketCliente,idCliente);
+                manejarRespuestaAGameBoy(unaInfoAdmin->socketCliente,idCliente);
                 break;
 
+            }
+
+            case 3: {
+
+                manejarRespuestaABroker(unaInfoAdmin->socketCliente,idCliente);
+                break;
             }
 
             case -1: {
@@ -232,150 +238,168 @@ void inicializarHilosYVariablesTeam(){
 
     cantidadDeActualizacionesConfigTeam = 0;
 
-    socketBroker = cliente(unGameCardConfig->ipBroker, unGameCardConfig->puertoBroker, ID_BROKER);
+    socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
-    // unaInfoServidorTeam = malloc(sizeof(infoServidor_t));
+    infoServidor_t* unaInfoServidorTeam = malloc(sizeof(infoServidor_t));
 
-    // unaInfoServidorTeam->puerto = unTeamConfig->puertoTeam;
-    // unaInfoServidorTeam->ip = string_new();
-    // //string_append(&unaInfoServidorTeam->ip,unTeamConfig->ipTeam); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
-    // string_append(&unaInfoServidorTeam->ip,"0");
+    unaInfoServidorTeam->puerto = unTeamConfig->puertoTeam;
+    unaInfoServidorTeam->ip = string_new();
+    //string_append(&unaInfoServidorTeam->ip,unTeamConfig->ipTeam); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
+    string_append(&unaInfoServidorTeam->ip,"0");
 
     pthread_create(&hiloActualizadorConfigTeam, NULL, (void*)actualizarConfiguracionTeam, NULL);
-    // pthread_create(&hiloServidorTeam,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorTeam);
+
+    pthread_create(&hiloServidorTeam,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorTeam);
 
     pthread_join(hiloActualizadorConfigTeam, NULL);
 
 }
 
-// void manejarRespuestaAGameBoy(int socketCliente,int idCliente){
+void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
+{
 
-//     int* tipoMensaje = malloc(sizeof(int));
-// 	int* tamanioMensaje = malloc(sizeof(int));
+    int *tipoMensaje = malloc(sizeof(int));
+    int *tamanioMensaje = malloc(sizeof(int));
 
-// 	void* buffer = recibirPaquete(socket, tipoMensaje, tamanioMensaje);
+    void *buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
 
-//     switch(*tipoMensaje){
+    switch (*tipoMensaje)
+    {
 
-//         case tNewPokemon: {
+    case tAppearedPokemon:
+    {
+        log_trace(logger, "Llegó un APPEARD_POKEMON del Game Boy");
 
-//             /*
-            
-//             Casteo de estructura (ejemplo): 
-            
-//             t_newPokemon* unNewPokemon = (t_newPokemon*) buffer;
+        t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
 
-//             */
+        log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
+        log_info(logger, "La posicion del Pokémon es: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
 
-//             /*
-            
-//             Logueo de lo recibido (ejemplo):
+        enviarInt(socketCliente, 1); //Le avisamos al GameBoy que recibimos bien la solicitud.
 
-//             log_info(logger,"El nombre del Pokemón es: %s",unNewPokemon->nombre);
-//             log_info(logger,"La posicion del Pokémon es: %d %d", unNewPokemon->posicion[0], unNewPokemon->posicion[1]);
-            
-//             */
+        //Lógica de lo que hay que hacer con la info recibida:
 
-//            /*
-        
-//            Funciones que se invocan luego de recibir un NEW_POKEMON (ejemplo):
+        //EJ: intentar atrapar el pokemon, agregar el pokemon a lista de pokemons aparecidos, etc, etc.
 
-//            int idNuevoMensaje = generarNuevoIdMensajeBroker();
+        break;
+    }
 
-//            darAGameCardPosicionesDePokemon(unNewPokemon->nombrePokemon, unNewPokemon->cantidad,unNewPokemon->posicion, idNuevoMensaje);
-//            recibirRespuestaGameCard(idNuevoMensaje);
-//            avisarATeamPokemonAparecido(unGetPokemon->nombrePokemon,idNuevoMensaje);
+    default:
+    {
 
-//             */
-            
-//             break;
-//         }
+        log_error(logger, "Recibimos algo del Game Boy que no sabemos manejar: %d", *tipoMensaje);
+        abort();
+        break;
+    }
 
-//         case tGetPokemon: {
+    }
 
-//             /*
-            
-//             Casteo de estructura (ejemplo): 
-            
-//             t_getPokemon* unGetPokemon = (t_getPokemon*) buffer;
+    free(tipoMensaje);
+    free(tamanioMensaje);
+    free(buffer);
 
-//             */
+    return;
+}
 
-//             /*
-            
-//             Logueo de lo recibido (ejemplo):
+void manejarRespuestaABroker(int socketCliente, int idCliente){
 
-//             log_info(logger,"El nombre del Pokemón es: %s",unGetPokemon->nombrePokemon);
-//             log_info(logger,"Las posiciones del Pokémon son: %d %d", unGetPokemon->posicion[0], unGetPokemon->posicion[1]);
-//             log_info(logger,"La cantidad que hay de ese Pokémon es: %d",unGetPokemon->cantidad);
-            
-//             */
+    int *tipoMensaje = malloc(sizeof(int));
+    int *tamanioMensaje = malloc(sizeof(int));
 
-//            /*
+    void *buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
 
-//            Funciones que se invocan luego de recibir un GET_POKEMON (ejemplo):
+    switch (*tipoMensaje)
+    {
 
-//            int idNuevoMensaje = generarNuevoIdMensajeBroker();
+    case tAppearedPokemon:
+    {
+        log_trace(logger, "Llegó un APPEARD_POKEMON del Broker");
 
-//            pedirAGameCardPosicionesDePokemon(unGetPokemon->nombrePokemon, idNuevoMensaje);
-//            recibirRespuestaGameCard(idNuevoMensaje);
-//            avisarATeamPokemonLocalizado(unGetPokemon->nombrePokemon,idNuevoMensaje);
+        t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
 
-//             */
+        log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
+        log_info(logger, "La posicion del Pokémon es: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
 
-//             break;
+        enviarInt(socketCliente, 1); //Le avisamos al Broker que recibimos bien la solicitud.
 
-//         }
+        //Lógica de lo que hay que hacer con la info recibida:
 
-//         case tCatchPokemon: {
+        //EJ: intentar atrapar el pokemon, agregar el pokemon a lista de pokemons aparecidos, etc, etc.
 
-//             /*
-            
-//             Casteo de estructura (ejemplo): 
-            
-//             t_catchPokemon* unCatchPokemon = (t_catchPokemon*) buffer;
+        break;
+    }
 
-//             */
+    case tCaughtPokemon:
+    {
+        log_trace(logger, "Llegó un CAUGHT_POKEMON del Broker");
 
-//             /*
-            
-//             Logueo de lo recibido (ejemplo):
+        t_caughtPokemon *unCaughtPokemon = (t_caughtPokemon *)buffer;
 
-//             log_info(logger,"El nombre del Pokemón es: %s",unCatchPokemon->nombrePokemon);
-//             log_info(logger,"La posicion del Pokémon era: %d %d", unCatchPokemon->posicion[0], unCatchPokemon->posicion[1]);
-//             log_info(logger,"El nombre del entrenador es: %s",unCatchPokemon->nombreEntrenador);
-            
-//             */
+        enviarInt(socketCliente, 4); //Le avisamos al Broker que recibimos bien la solicitud.
 
-//             /*
+        //Lógica de lo que hay que hacer con la info recibida:
 
-//             Funciones que se invocan luego de recibir un CATCH_POKEMON (ejemplo):
+        //EJ: Agregar el pokemon a lista de pokemons atrapados, etc, etc.
 
-//             int idNuevoMensaje = generarNuevoIdMensajeBroker();
+        break;
+    }
 
-//             darAGameCardPokemonAtrapado(unCatchPokemon->nombrePokemon,unCatchPokemon->posicion, idNuevoMensaje);
-//             recibirRespuestaGameCard(idNuevoMensaje);
-//             avisarATeamPokemonAtrapado(unGetPokemon->nombrePokemon,idNuevoMensaje);
+    case tLocalizedPokemon:
+    {
+        log_trace(logger, "Llegó un LOCALIZED_POKEMON del Broker.");
 
-//             */
+        t_localizedPokemon *unLocalizedPokemon = (t_localizedPokemon *)buffer;
 
-//             break;
+        log_info(logger, "El nombre del Pokemón es: %s", unLocalizedPokemon->nombrePokemon);
 
-//         }
+        int cantidadListaDatosPokemon = list_size(unLocalizedPokemon->listaDatosPokemon);
 
-//         default:{
+        int contadorito = 0;
 
-//             log_error(logger,"Recibimos algo del Game Boy que no sabemos manejar: %d",*tipoMensaje);
-//             abort();
-//             break;
+        printf("\nIdentificador: %d", unLocalizedPokemon->identificador);
+        printf("\nIdentificador Correlacional: %d", unLocalizedPokemon->identificadorCorrelacional);
+        printf("\nNombre del Pokemón: %s", unLocalizedPokemon->nombrePokemon);
 
-//         }
+        datosPokemon *nodoDatosPokemon;
 
-//     }
+        while (contadorito < cantidadListaDatosPokemon)
+        {
 
-//     free(tipoMensaje);
-//     free(tamanioMensaje);
-// 	free(buffer);
+            nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contadorito);
 
-//     return;
-// }
+            //entrenadorMasCercano(nodoDatosPokemon->posicionEnElMapaX,nodoDatosPokemon->posicionEnElMapaY); Tener en cuenta a futuro.
+
+            printf("\nCantidad de pokemón en %d° ubicación: %d", contadorito, nodoDatosPokemon->cantidad);
+            printf("\nUbicacion en 'x': %d", nodoDatosPokemon->posicionEnElMapaX);
+            printf("\nUbicacion en 'y': %d\n", nodoDatosPokemon->posicionEnElMapaY);
+
+            contadorito += 1;
+        }
+
+        enviarInt(socketCliente, 4);
+
+        //Le avisamos al Broker que recibimos bien la solicitud.
+
+        //Lógica de lo que hay que hacer con la info recibida:
+
+        //EJ: Agregar todos los pokemon a la lista de pokemon aparecidos, etc, etc.
+
+        break;
+    }
+
+    default:
+    {
+
+        log_error(logger, "Recibimos algo del Broker que no sabemos manejar: %d", *tipoMensaje);
+        abort();
+        break;
+    }
+
+    }
+
+    free(tipoMensaje);
+    free(tamanioMensaje);
+    free(buffer);
+
+    return;
+}

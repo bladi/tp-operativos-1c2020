@@ -48,8 +48,8 @@
 #define PATH_CONFIG_GAMEBOY "configs/configGameBoy.config"
 
 #define ID_BROKER 1
-#define ID_GAMECARD 2
-#define ID_TEAM 3
+#define ID_GAMECARD 3
+#define ID_TEAM 4
 
 #define MAX_CANTIDAD_ARGUMENTOS 8
 #define MIN_CANTIDAD_ARGUMENTOS 4
