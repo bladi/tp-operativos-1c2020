@@ -730,3 +730,50 @@ bool teamCumplioObjetivos()
 
 //     return;
 //}
+
+int entrenadorMasCercano(int posXpokemon,int posYpokemon){//recibir por parametro los parametros del pokemon
+
+	float distancia;
+	
+	float distanciaMenor=1000;
+	int posEntrenador;
+	for(int i = 0; i < list_size(NUEVOS); i++){
+	           	t_Entrenador* unEntrenador = list_get(NUEVOS,i);
+
+	           	printf("----------------COLA DE NEW---------------------------");
+	           	printf("\nEntrenador n°: %d \n", unEntrenador->id);
+	           	printf("Posicion X: %d \n", unEntrenador->posicionX);
+	           	printf("Posicion Y: %d \n", unEntrenador->posicionY);
+	           	printf("-------------------------------------------");
+	           	distancia = calcularDistancia(unEntrenador->posicionX,unEntrenador->posicionY,posXpokemon,posYpokemon);
+	        	printf("\nla distancia al pokemon es:%.2f\n",distancia);
+	        	if(distancia<distanciaMenor){
+	        		distanciaMenor=distancia;
+	        		posEntrenador=unEntrenador->id;
+	        	}
+	 }
+	//t_Entrenador* entrenadorCercano = list_get(NUEVOS,posEntrenador);
+	//printf("\n\n --- El entrenador mas cercano es: %d y su distancia es de : %.2f---",entrenadorCercano->id, distanciaMenor);
+
+
+	//list_add(LISTOS,entrenadorCercano); //agrego a la cola de LISTOS(Ready)
+	return posEntrenador;
+	/*//muestra los entrenadores que hay en LISTOS
+	for(int i = 0; i < list_size(LISTOS); i++){
+		t_Entrenador* otroEnt = list_get(LISTOS,i);
+		printf("\n\n------------------COLA DE READY-------------------------");
+		printf("\nEntrenador n°: %d \n", otroEnt->id);
+		printf("Posicion X: %d \n", otroEnt->posicionX);
+	    printf("Posicion Y: %d \n", otroEnt->posicionY);
+	    printf("Estado:%s ",unEntrenador->estado);
+	    printf("-------------------------------------------");
+	}*/
+
+
+}
+
+float calcularDistancia(int x1,int y1,int x2,int y2)
+{	float distancia;
+	distancia = sqrt(((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1)));
+	return distancia;
+}

@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <math.h>
 
 ////////////////////////////////////////////////////////////////////////LIBS COMPARTIDAS/////////////////////////////////////////////////////////////////////////////////
 
@@ -165,5 +166,8 @@ bool puedeAtrapar(t_Entrenador* pEntrenador);
 bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador);
 
 bool teamCumplioObjetivos();
+
+float calcularDistancia(int x1,int y1,int x2,int y2);
+int entrenadorMasCercano(int posXpokemon,int posYpokemon);
 
 #endif

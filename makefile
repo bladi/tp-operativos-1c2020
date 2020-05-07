@@ -15,7 +15,7 @@ all:
 	gcc -g -w Broker/broker.c Broker/funcionesBroker.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o broker -lcommons -lpthread
 	@printf '$(negrita)$(amarillo)Broker$(sin_color) ..... $(verde)ok!$(sin_color)$(sin_negrita)\n'
 
-	gcc -g -w Team/team.c Team/funcionesTeam.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o team -lcommons -lpthread
+	gcc -g -w Team/team.c Team/funcionesTeam.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o team -lcommons -lpthread -lm
 	@printf '$(negrita)$(amarillo)Team$(sin_color) ..... $(verde)ok!$(sin_color)$(sin_negrita)\n'
 
 # Clean
