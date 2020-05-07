@@ -138,7 +138,8 @@ void cargarConfiguracionTeam();
 void actualizarConfiguracionTeam();
 
 void administradorDeConexiones(void* infoAdmin);
-//void manejarRespuestaAGameBoy(int socketCliente,int idCliente);
+void manejarRespuestaABroker(int socketCliente, int idCliente);
+void manejarRespuestaAGameBoy(int socketCliente, int idCliente);
 
 void cambiarEstado(t_Entrenador *unEntrenador, Estado unEstado);
 
@@ -147,9 +148,6 @@ void finalizarTeam();
 void inicializarHilosYVariablesTeam();
 void cargarEntrenadoresYListasGlobales();
 
-void administradorDeConexiones(void* infoAdmin);
-void manejarRespuestaABroker(int socketCliente, int idCliente);
-void manejarRespuestaAGameBoy(int socketCliente, int idCliente);
 int posicionPokeEnLista(t_list* pLista, char* pPokemon);
 void agregarPokeALista(t_list* pLista, char* pPokemon);
 int cantidadDeUnPokemonEnLista(t_list* pLista, char* pPokemon);

@@ -315,19 +315,20 @@ void inicializarHilosYVariablesTeam()
     {
         printf("Todavia no se cumplieron todos los objetivos \n");
     }
-    //socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
-    // unaInfoServidorTeam = malloc(sizeof(infoServidor_t));
+    socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
-    // unaInfoServidorTeam->puerto = unTeamConfig->puertoTeam;
-    // unaInfoServidorTeam->ip = string_new();
-    // //string_append(&unaInfoServidorTeam->ip,unTeamConfig->ipTeam); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
-    // string_append(&unaInfoServidorTeam->ip,"0");
+    infoServidor_t* unaInfoServidorTeam = malloc(sizeof(infoServidor_t));
 
-    //pthread_create(&hiloActualizadorConfigTeam, NULL, (void*)actualizarConfiguracionTeam, NULL);
-    // pthread_create(&hiloServidorTeam,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorTeam);
+    unaInfoServidorTeam->puerto = unTeamConfig->puertoTeam;
+    unaInfoServidorTeam->ip = string_new();
+    //string_append(&unaInfoServidorTeam->ip,unTeamConfig->ipTeam); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
+    string_append(&unaInfoServidorTeam->ip,"0");
 
-    //pthread_join(hiloActualizadorConfigTeam, NULL);
+    pthread_create(&hiloActualizadorConfigTeam, NULL, (void*)actualizarConfiguracionTeam, NULL);
+    pthread_create(&hiloServidorTeam,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorTeam);
+
+    pthread_join(hiloActualizadorConfigTeam, NULL);
 
 }
 

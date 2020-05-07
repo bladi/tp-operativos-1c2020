@@ -1,0 +1,18 @@
+[INFO] 17:46:37:885 TEAM/(8604:8604): LOG INICIALIZADO CON EXITO
+[INFO] 17:48:58:979 TEAM/(8740:8740): LOG INICIALIZADO CON EXITO
+[ERROR] 17:48:58:981 TEAM/(8740:8740): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 17:48:58:982 TEAM/(8740:8740): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[INFO] 17:49:24:570 TEAM/(8848:8848): LOG INICIALIZADO CON EXITO
+[ERROR] 17:49:24:571 TEAM/(8848:8848): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 17:49:24:572 TEAM/(8848:8848): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[INFO] 17:50:55:728 TEAM/(8919:8919): LOG INICIALIZADO CON EXITO
+[ERROR] 17:50:55:730 TEAM/(8919:8919): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 17:50:55:731 TEAM/(8919:8919): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[INFO] 17:51:00:751 TEAM/(8919:8921): Cliente conectado!
+[INFO] 17:51:00:751 TEAM/(8919:8921): Creando hilo de administracion de conexion con cliente ....
+[INFO] 17:51:00:751 TEAM/(8919:8921): Hilo creado correctamente
+[INFO] 17:51:00:753 TEAM/(8919:8924): Tipo de mensaje recibido: 6
+[TRACE] 17:51:00:753 TEAM/(8919:8924): Llegó un APPEARD_POKEMON del Game Boy
+[INFO] 17:51:00:753 TEAM/(8919:8924): El nombre del Pokemón es: Hola
+[INFO] 17:51:00:753 TEAM/(8919:8924): La posicion del Pokémon es: 10 34
+[WARNING] 17:51:00:753 TEAM/(8919:8924): CLIENTE DESCONECTADO
