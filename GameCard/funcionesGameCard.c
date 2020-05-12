@@ -89,8 +89,7 @@ void finalizarGameCard()
     free(logger);
 }
 
-void administradorDeConexiones(void *infoAdmin)
-{
+void administradorDeConexiones(void *infoAdmin){
 
     infoAdminConexiones_t *unaInfoAdmin = (infoAdminConexiones_t *)infoAdmin;
 
@@ -193,8 +192,7 @@ void actualizarConfiguracionGameCard()
     }
 }
 
-void inicializarHilosYVariablesGameCard()
-{
+void inicializarHilosYVariablesGameCard(){
     
     int resultado;
     int tipoResultado = 0;
@@ -211,7 +209,7 @@ void inicializarHilosYVariablesGameCard()
     //string_append(&unaInfoServidorGameCard->ip,unGameCardConfig->ipGameCard); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
     string_append(&unaInfoServidorGameCard->ip, "0");
 
-    pthread_create(&hiloActualizadorSocketBrocker, NULL, (void *)actualizarConexionConBroker, NULL);
+    //pthread_create(&hiloActualizadorSocketBrocker, NULL, (void *)actualizarConexionConBroker, NULL);
     pthread_create(&hiloActualizadorConfigGameCard, NULL, (void *)actualizarConfiguracionGameCard, NULL);
     pthread_create(&hiloServidorGameCard, NULL, (void *)servidor_inicializar, (void *)unaInfoServidorGameCard);
 
@@ -244,8 +242,13 @@ void inicializarHilosYVariablesGameCard()
         }
 
     }else{
+        
 
-        log_error(logger, "Hubo un error al recibir el resultado de la operación desde el Broker");
+        log_error(logger, "Hubo un error al recibir el resultado de la operación desde el Broker. Broker desconectado");
+
+        pthread_mutex_lock(&mutexSocketBroker);
+        socketBroker = 0;
+        pthread_mutex_unlock(&mutexSocketBroker);
 
     }
 
@@ -293,17 +296,15 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
                 sleep(unGameCardConfig->tiempoReintentoOperacion);
             }
 
-            //Posible mutex
+            cambiarEstadoPokemon(unNewPokemon->nombrePokemon, 1);
             resultadoOperacionPokemon = actualizarUbicacionPokemon(unNewPokemon->nombrePokemon, unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY, unNewPokemon->cantidadDePokemon);
-            //Fin posible mutex
+
         }
         else
         {
 
             log_info(logger, "El pokemon solicitado no existia en Game Card. Se procederá a crearlo.");
-            //Posible mutex
             resultadoOperacionPokemon = crearPokemon(unNewPokemon->nombrePokemon, unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY, unNewPokemon->cantidadDePokemon);
-            //Fin posible mutex
         }
 
         enviarInt(socketCliente, resultadoOperacionPokemon);
@@ -324,6 +325,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         enviarInt(socketBroker, 3);
         enviarPaquete(socketBroker, tAppearedPokemon, unAppearedPokemon, tamanioAppearedPokemon);
+        cambiarEstadoPokemon(unNewPokemon->nombrePokemon, 0);
 
         if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0)
         {
@@ -343,6 +345,11 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
         {
 
             log_error(logger, "El APPEARED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
+
+            pthread_mutex_lock(&mutexSocketBroker);
+            socketBroker = 0;
+            pthread_mutex_unlock(&mutexSocketBroker);
+
         }
 
         break;
@@ -380,6 +387,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
             t_localizedPokemon *unLocalizedPokemon = malloc(sizeof(t_localizedPokemon));
 
             //Posible mutex
+            cambiarEstadoPokemon(unGetPokemon->nombrePokemon, 1);
             unLocalizedPokemon->listaDatosPokemon = generarListaUbicaciones(unGetPokemon->nombrePokemon);
             //Fin posible mutex
 
@@ -392,6 +400,8 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
             enviarInt(socketBroker, 3);
             enviarPaquete(socketBroker, tLocalizedPokemon, unLocalizedPokemon, tamanioLocalizedPokemon);
+            
+            cambiarEstadoPokemon(unGetPokemon->nombrePokemon, 0);
 
             if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0)
             {
@@ -411,9 +421,11 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
             {
 
                 log_error(logger, "El LOCALIZED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
-                //Posible mutex
+
+                pthread_mutex_lock(&mutexSocketBroker);
                 socketBroker = 0;
-                //Fin posible mutex
+                pthread_mutex_unlock(&mutexSocketBroker);
+
             }
         }
         else
@@ -455,6 +467,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
             t_caughtPokemon *unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
 
             //Posible mutex
+            cambiarEstadoPokemon(unCatchPokemon->nombrePokemon, 1);
             unCaughtPokemon->resultado = (uint32_t)actualizarUbicacionPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
             //Fin posible mutex
 
@@ -470,6 +483,8 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
             enviarInt(socketBroker, 3);
             enviarPaquete(socketBroker, tCaughtPokemon, unCaughtPokemon, tamanioCaughtPokemon);
+            
+            cambiarEstadoPokemon(unCatchPokemon->nombrePokemon, 0);
 
             if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0)
             {
@@ -489,9 +504,11 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
             {
 
                 log_error(logger, "El CAUGHT_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
-                //Posible mutex
+
+                pthread_mutex_lock(&mutexSocketBroker);
                 socketBroker = 0;
-                //Fin posible mutex
+                pthread_mutex_unlock(&mutexSocketBroker);
+
             }
         }
         else
@@ -545,6 +562,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
         log_info(logger, "La cantidad del pokemón es: %d.", unNewPokemon->cantidadDePokemon);
 
         int resultadoOperacionPokemon;
+        int existiaPokemon = 0;
 
         if (existePokemon(unNewPokemon->nombrePokemon))
         {
@@ -558,22 +576,20 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
                 sleep(unGameCardConfig->tiempoReintentoOperacion);
             }
 
-            //Posible mutex
+            existiaPokemon = 1;
+            cambiarEstadoPokemon(unNewPokemon->nombrePokemon, 1);
             resultadoOperacionPokemon = actualizarUbicacionPokemon(unNewPokemon->nombrePokemon, unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY, unNewPokemon->cantidadDePokemon);
-            //Fin posible mutex
+            
         }
         else
         {
 
             log_info(logger, "El pokemon solicitado no existia en Game Card. Se procederá a crearlo.");
-            //Posible mutex
             resultadoOperacionPokemon = crearPokemon(unNewPokemon->nombrePokemon, unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY, unNewPokemon->cantidadDePokemon);
-            //Fin posible mutex
         }
 
-        //enviarInt(socketCliente, resultadoOperacionPokemon);
         enviarInt(socketCliente, 3);//ENVIAR ID PARA ACK DEL MSG
-        //log_info(logger, "Se envió el resultado de la operación al Broker.");
+        log_info(logger, "Se envió el resultado de la operación al Broker.");
 
         //PREGUNTAR SI HAY QUE MANDAR IGUAL EL APPEARED POKEMON CUANDO EL POKEMON YA EXISTÍA EN UNA POSICIÓN. POR AHORA LO HACEMOS IGUAL.
 
@@ -591,27 +607,32 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
         enviarInt(socketBroker, 3);
         enviarPaquete(socketBroker, tAppearedPokemon, unAppearedPokemon, tamanioAppearedPokemon); //CAMBIAMOS EL socketCliente POR socketBroker PARA APROVECHAR LA FUNCIONALIDAD DE SERVIDOR DE BROKER. CONSULTAR SI ESTA BIEN.
 
+        if(existiaPokemon){
+            cambiarEstadoPokemon(unNewPokemon->nombrePokemon, 0);
+        }
+
+
         if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0)
         {
 
-            if (tipoResultado == 1)
-            {
+            if (tipoResultado == 1){
 
                 log_info(logger, "El APPEARED_POKEMON se envió con éxito al Broker.");
             }
-            else if (tipoResultado == 0)
-            {
+
+            else if (tipoResultado == 0){
 
                 log_error(logger, "El APPEARED_POKEMON no se envió con éxito al Broker.");
             }
         }
-        else
-        {
+        else{
 
             log_error(logger, "El APPEARED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
-            //Posible mutex
+            
+            pthread_mutex_lock(&mutexSocketBroker);
             socketBroker = 0;
-            //Fin posible mutex
+            pthread_mutex_unlock(&mutexSocketBroker);
+
         }
 
         break;
@@ -648,9 +669,9 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
 
             t_localizedPokemon *unLocalizedPokemon = malloc(sizeof(t_localizedPokemon));
 
-            //Posible mutex
+            cambiarEstadoPokemon(unGetPokemon->nombrePokemon,1);
+
             unLocalizedPokemon->listaDatosPokemon = generarListaUbicaciones(unGetPokemon->nombrePokemon);
-            //Fin posible mutex
 
             unLocalizedPokemon->identificador = unGetPokemon->identificador;              //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
             unLocalizedPokemon->identificadorCorrelacional = unGetPokemon->identificador; //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
@@ -663,6 +684,9 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
 
             enviarInt(socketBroker, 3);
             enviarPaquete(socketBroker, tLocalizedPokemon, unLocalizedPokemon, tamanioLocalizedPokemon);
+            
+            cambiarEstadoPokemon(unGetPokemon->nombrePokemon,0);
+            
             log_debug(logger, "---socket :  %d segundos.",socketBroker);
             if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0)
             {
@@ -682,8 +706,11 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
             {
 
                 log_error(logger, "El LOCALIZED_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
+
                 //Posible mutex
+                pthread_mutex_lock(&mutexSocketBroker);
                 socketBroker = 0;
+                pthread_mutex_unlock(&mutexSocketBroker);
                 //Fin posible mutex
             }
         }
@@ -696,8 +723,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
         break;
     }
 
-    case tCatchPokemon:
-    {
+    case tCatchPokemon:{
 
         t_catchPokemon *unCatchPokemon = (t_catchPokemon *)buffer;
         int resultado;
@@ -711,13 +737,11 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
 
         int resultadoOperacion = existePokemon(unCatchPokemon->nombrePokemon);
 
-        if (resultadoOperacion)
-        {
+        if (resultadoOperacion){
 
             log_info(logger, "El pokemón a atrapar existe en Game Card.");
 
-            while (leerEstadoPokemon(unCatchPokemon->nombrePokemon))
-            {
+            while (leerEstadoPokemon(unCatchPokemon->nombrePokemon)){
 
                 log_info(logger, "La carpeta del pokemón esta abierta en este momento, se intentará nuevamente en %d segundos.", unGameCardConfig->tiempoReintentoOperacion);
                 sleep(unGameCardConfig->tiempoReintentoOperacion);
@@ -725,9 +749,8 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
 
             t_caughtPokemon *unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
 
-            //Posible mutex
+            cambiarEstadoPokemon(unCatchPokemon->nombrePokemon,1);
             unCaughtPokemon->resultado = (uint32_t)actualizarUbicacionPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
-            //Fin posible mutex
 
             unCaughtPokemon->identificador = unCatchPokemon->identificador;              //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
             unCaughtPokemon->identificadorCorrelacional = unCatchPokemon->identificador; //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
@@ -742,16 +765,16 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
             enviarInt(socketBroker, 3);
             enviarPaquete(socketBroker, tCaughtPokemon, unCaughtPokemon, tamanioCaughtPokemon);
 
-            if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0)
-            {
+            cambiarEstadoPokemon(unCatchPokemon->nombrePokemon,0);
 
-                if (tipoResultado == 1)
-                {
+            if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0){
+
+                if (tipoResultado == 1){
 
                     log_info(logger, "El CAUGHT_POKEMON se envió con éxito al Broker.");
                 }
-                else if (tipoResultado == 0)
-                {
+                
+                else if (tipoResultado == 0){
 
                     log_error(logger, "El CAUGHT_POKEMON no se envió con éxito al Broker.");
                 }
@@ -760,9 +783,9 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
             {
 
                 log_error(logger, "El CAUGHT_POKEMON no se envió con éxito al Broker. El Broker está desconectado.");
-                //Posible mutex
+                pthread_mutex_lock(&mutexSocketBroker);
                 socketBroker = 0;
-                //Fin posible mutex
+                pthread_mutex_unlock(&mutexSocketBroker);
             }
         }
         else
@@ -790,38 +813,80 @@ void manejarRespuestaABroker(int socketCliente, int idCliente)
     return;
 }
 
-void actualizarConexionConBroker()
-{
+void actualizarConexionConBroker(){
+
+    int resultado;
+    int tipoResultado = 0;
+    int tamanioSuscriptor = 0;
 
     while (1)
     {
 
         sleep(unGameCardConfig->tiempoReintentoConexion);
 
-        if (socketBroker <= 0)
-        {
+        if (socketBroker <= 0){
 
-            //Posible mutex
 
             log_error(logger, "El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.");
-            socketBroker = cliente(unGameCardConfig->ipBroker, unGameCardConfig->puertoBroker, ID_BROKER);
 
-            if (socketBroker > 0)
-            {
+            pthread_mutex_lock(&mutexSocketBroker);
+            socketBroker = cliente(unGameCardConfig->ipBroker, unGameCardConfig->puertoBroker, ID_BROKER);
+            pthread_mutex_unlock(&mutexSocketBroker);
+
+            if (socketBroker > 0){
 
                 log_info(logger, "El Broker se ha conectado correctamente.");
-            }
-            else
-            {
+
+                t_suscriptor *unSuscriptor = malloc(sizeof(t_suscriptor));
+
+                unSuscriptor->identificador = 0;
+                unSuscriptor->identificadorCorrelacional = 0;
+
+                unSuscriptor->colaDeMensajes = tNewPokemon;
+
+                unSuscriptor->tiempoDeSuscripcion = 0;
+                unSuscriptor->puerto = unGameCardConfig->puertoGameCard;
+
+                unSuscriptor->ip = string_new();
+                string_append(&unSuscriptor->ip, unGameCardConfig->ipGameCard);
+
+                enviarInt(socketBroker, 3);
+                enviarPaquete(socketBroker, tSuscriptor, unSuscriptor, tamanioSuscriptor);
+
+                if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0){
+
+                    if (tipoResultado == 1){
+
+                        log_info(logger, "Pedido de suscripción realizado con éxito");
+
+                    }else if (tipoResultado == 0){
+
+                        log_info(logger, "No se pudo realizar el pedido de suscripción");
+
+                    }
+
+                }else{
+
+                    log_error(logger, "Hubo un error al recibir el resultado de la operación desde el Broker. El Broker está desconectado.");
+
+                    pthread_mutex_lock(&mutexSocketBroker);
+                    socketBroker = 0;
+                    pthread_mutex_unlock(&mutexSocketBroker);
+
+                }
+
+            }else{
 
                 log_error(logger, "Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en %d segundos.", unGameCardConfig->tiempoReintentoConexion);
+
             }
 
-            //Fin Posible mutex
         }
+
     }
 
     return;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1013,8 +1013,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
     pthread_mutex_unlock(&mutex_ipServerABuscar);
     pthread_mutex_unlock(&mutex_PuertoEschuchaABuscar);
 
-    if (unSuscriptor != NULL)
-    {
+    if (unSuscriptor != NULL){
         // 1 NEW_POKEMON_LISTA 2 APPEARED_POKEMON_LISTA 3 CATCH_POKEMON_LISTA 4 CAUGHT_POKEMON_LISTA 5 GET_POKEMON_LISTA 6 LOCALIZED_POKEMON_LISTA
 
         switch (nuevaSuscripcion->colaDeMensajes)
