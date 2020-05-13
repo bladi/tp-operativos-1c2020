@@ -182,3 +182,103 @@
 [TRACE] 03:02:14:547 GAME BOY/(21402:21402): - Conectado a Broker a través del socket 4
 [INFO] 03:02:14:547 GAME BOY/(21402:21402): - SE HAN ENVIADO 27 BYTES CON EXITO
 [INFO] 03:02:14:561 GAME BOY/(21402:21402): Pedido de locación de pokemón realizado con éxito
+[INFO] 20:24:56:892 GAME BOY/(5482:5482): LOG INICIALIZADO CON EXITO
+[INFO] 20:24:56:893 GAME BOY/(5482:5482): - CONEXION EXITOSA
+[TRACE] 20:24:56:893 GAME BOY/(5482:5482): - Conectado a Broker a través del socket 4
+[INFO] 20:24:56:893 GAME BOY/(5482:5482): - SE HAN ENVIADO 37 BYTES CON EXITO
+[INFO] 20:24:56:900 GAME BOY/(5482:5482): Pókemon creado con éxito
+[INFO] 20:25:49:889 GAME BOY/(5603:5603): LOG INICIALIZADO CON EXITO
+[INFO] 20:25:49:894 GAME BOY/(5603:5603): - CONEXION EXITOSA
+[TRACE] 20:25:49:895 GAME BOY/(5603:5603): - Conectado a Broker a través del socket 4
+[INFO] 20:25:49:895 GAME BOY/(5603:5603): - SE HAN ENVIADO 37 BYTES CON EXITO
+[INFO] 20:25:49:896 GAME BOY/(5603:5603): Pókemon creado con éxito
+[INFO] 20:25:57:714 GAME BOY/(5607:5607): LOG INICIALIZADO CON EXITO
+[INFO] 20:25:57:714 GAME BOY/(5607:5607): - CONEXION EXITOSA
+[TRACE] 20:25:57:714 GAME BOY/(5607:5607): - Conectado a Broker a través del socket 4
+[INFO] 20:25:57:715 GAME BOY/(5607:5607): - SE HAN ENVIADO 37 BYTES CON EXITO
+[INFO] 20:25:57:733 GAME BOY/(5607:5607): Pókemon creado con éxito
+[INFO] 20:25:58:761 GAME BOY/(5610:5610): LOG INICIALIZADO CON EXITO
+[INFO] 20:25:58:762 GAME BOY/(5610:5610): - CONEXION EXITOSA
+[TRACE] 20:25:58:762 GAME BOY/(5610:5610): - Conectado a Broker a través del socket 4
+[INFO] 20:25:58:763 GAME BOY/(5610:5610): - SE HAN ENVIADO 37 BYTES CON EXITO
+[INFO] 20:25:58:775 GAME BOY/(5610:5610): Pókemon creado con éxito
+[INFO] 20:25:59:705 GAME BOY/(5613:5613): LOG INICIALIZADO CON EXITO
+[INFO] 20:25:59:708 GAME BOY/(5613:5613): - CONEXION EXITOSA
+[TRACE] 20:25:59:709 GAME BOY/(5613:5613): - Conectado a Broker a través del socket 4
+[INFO] 20:25:59:710 GAME BOY/(5613:5613): - SE HAN ENVIADO 37 BYTES CON EXITO
+[INFO] 20:25:59:716 GAME BOY/(5613:5613): Pókemon creado con éxito
+[INFO] 20:26:00:436 GAME BOY/(5618:5618): LOG INICIALIZADO CON EXITO
+[INFO] 20:26:00:436 GAME BOY/(5618:5618): - CONEXION EXITOSA
+[TRACE] 20:26:00:437 GAME BOY/(5618:5618): - Conectado a Broker a través del socket 4
+[INFO] 20:26:00:437 GAME BOY/(5618:5618): - SE HAN ENVIADO 37 BYTES CON EXITO
+[INFO] 20:26:00:437 GAME BOY/(5618:5618): Pókemon creado con éxito
+[INFO] 20:26:01:433 GAME BOY/(5621:5621): LOG INICIALIZADO CON EXITO
+[INFO] 20:26:01:434 GAME BOY/(5621:5621): - CONEXION EXITOSA
+[TRACE] 20:26:01:434 GAME BOY/(5621:5621): - Conectado a Broker a través del socket 4
+[INFO] 20:26:01:434 GAME BOY/(5621:5621): - SE HAN ENVIADO 37 BYTES CON EXITO
+[INFO] 20:26:01:455 GAME BOY/(5621:5621): Pókemon creado con éxito
+[INFO] 20:26:17:197 GAME BOY/(5624:5624): LOG INICIALIZADO CON EXITO
+[INFO] 20:26:17:199 GAME BOY/(5624:5624): - CONEXION EXITOSA
+[TRACE] 20:26:17:200 GAME BOY/(5624:5624): - Conectado a Broker a través del socket 4
+[INFO] 20:26:17:202 GAME BOY/(5624:5624): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 20:26:17:223 GAME BOY/(5624:5627): Cliente conectado!
+[INFO] 20:26:17:223 GAME BOY/(5624:5627): Creando hilo de administracion de conexion con cliente ....
+[INFO] 20:26:17:224 GAME BOY/(5624:5627): Hilo creado correctamente
+[INFO] 20:26:17:236 GAME BOY/(5624:5624): Pedido de suscripción realizado con éxito
+[INFO] 20:26:17:244 GAME BOY/(5624:5628): Tipo de mensaje recibido: 6
+[INFO] 20:26:17:244 GAME BOY/(5624:5628): Se recibió un 'APPEARED_POKEMON' del Broker: 
+
+[INFO] 20:26:17:244 GAME BOY/(5624:5628): El ID del mensaje es: 3.
+[INFO] 20:26:17:244 GAME BOY/(5624:5628): El ID correlacional del mensaje es: 2.
+[INFO] 20:26:17:244 GAME BOY/(5624:5628): El nombre del pokemón es: NONOs.
+[INFO] 20:26:17:244 GAME BOY/(5624:5628): La posicion del pokémon en el mapa es: [5,0].
+[INFO] 20:26:17:244 GAME BOY/(5624:5628): Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON
+[INFO] 20:26:17:285 GAME BOY/(5624:5628): Tipo de mensaje recibido: 6
+[INFO] 20:26:17:285 GAME BOY/(5624:5628): Se recibió un 'APPEARED_POKEMON' del Broker: 
+
+[INFO] 20:26:17:285 GAME BOY/(5624:5628): El ID del mensaje es: 6.
+[INFO] 20:26:17:285 GAME BOY/(5624:5628): El ID correlacional del mensaje es: 5.
+[INFO] 20:26:17:285 GAME BOY/(5624:5628): El nombre del pokemón es: NONOs.
+[INFO] 20:26:17:285 GAME BOY/(5624:5628): La posicion del pokémon en el mapa es: [5,0].
+[INFO] 20:26:17:285 GAME BOY/(5624:5628): Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON
+[INFO] 20:26:17:324 GAME BOY/(5624:5628): Tipo de mensaje recibido: 6
+[INFO] 20:26:17:324 GAME BOY/(5624:5628): Se recibió un 'APPEARED_POKEMON' del Broker: 
+
+[INFO] 20:26:17:324 GAME BOY/(5624:5628): El ID del mensaje es: 9.
+[INFO] 20:26:17:324 GAME BOY/(5624:5628): El ID correlacional del mensaje es: 8.
+[INFO] 20:26:17:324 GAME BOY/(5624:5628): El nombre del pokemón es: NONOs.
+[INFO] 20:26:17:324 GAME BOY/(5624:5628): La posicion del pokémon en el mapa es: [5,0].
+[INFO] 20:26:17:324 GAME BOY/(5624:5628): Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON
+[INFO] 20:26:17:363 GAME BOY/(5624:5628): Tipo de mensaje recibido: 6
+[INFO] 20:26:17:364 GAME BOY/(5624:5628): Se recibió un 'APPEARED_POKEMON' del Broker: 
+
+[INFO] 20:26:17:364 GAME BOY/(5624:5628): El ID del mensaje es: 12.
+[INFO] 20:26:17:364 GAME BOY/(5624:5628): El ID correlacional del mensaje es: 11.
+[INFO] 20:26:17:364 GAME BOY/(5624:5628): El nombre del pokemón es: NONOs.
+[INFO] 20:26:17:364 GAME BOY/(5624:5628): La posicion del pokémon en el mapa es: [5,0].
+[INFO] 20:26:17:364 GAME BOY/(5624:5628): Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON
+[INFO] 20:26:17:404 GAME BOY/(5624:5628): Tipo de mensaje recibido: 6
+[INFO] 20:26:17:404 GAME BOY/(5624:5628): Se recibió un 'APPEARED_POKEMON' del Broker: 
+
+[INFO] 20:26:17:404 GAME BOY/(5624:5628): El ID del mensaje es: 15.
+[INFO] 20:26:17:404 GAME BOY/(5624:5628): El ID correlacional del mensaje es: 14.
+[INFO] 20:26:17:404 GAME BOY/(5624:5628): El nombre del pokemón es: NONOs.
+[INFO] 20:26:17:404 GAME BOY/(5624:5628): La posicion del pokémon en el mapa es: [5,0].
+[INFO] 20:26:17:404 GAME BOY/(5624:5628): Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON
+[INFO] 20:26:17:447 GAME BOY/(5624:5628): Tipo de mensaje recibido: 6
+[INFO] 20:26:17:448 GAME BOY/(5624:5628): Se recibió un 'APPEARED_POKEMON' del Broker: 
+
+[INFO] 20:26:17:448 GAME BOY/(5624:5628): El ID del mensaje es: 18.
+[INFO] 20:26:17:448 GAME BOY/(5624:5628): El ID correlacional del mensaje es: 17.
+[INFO] 20:26:17:448 GAME BOY/(5624:5628): El nombre del pokemón es: NONOs.
+[INFO] 20:26:17:448 GAME BOY/(5624:5628): La posicion del pokémon en el mapa es: [5,0].
+[INFO] 20:26:17:448 GAME BOY/(5624:5628): Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON
+[INFO] 20:26:17:488 GAME BOY/(5624:5628): Tipo de mensaje recibido: 6
+[INFO] 20:26:17:488 GAME BOY/(5624:5628): Se recibió un 'APPEARED_POKEMON' del Broker: 
+
+[INFO] 20:26:17:488 GAME BOY/(5624:5628): El ID del mensaje es: 21.
+[INFO] 20:26:17:488 GAME BOY/(5624:5628): El ID correlacional del mensaje es: 20.
+[INFO] 20:26:17:488 GAME BOY/(5624:5628): El nombre del pokemón es: NONOs.
+[INFO] 20:26:17:488 GAME BOY/(5624:5628): La posicion del pokémon en el mapa es: [5,0].
+[INFO] 20:26:17:488 GAME BOY/(5624:5628): Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON
+[WARNING] 20:26:43:167 GAME BOY/(5624:5628): Se desconectó el broker, o bien, terminó el tiempo de suscripcióna la cola de mensajes.

@@ -1853,6 +1853,9 @@ void ejecutarColaNewPokemon()
                     }
                 }
             }
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
+
         }
     }
 }
@@ -1920,6 +1923,8 @@ void ejecutarColaAppearedPokemon()
                     }
                 }
             }
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
         }
     }
 }
@@ -1987,6 +1992,8 @@ void ejecutarColaCatchPokemon()
                     }
                 }
             }
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
         }
     }
 }
@@ -2054,6 +2061,8 @@ void ejecutarColaCaughtPokemon()
                     }
                 }
             }
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
         }
     }
 }
@@ -2121,6 +2130,8 @@ void ejecutarColaGetPokemon()
                     }
                 }
             }
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
         }
     }
 }
@@ -2188,6 +2199,8 @@ void ejecutarColaLocalizedPokemon()
                     }
                 }
             }
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
         }
     }
 }

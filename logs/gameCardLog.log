@@ -235,3 +235,124 @@
 [ERROR] 03:03:08:976 GAME CARD/(21413:21415): - FALLO AL CONECTAR AL SERVIDOR
 [ERROR] 03:03:08:976 GAME CARD/(21413:21415): No se conectó correctamente al Broker. fallo en funcion conectarseA();
 [ERROR] 03:03:08:976 GAME CARD/(21413:21415): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[INFO] 20:24:05:810 GAME CARD/(5449:5449): LOG INICIALIZADO CON EXITO
+[INFO] 20:24:05:812 GAME CARD/(5449:5449): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 20:24:05:813 GAME CARD/(5449:5449): - CONEXION EXITOSA
+[TRACE] 20:24:05:813 GAME CARD/(5449:5449): - Conectado a Broker a través del socket 4
+[INFO] 20:24:05:814 GAME CARD/(5449:5449): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 20:24:05:836 GAME CARD/(5449:5453): Cliente conectado!
+[INFO] 20:24:05:836 GAME CARD/(5449:5453): Creando hilo de administracion de conexion con cliente ....
+[INFO] 20:24:05:837 GAME CARD/(5449:5453): Hilo creado correctamente
+[INFO] 20:24:05:840 GAME CARD/(5449:5449): Pedido de suscripción realizado con éxito
+[INFO] 20:24:56:927 GAME CARD/(5449:5454): Tipo de mensaje recibido: 1
+[INFO] 20:24:56:928 GAME CARD/(5449:5454): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:24:56:928 GAME CARD/(5449:5454): El ID del mensaje es: 2
+[INFO] 20:24:56:928 GAME CARD/(5449:5454): El ID correlacional del mensaje es: 0.
+[INFO] 20:24:56:928 GAME CARD/(5449:5454): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:24:56:928 GAME CARD/(5449:5454): El nombre del Pokemón es: NONOs.
+[INFO] 20:24:56:928 GAME CARD/(5449:5454): La cantidad del pokemón es: 10.
+[INFO] 20:24:56:928 GAME CARD/(5449:5454): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:24:56:928 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:24:56:930 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:24:56:930 GAME CARD/(5449:5454): Bloque 0 del pokemon NONOs: 5
+[TRACE] 20:24:56:930 GAME CARD/(5449:5454): Bloque pasado a int: 5
+[INFO] 20:24:56:931 GAME CARD/(5449:5454): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 20:24:56:931 GAME CARD/(5449:5454): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:25:49:940 GAME CARD/(5449:5454): Tipo de mensaje recibido: 1
+[INFO] 20:25:49:940 GAME CARD/(5449:5454): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:25:49:940 GAME CARD/(5449:5454): El ID del mensaje es: 5
+[INFO] 20:25:49:940 GAME CARD/(5449:5454): El ID correlacional del mensaje es: 0.
+[INFO] 20:25:49:941 GAME CARD/(5449:5454): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:25:49:941 GAME CARD/(5449:5454): El nombre del Pokemón es: NONOs.
+[INFO] 20:25:49:941 GAME CARD/(5449:5454): La cantidad del pokemón es: 10.
+[INFO] 20:25:49:941 GAME CARD/(5449:5454): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:25:49:941 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:25:49:941 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:25:49:941 GAME CARD/(5449:5454): Bloque 0 del pokemon NONOs: 5
+[TRACE] 20:25:49:941 GAME CARD/(5449:5454): Bloque pasado a int: 5
+[INFO] 20:25:49:941 GAME CARD/(5449:5454): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 20:25:49:942 GAME CARD/(5449:5454): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:25:57:775 GAME CARD/(5449:5454): Tipo de mensaje recibido: 1
+[INFO] 20:25:57:776 GAME CARD/(5449:5454): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:25:57:776 GAME CARD/(5449:5454): El ID del mensaje es: 8
+[INFO] 20:25:57:776 GAME CARD/(5449:5454): El ID correlacional del mensaje es: 0.
+[INFO] 20:25:57:776 GAME CARD/(5449:5454): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:25:57:776 GAME CARD/(5449:5454): El nombre del Pokemón es: NONOs.
+[INFO] 20:25:57:776 GAME CARD/(5449:5454): La cantidad del pokemón es: 10.
+[INFO] 20:25:57:776 GAME CARD/(5449:5454): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:25:57:776 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:25:57:776 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:25:57:776 GAME CARD/(5449:5454): Bloque 0 del pokemon NONOs: 5
+[TRACE] 20:25:57:776 GAME CARD/(5449:5454): Bloque pasado a int: 5
+[INFO] 20:25:57:776 GAME CARD/(5449:5454): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 20:25:57:777 GAME CARD/(5449:5454): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:25:58:832 GAME CARD/(5449:5454): Tipo de mensaje recibido: 1
+[INFO] 20:25:58:832 GAME CARD/(5449:5454): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:25:58:832 GAME CARD/(5449:5454): El ID del mensaje es: 11
+[INFO] 20:25:58:832 GAME CARD/(5449:5454): El ID correlacional del mensaje es: 0.
+[INFO] 20:25:58:832 GAME CARD/(5449:5454): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:25:58:832 GAME CARD/(5449:5454): El nombre del Pokemón es: NONOs.
+[INFO] 20:25:58:832 GAME CARD/(5449:5454): La cantidad del pokemón es: 10.
+[INFO] 20:25:58:832 GAME CARD/(5449:5454): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:25:58:832 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:25:58:832 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:25:58:832 GAME CARD/(5449:5454): Bloque 0 del pokemon NONOs: 5
+[TRACE] 20:25:58:833 GAME CARD/(5449:5454): Bloque pasado a int: 5
+[INFO] 20:25:58:833 GAME CARD/(5449:5454): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 20:25:58:833 GAME CARD/(5449:5454): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:25:59:751 GAME CARD/(5449:5454): Tipo de mensaje recibido: 1
+[INFO] 20:25:59:751 GAME CARD/(5449:5454): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:25:59:751 GAME CARD/(5449:5454): El ID del mensaje es: 14
+[INFO] 20:25:59:751 GAME CARD/(5449:5454): El ID correlacional del mensaje es: 0.
+[INFO] 20:25:59:751 GAME CARD/(5449:5454): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:25:59:752 GAME CARD/(5449:5454): El nombre del Pokemón es: NONOs.
+[INFO] 20:25:59:752 GAME CARD/(5449:5454): La cantidad del pokemón es: 10.
+[INFO] 20:25:59:752 GAME CARD/(5449:5454): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:25:59:752 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:25:59:752 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:25:59:752 GAME CARD/(5449:5454): Bloque 0 del pokemon NONOs: 5
+[TRACE] 20:25:59:752 GAME CARD/(5449:5454): Bloque pasado a int: 5
+[INFO] 20:25:59:752 GAME CARD/(5449:5454): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 20:25:59:752 GAME CARD/(5449:5454): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:26:00:479 GAME CARD/(5449:5454): Tipo de mensaje recibido: 1
+[INFO] 20:26:00:479 GAME CARD/(5449:5454): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:26:00:479 GAME CARD/(5449:5454): El ID del mensaje es: 17
+[INFO] 20:26:00:479 GAME CARD/(5449:5454): El ID correlacional del mensaje es: 0.
+[INFO] 20:26:00:479 GAME CARD/(5449:5454): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:26:00:479 GAME CARD/(5449:5454): El nombre del Pokemón es: NONOs.
+[INFO] 20:26:00:479 GAME CARD/(5449:5454): La cantidad del pokemón es: 10.
+[INFO] 20:26:00:480 GAME CARD/(5449:5454): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:26:00:480 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:26:00:480 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:26:00:480 GAME CARD/(5449:5454): Bloque 0 del pokemon NONOs: 5
+[TRACE] 20:26:00:480 GAME CARD/(5449:5454): Bloque pasado a int: 5
+[INFO] 20:26:00:480 GAME CARD/(5449:5454): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 20:26:00:480 GAME CARD/(5449:5454): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:26:01:495 GAME CARD/(5449:5454): Tipo de mensaje recibido: 1
+[INFO] 20:26:01:495 GAME CARD/(5449:5454): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:26:01:495 GAME CARD/(5449:5454): El ID del mensaje es: 20
+[INFO] 20:26:01:496 GAME CARD/(5449:5454): El ID correlacional del mensaje es: 0.
+[INFO] 20:26:01:496 GAME CARD/(5449:5454): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:26:01:496 GAME CARD/(5449:5454): El nombre del Pokemón es: NONOs.
+[INFO] 20:26:01:496 GAME CARD/(5449:5454): La cantidad del pokemón es: 10.
+[INFO] 20:26:01:496 GAME CARD/(5449:5454): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:26:01:496 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:26:01:496 GAME CARD/(5449:5454): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[TRACE] 20:26:01:496 GAME CARD/(5449:5454): Bloque 0 del pokemon NONOs: 5
+[TRACE] 20:26:01:496 GAME CARD/(5449:5454): Bloque pasado a int: 5
+[INFO] 20:26:01:496 GAME CARD/(5449:5454): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 20:26:01:496 GAME CARD/(5449:5454): - SE HAN ENVIADO 33 BYTES CON EXITO
+[WARNING] 20:26:43:168 GAME CARD/(5449:5454): CLIENTE DESCONECTADO
+[INFO] 20:28:54:958 GAME CARD/(5759:5759): LOG INICIALIZADO CON EXITO
+[INFO] 20:28:54:964 GAME CARD/(5759:5759): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 20:28:54:967 GAME CARD/(5759:5759): - CONEXION EXITOSA
+[TRACE] 20:28:54:969 GAME CARD/(5759:5759): - Conectado a Broker a través del socket 4
+[INFO] 20:28:54:969 GAME CARD/(5759:5759): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 20:28:54:981 GAME CARD/(5759:5759): Pedido de suscripción realizado con éxito
