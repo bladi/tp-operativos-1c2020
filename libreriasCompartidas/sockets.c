@@ -295,3 +295,10 @@ int recibirPorSocket(int fdEmisor, void *buffer, int totalARecibir) {
 	return bytesRecibidos; // retorna -1 si fallo, 0 si se desconecto o los bytes recibidos
 
 }
+
+int probarConexionSocket(int socketDestino){
+	
+	int resultado = enviarInt(socketDestino, -1);
+	return resultado;
+
+}

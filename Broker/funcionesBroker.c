@@ -1,14 +1,12 @@
 #include "broker.h"
 
-void configurarLoggerBroker()
-{
+void configurarLoggerBroker(){
 
     logger = log_create(CONFIG_BROKER->logFile, "BROKER", true, LOG_LEVEL_TRACE);
     log_info(logger, "LOG INICIALIZADO CON EXITO");
 }
 
-void cargarConfiguracionBroker()
-{
+void cargarConfiguracionBroker(){
 
     CONFIG_BROKER = malloc(sizeof(brokerConfig_t));
 
@@ -54,8 +52,7 @@ void cargarConfiguracionBroker()
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-void inicializarBroker()
-{
+void inicializarBroker(){
 
     cargarConfiguracionBroker();
 
@@ -98,15 +95,13 @@ void inicializarBroker()
     inicializarHilosYVariablesBroker();
 }
 
-void finalizarBroker()
-{
+void finalizarBroker(){
 
     free(CONFIG_BROKER);
     free(logger);
 }
 
-void actualizarConfiguracionBroker()
-{
+void actualizarConfiguracionBroker(){
 
     FILE *archivoConfigFp;
 
@@ -148,8 +143,7 @@ void actualizarConfiguracionBroker()
     }
 }
 
-void inicializarHilosYVariablesBroker()
-{
+void inicializarHilosYVariablesBroker(){
 
     cantidadDeActualizacionesConfigBroker = 0;
 
@@ -175,8 +169,7 @@ void inicializarHilosYVariablesBroker()
     pthread_join(hiloActualizadorConfigBroker, NULL);
 }
 
-void inicializarMemoria()
-{
+void inicializarMemoria(){
 
     if ((MEMORIA_PRINCIPAL = malloc(CONFIG_BROKER->tamanioMemoria)) == NULL)
     {
@@ -212,8 +205,7 @@ void inicializarMemoria()
     // log_error(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
 }
 
-uint32_t generarNuevoIdMensajeBroker()
-{
+uint32_t generarNuevoIdMensajeBroker(){
 
     pthread_mutex_lock(&mutex_ID_MENSAJE);
     ID_MENSAJE++;
@@ -222,8 +214,7 @@ uint32_t generarNuevoIdMensajeBroker()
     return ID_MENSAJE;
 }
 
-uint32_t generarNuevoIdSuscriptor()
-{
+uint32_t generarNuevoIdSuscriptor(){
 
     pthread_mutex_lock(&mutex_NUM_SUSCRIPTOR);
     NUM_SUSCRIPTOR++;
@@ -232,16 +223,14 @@ uint32_t generarNuevoIdSuscriptor()
     return NUM_SUSCRIPTOR;
 }
 
-char *getDireccionMemoriaLibre(uint32_t tamanio)
-{
+char *getDireccionMemoriaLibre(uint32_t tamanio){
     //??* falta comparar con config para buscar que algoritmo ejecutar
     return malloc(tamanio);
 }
 
 ////////////////////////////////////////MANEJAR NUEVOS MENSAJES EN COLA////////////////////////////////////////////////
 
-void administradorDeConexiones(void *infoAdmin)
-{
+void administradorDeConexiones(void *infoAdmin){
 
     infoAdminConexiones_t *unaInfoAdmin = (infoAdminConexiones_t *)infoAdmin;
 
@@ -320,8 +309,7 @@ void administradorDeConexiones(void *infoAdmin)
     return;
 }
 
-void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
-{
+void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
 
     int *tipoMensaje = malloc(sizeof(int));
     int *tamanioMensaje = malloc(sizeof(int));
@@ -562,8 +550,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
     return;
 }
 
-void manejarRespuestaAGameCard(int socketCliente, int idCliente)
-{
+void manejarRespuestaAGameCard(int socketCliente, int idCliente){
 
     int *tipoMensaje = malloc(sizeof(int));
     int *tamanioMensaje = malloc(sizeof(int));
@@ -795,8 +782,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
     return;
 }
 
-void manejarRespuestaATeam(int socketCliente, int idCliente)
-{
+void manejarRespuestaATeam(int socketCliente, int idCliente){
 
     int *tipoMensaje = malloc(sizeof(int));
     int *tamanioMensaje = malloc(sizeof(int));
@@ -995,8 +981,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
 ////////////////////////////////////////FUNCION NUEVO SUSCRIBER////////////////////////////////////////////////
 
-void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
-{
+void ingresarNuevoSuscriber(void *unaNuevaSuscripcion){
 
     t_suscriptor *nuevaSuscripcion = (t_suscriptor *)unaNuevaSuscripcion;
     // LO BUSCO EN LISTA DE SUSCRIPTORES_LISTA
@@ -1214,8 +1199,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
     }
 }
 
-void reconectarSuscriptor(void *unaNuevaSuscripcion)
-{
+void reconectarSuscriptor(void *unaNuevaSuscripcion){
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -1235,8 +1219,7 @@ void reconectarSuscriptor(void *unaNuevaSuscripcion)
 
 ////////////////////////////////////////FUNCIONES ENVIAR MENSAJES A SUSCRIBER////////////////////////////////////////////////
 
-void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
-{
+void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
     uint32_t desplazamiento = 0;
@@ -1330,8 +1313,7 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
     free(unNewPokemon);
 }
 
-void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
-{
+void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -1424,8 +1406,7 @@ void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion
     free(unAppearedPokemon);
 }
 
-void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
-{
+void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -1515,8 +1496,7 @@ void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
     free(unCatchPokemon);
 }
 
-void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
-{
+void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -1585,8 +1565,7 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
     free(unCaughtPokemon);
 }
 
-void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
-{
+void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -1671,8 +1650,7 @@ void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
     free(unGetPokemon);
 }
 
-void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
-{
+void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -1789,8 +1767,7 @@ void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcio
 
 ////////////////////////////////////////HILOS DE COLAS////////////////////////////////////////////////
 
-void ejecutarColaNewPokemon()
-{
+void ejecutarColaNewPokemon(){
 
     t_list *mensajesAEnviar = list_create();
     tMensaje *unMensaje;
@@ -1852,12 +1829,15 @@ void ejecutarColaNewPokemon()
                     }
                 }
             }
+
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
+
         }
     }
 }
 
-void ejecutarColaAppearedPokemon()
-{
+void ejecutarColaAppearedPokemon(){
 
     t_list *mensajesAEnviar = list_create();
     tMensaje *unMensaje;
@@ -1919,12 +1899,14 @@ void ejecutarColaAppearedPokemon()
                     }
                 }
             }
+
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
         }
     }
 }
 
-void ejecutarColaCatchPokemon()
-{
+void ejecutarColaCatchPokemon(){
 
     t_list *mensajesAEnviar = list_create();
     tMensaje *unMensaje;
@@ -1986,12 +1968,15 @@ void ejecutarColaCatchPokemon()
                     }
                 }
             }
+
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
+
         }
     }
 }
 
-void ejecutarColaCaughtPokemon()
-{
+void ejecutarColaCaughtPokemon(){
 
     t_list *mensajesAEnviar = list_create();
     tMensaje *unMensaje;
@@ -2053,12 +2038,14 @@ void ejecutarColaCaughtPokemon()
                     }
                 }
             }
+
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
         }
     }
 }
 
-void ejecutarColaGetPokemon()
-{
+void ejecutarColaGetPokemon(){
 
     t_list *mensajesAEnviar = list_create();
     tMensaje *unMensaje;
@@ -2120,12 +2107,15 @@ void ejecutarColaGetPokemon()
                     }
                 }
             }
+
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
+
         }
     }
 }
 
-void ejecutarColaLocalizedPokemon()
-{
+void ejecutarColaLocalizedPokemon(){
 
     t_list *mensajesAEnviar = list_create();
     tMensaje *unMensaje;
@@ -2187,14 +2177,17 @@ void ejecutarColaLocalizedPokemon()
                     }
                 }
             }
+
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            list_destroy(mensajesAEnviar);
+
         }
     }
 }
 
 ////////////////////////////////////////FUNCIONES LISTAS////////////////////////////////////////////////
 
-bool existeNuevoSuscriber(void *unSuscriber)
-{
+bool existeNuevoSuscriber(void *unSuscriber){
 
     t_suscriptor *p = (t_suscriptor *)unSuscriber;
 
@@ -2208,8 +2201,7 @@ bool existeNuevoSuscriber(void *unSuscriber)
     return existe;
 }
 
-bool existeIdSuscriberEnCola(void *suscriptorEnCola)
-{
+bool existeIdSuscriberEnCola(void *suscriptorEnCola){
 
     tSuscriptorEnCola *p = (tSuscriptorEnCola *)suscriptorEnCola;
 
@@ -2223,8 +2215,7 @@ bool existeIdSuscriberEnCola(void *suscriptorEnCola)
     return existe;
 }
 
-bool existeTipoMensaje(void *mensaje)
-{
+bool existeTipoMensaje(void *mensaje){
 
     tMensaje *p = (tMensaje *)mensaje;
 
@@ -2238,8 +2229,7 @@ bool existeTipoMensaje(void *mensaje)
     return existe;
 }
 
-bool existeIdSuscriptor(void *suscriptor)
-{
+bool existeIdSuscriptor(void *suscriptor){
 
     t_suscriptor *p = (t_suscriptor *)suscriptor;
 
@@ -2253,8 +2243,7 @@ bool existeIdSuscriptor(void *suscriptor)
     return existe;
 }
 
-bool existeAck(void *numero)
-{
+bool existeAck(void *numero){
 
     uint32_t *p = (uint32_t *)numero;
 

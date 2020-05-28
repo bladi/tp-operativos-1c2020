@@ -98,6 +98,7 @@ uint32_t busquedaX;
 uint32_t busquedaY;
 
 int socketBroker;
+int brokerActivo;
 
 pthread_t hiloServidorGameCard;
 pthread_t hiloActualizadorConfigGameCard;
