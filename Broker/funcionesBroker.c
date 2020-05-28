@@ -35,6 +35,7 @@ void cargarConfiguracionBroker(){
         CONFIG_BROKER->puertoBroker = config_get_int_value(unBrokerArchivoConfig, PUERTO_BROKER);
         CONFIG_BROKER->frecuenciaCompactacion = config_get_int_value(unBrokerArchivoConfig, FRECUENCIA_COMPACTACION);
         CONFIG_BROKER->logFile = config_get_string_value(unBrokerArchivoConfig, LOG_FILE);
+        CONFIG_BROKER->pathDump = config_get_string_value(unBrokerArchivoConfig, PATH_DUMP);
 
         printf("\n\n· Tamanio de la Memoria = %d\n", CONFIG_BROKER->tamanioMemoria);
         printf("· Tamanio Minimo de Particion = %d\n", CONFIG_BROKER->tamanioMinimoParticion);
@@ -44,7 +45,8 @@ void cargarConfiguracionBroker(){
         printf("· IP del Broker = %s\n", CONFIG_BROKER->ipBroker);
         printf("· Puerto del Broker = %d\n", CONFIG_BROKER->puertoBroker);
         printf("· Frecuencia de Compactacion = %d\n", CONFIG_BROKER->frecuenciaCompactacion);
-        printf("· Ruta del Archivo Log del Broker = %s\n\n", CONFIG_BROKER->logFile);
+        printf("· Ruta del Archivo Log del Broker = %s\n", CONFIG_BROKER->logFile);
+        printf("· Ruta del Archivo Dump del Broker = %s\n\n", CONFIG_BROKER->pathDump);
 
         free(unBrokerArchivoConfig);
     }
@@ -57,6 +59,7 @@ void inicializarBroker(){
     cargarConfiguracionBroker();
 
     configurarLoggerBroker();
+    prueba();
     inicializarMemoria();
     inicializarHilosYVariablesBroker();
 
@@ -92,7 +95,6 @@ void inicializarBroker(){
 
     */
 
-    inicializarHilosYVariablesBroker();
 }
 
 void finalizarBroker(){
@@ -2257,7 +2259,114 @@ bool existeAck(void *numero){
     return existe;
 }
 
+
+//////////////////////////////////////////////DUMP CACHE////////////////////////////////////////////////
+void dumpCache(t_list* particiones){
+
+    FILE *f;
+    int cantParticiones = list_size(particiones);
+
+    char* contenidoDump = string_new();
+    char* fecha = string_new();
+    char* horaCompleta = temporal_get_string_time();
+    char* hora = string_substring(horaCompleta,0,8);
+
+    time_t t;
+    t=time(NULL);
+    struct tm tm = *localtime(&t);
+    //strftime(fecha,11,"%d/%m/%Y", tm);
+    string_append_with_format(&fecha, "%d/%d/%d", tm.tm_mday, tm.tm_mon + 1,  tm.tm_year + 1900);
+    
+
+    string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+    string_append_with_format(&contenidoDump, "Dump:                            %s                              %s\n", fecha, hora);
+    tParticion* particion;// = malloc(sizeof(tParticion));
+    char* limiteParticion;
+    char libre;
+    
+    for(int i = 0; i<cantParticiones; i++){
+        
+        particion = list_get(particiones,i);
+
+        if(particion->free){
+            libre = 'L';
+        } else { 
+            libre = 'X';
+        }
+        limiteParticion = particion->posicion + particion->tamanio;    //in rodri we trust.
+        string_append_with_format(&contenidoDump,"Particion %d: %p",i, particion->posicion);
+        string_append_with_format(&contenidoDump," - %p.",limiteParticion);
+        string_append_with_format(&contenidoDump,"    [%c]    Size: %db\n",libre, particion->tamanio);
+        //string_append_with_format(&contenidoDump,"    LRU[%d] Cola:[%s]    ID:[%d]\n",particion->valorLRU, particion->cola, particion->id);
+
+    }
+    string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+
+    f = fopen(CONFIG_BROKER->pathDump, "w+");
+
+    log_debug(logger,"CREANDO ARCHIVO DUMP EN %s", CONFIG_BROKER->pathDump);
+
+
+    fputs(contenidoDump, f);
+    fseek(f, 0, SEEK_SET);
+    fclose(f);
+
+    free(contenidoDump);
+    free(fecha);
+    free(hora);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+void prueba(){
+
+    t_list* particionesReLocas = list_create();
+
+    tParticion* particion1 = malloc(sizeof(tParticion));
+    tParticion* particion2 = malloc(sizeof(tParticion));
+    tParticion* particion3 = malloc(sizeof(tParticion));
+    /*
+    char* posicion1 = string_new();
+    char* posicion2 = string_new();
+    char* posicion3 = string_new();
+
+    string_append(&posicion1, "unHexaReLoco");
+    string_append(&posicion2, "Cocholates");
+    string_append(&posicion3, "alvaritoReloca");
+    */
+    
+    particion1->free = 1;
+    particion1->posicion = (char*)particion1;
+    particion1->tamanio = 11;
+
+    particion2->free = 0;
+    particion2->posicion = (char*)particion2;
+    particion2->tamanio = 22;
+    
+    particion3->free = 1;
+    particion3->posicion = (char*)particion3;
+    particion3->tamanio = 33;
+
+    list_add(particionesReLocas,particion1);
+    list_add(particionesReLocas,particion2);
+    list_add(particionesReLocas,particion3);
+
+    dumpCache(particionesReLocas);
+
+    free(particionesReLocas);
+}
 /*
+
+typedef struct {
+
+	char* posicion;
+	uint32_t tamanio;
+	bool free;
+			
+} tParticion;
+
 
 typedef struct t_suscriptor{
 

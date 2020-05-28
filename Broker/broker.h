@@ -42,6 +42,7 @@
 #define PUERTO_BROKER "PUERTO_BROKER"
 #define FRECUENCIA_COMPACTACION "FRECUENCIA_COMPACTACION"
 #define LOG_FILE "LOG_FILE"
+#define PATH_DUMP "PATH_DUMP"
 
 //////////////////////////////////////////////////////////////////////VARIABLES ESTATICAS/////////////////////////////////////////////////////////////////////////////////
 
@@ -61,6 +62,7 @@ typedef struct brokerConfig_s{
     uint32_t puertoBroker;
 	uint32_t frecuenciaCompactacion;
 	char* logFile;
+	char* pathDump;
 
 } brokerConfig_t;
 
@@ -177,6 +179,9 @@ void ejecutarColaCatchPokemon();
 void ejecutarColaCaughtPokemon();
 void ejecutarColaGetPokemon();
 void ejecutarColaLocalizedPokemon();
+
+void dumpCache(t_list* particiones);
+void prueba();
 
 //////////////////////////////////////////////////FUNCIONES LISTAS//////////////////////////////////////////////////////////////////////////////////////
 
