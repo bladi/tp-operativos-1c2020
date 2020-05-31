@@ -737,7 +737,7 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
 
     t_Entrenador* entrenadorRetorno;
 
-    if(distanciaMenorNew <= distanciaMenorBlock) //Asumo q en caso de igualdad se prioriza el q esta en new
+    if(distanciaMenorNew < distanciaMenorBlock) //Por teoria deberia tener prioridad el q vuelve de block
     {
         entrenadorRetorno = list_remove(NUEVOS, posicionEntrenadorNew);
     }
