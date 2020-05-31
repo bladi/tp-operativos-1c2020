@@ -130,6 +130,8 @@ pthread_t hiloActualizadorConfigTeam;
 
 int socketBroker;
 
+t_Entrenador* entrenadorEjecutando;
+
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
 void configurarLoggerTeam();
@@ -142,6 +144,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente);
 void manejarRespuestaAGameBoy(int socketCliente, int idCliente);
 
 void cambiarEstado(t_Entrenador *unEntrenador, Estado unEstado);
+void pasarEntrenadorAReady(int posXpokemon,int posYpokemon);
 
 void inicializarTeam();
 void finalizarTeam();
@@ -161,10 +164,13 @@ void planificarSRT();
 
 bool puedeAtrapar(t_Entrenador* pEntrenador);
 bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador);
+void bloquearEntrenador();
 
 bool teamCumplioObjetivos();
 
 float calcularDistancia(int x1,int y1,int x2,int y2);
-int entrenadorMasCercano(int posXpokemon,int posYpokemon);
+//int entrenadorMasCercano(int posXpokemon,int posYpokemon);
+t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon);
+bool puedeEjecutarEntrenador();
 
 #endif

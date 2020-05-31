@@ -225,41 +225,166 @@ void administradorDeConexiones(void* infoAdmin)
     return;
 }
 
+void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
+{
+
+    int *tipoMensaje = malloc(sizeof(int));
+    int *tamanioMensaje = malloc(sizeof(int));
+
+    void *buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
+
+    switch (*tipoMensaje)
+    {
+
+    case tAppearedPokemon:
+    {
+        log_trace(logger, "Llegó un APPEARD_POKEMON del Game Boy");
+
+        t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
+
+        log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
+        log_info(logger, "La posicion del Pokémon es: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
+
+        enviarInt(socketCliente, 1); //Le avisamos al GameBoy que recibimos bien la solicitud.
+
+        //Lógica de lo que hay que hacer con la info recibida:
+
+        //EJ: intentar atrapar el pokemon, agregar el pokemon a lista de pokemons aparecidos, etc, etc.
+
+        break;
+    }
+
+    default:
+    {
+
+        log_error(logger, "Recibimos algo del Game Boy que no sabemos manejar: %d", *tipoMensaje);
+        abort();
+        break;
+    }
+
+    }
+
+    free(tipoMensaje);
+    free(tamanioMensaje);
+    free(buffer);
+
+    return;
+}
+
+void manejarRespuestaABroker(int socketCliente, int idCliente){
+
+    int *tipoMensaje = malloc(sizeof(int));
+    int *tamanioMensaje = malloc(sizeof(int));
+
+    void *buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
+
+    switch (*tipoMensaje)
+    {
+
+    case tAppearedPokemon:
+    {
+        log_trace(logger, "Llegó un APPEARD_POKEMON del Broker");
+
+        t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
+
+        log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
+        log_info(logger, "La posicion del Pokémon es: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
+
+        enviarInt(socketCliente, 1); //Le avisamos al Broker que recibimos bien la solicitud.
+
+        //Lógica de lo que hay que hacer con la info recibida:
+
+        //EJ: intentar atrapar el pokemon, agregar el pokemon a lista de pokemons aparecidos, etc, etc.
+
+        break;
+    }
+
+    case tCaughtPokemon:
+    {
+        log_trace(logger, "Llegó un CAUGHT_POKEMON del Broker");
+
+        t_caughtPokemon *unCaughtPokemon = (t_caughtPokemon *)buffer;
+
+        enviarInt(socketCliente, 4); //Le avisamos al Broker que recibimos bien la solicitud.
+
+        //Lógica de lo que hay que hacer con la info recibida:
+
+        //EJ: Agregar el pokemon a lista de pokemons atrapados, etc, etc.
+
+        break;
+    }
+
+    case tLocalizedPokemon:
+    {
+        log_trace(logger, "Llegó un LOCALIZED_POKEMON del Broker.");
+
+        t_localizedPokemon *unLocalizedPokemon = (t_localizedPokemon *)buffer;
+
+        log_info(logger, "El nombre del Pokemón es: %s", unLocalizedPokemon->nombrePokemon);
+
+        int cantidadListaDatosPokemon = list_size(unLocalizedPokemon->listaDatosPokemon);
+
+        int contadorito = 0;
+
+        printf("\nIdentificador: %d", unLocalizedPokemon->identificador);
+        printf("\nIdentificador Correlacional: %d", unLocalizedPokemon->identificadorCorrelacional);
+        printf("\nNombre del Pokemón: %s", unLocalizedPokemon->nombrePokemon);
+
+        datosPokemon *nodoDatosPokemon;
+
+        while (contadorito < cantidadListaDatosPokemon)
+        {
+
+            nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contadorito);
+
+            //entrenadorMasCercano(nodoDatosPokemon->posicionEnElMapaX,nodoDatosPokemon->posicionEnElMapaY); Tener en cuenta a futuro.
+
+            printf("\nCantidad de pokemón en %d° ubicación: %d", contadorito, nodoDatosPokemon->cantidad);
+            printf("\nUbicacion en 'x': %d", nodoDatosPokemon->posicionEnElMapaX);
+            printf("\nUbicacion en 'y': %d\n", nodoDatosPokemon->posicionEnElMapaY);
+
+            contadorito += 1;
+        }
+
+        enviarInt(socketCliente, 4);
+
+        //Le avisamos al Broker que recibimos bien la solicitud.
+
+        //Lógica de lo que hay que hacer con la info recibida:
+
+        //EJ: Agregar todos los pokemon a la lista de pokemon aparecidos, etc, etc.
+
+        break;
+    }
+
+    default:
+    {
+
+        log_error(logger, "Recibimos algo del Broker que no sabemos manejar: %d", *tipoMensaje);
+        abort();
+        break;
+    }
+
+    }
+
+    free(tipoMensaje);
+    free(tamanioMensaje);
+    free(buffer);
+
+    return;
+}
+
 ///////////////////////// Funciones Auxiliares para Estados ///////////////////////////////////////////////
 
-void cambiarEstado(t_Entrenador *unEntrenador, Estado unEstado)
+void cambiarEstado(t_Entrenador *pEntrenador, Estado pEstado)
 {
-    switch(unEstado)
-	{
-		case READY:
-		{
-			unEntrenador->estado = READY;
-			break;
-		}
-		
-		case BLOCK:
-		{
-			unEntrenador->estado = BLOCK;
-			break;
-		}
+    pEntrenador->estado = pEstado;
+}
 
-		case EXEC:
-		{
-			unEntrenador->estado = EXEC;
-			break;
-		}
-
-        case EXIT:
-		{
-			unEntrenador->estado = EXIT;
-			break;
-		}
-
-		default:
-		{
-			break;
-		}
-	}
+void pasarEntrenadorAReady(int posXpokemon,int posYpokemon)
+{
+    t_Entrenador* unEntrenador = entrenadorMasCercano(posXpokemon, posYpokemon);
+    list_add(LISTOS, unEntrenador);
 }
 
 ///////////////////////// Inicio y Fin de Team ////////////////////////////////////////////////////////////
@@ -515,6 +640,16 @@ bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador)
     return true;
 }
 
+void bloquearEntrenador()
+{
+    t_Entrenador* unEntrenador = entrenadorEjecutando;
+    entrenadorEjecutando = NULL;
+    printf("El estado anterior era: %s", unEntrenador->estado);
+    cambiarEstado(unEntrenador, BLOCK);
+    printf("El estado nuevo es: %s", unEntrenador->estado);
+    list_add(BLOQUEADOS, unEntrenador);
+}
+
 //////////////////////// Funciones auxiliares de Team /////////////////////////////////////////////////////
 
 bool teamCumplioObjetivos()
@@ -530,155 +665,107 @@ bool teamCumplioObjetivos()
     return true;
 }
 
-void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
+float calcularDistancia(int x1,int y1,int x2,int y2)
+{	float distancia;
+	distancia = sqrt(((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1)));
+	return distancia;
+}
+
+t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
 {
+    int posicionEntrenadorNew;
+    int posicionEntrenadorBlock;
+    float distanciaMenorNew;
+    float distanciaMenorBlock;
+	float distancia;
 
-    int *tipoMensaje = malloc(sizeof(int));
-    int *tamanioMensaje = malloc(sizeof(int));
-
-    void *buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
-
-    switch (*tipoMensaje)
+    if(list_size(NUEVOS) > 0)
     {
-
-    case tAppearedPokemon:
+        t_Entrenador* unEntrenador = list_get(NUEVOS, 0);
+        distanciaMenorNew = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
+        posicionEntrenadorNew = 0;
+    }
+    else
     {
-        log_trace(logger, "Llegó un APPEARD_POKEMON del Game Boy");
-
-        t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
-
-        log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
-        log_info(logger, "La posicion del Pokémon es: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
-
-        enviarInt(socketCliente, 1); //Le avisamos al GameBoy que recibimos bien la solicitud.
-
-        //Lógica de lo que hay que hacer con la info recibida:
-
-        //EJ: intentar atrapar el pokemon, agregar el pokemon a lista de pokemons aparecidos, etc, etc.
-
-        break;
+        distanciaMenorNew = 100000;
     }
 
-    default:
+	for(int i = 1; i < list_size(NUEVOS); i++)
     {
+        t_Entrenador* unEntrenador = list_get(NUEVOS, i);
 
-        log_error(logger, "Recibimos algo del Game Boy que no sabemos manejar: %d", *tipoMensaje);
-        abort();
-        break;
-    }
-
-    }
-
-    free(tipoMensaje);
-    free(tamanioMensaje);
-    free(buffer);
-
-    return;
-}
-
-void manejarRespuestaABroker(int socketCliente, int idCliente){
-
-    int *tipoMensaje = malloc(sizeof(int));
-    int *tamanioMensaje = malloc(sizeof(int));
-
-    void *buffer = recibirPaquete(socketCliente, tipoMensaje, tamanioMensaje);
-
-    switch (*tipoMensaje)
-    {
-
-    case tAppearedPokemon:
-    {
-        log_trace(logger, "Llegó un APPEARD_POKEMON del Broker");
-
-        t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
-
-        log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
-        log_info(logger, "La posicion del Pokémon es: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
-
-        enviarInt(socketCliente, 1); //Le avisamos al Broker que recibimos bien la solicitud.
-
-        //Lógica de lo que hay que hacer con la info recibida:
-
-        //EJ: intentar atrapar el pokemon, agregar el pokemon a lista de pokemons aparecidos, etc, etc.
-
-        break;
-    }
-
-    case tCaughtPokemon:
-    {
-        log_trace(logger, "Llegó un CAUGHT_POKEMON del Broker");
-
-        t_caughtPokemon *unCaughtPokemon = (t_caughtPokemon *)buffer;
-
-        enviarInt(socketCliente, 4); //Le avisamos al Broker que recibimos bien la solicitud.
-
-        //Lógica de lo que hay que hacer con la info recibida:
-
-        //EJ: Agregar el pokemon a lista de pokemons atrapados, etc, etc.
-
-        break;
-    }
-
-    case tLocalizedPokemon:
-    {
-        log_trace(logger, "Llegó un LOCALIZED_POKEMON del Broker.");
-
-        t_localizedPokemon *unLocalizedPokemon = (t_localizedPokemon *)buffer;
-
-        log_info(logger, "El nombre del Pokemón es: %s", unLocalizedPokemon->nombrePokemon);
-
-        int cantidadListaDatosPokemon = list_size(unLocalizedPokemon->listaDatosPokemon);
-
-        int contadorito = 0;
-
-        printf("\nIdentificador: %d", unLocalizedPokemon->identificador);
-        printf("\nIdentificador Correlacional: %d", unLocalizedPokemon->identificadorCorrelacional);
-        printf("\nNombre del Pokemón: %s", unLocalizedPokemon->nombrePokemon);
-
-        datosPokemon *nodoDatosPokemon;
-
-        while (contadorito < cantidadListaDatosPokemon)
-        {
-
-            nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contadorito);
-
-            //entrenadorMasCercano(nodoDatosPokemon->posicionEnElMapaX,nodoDatosPokemon->posicionEnElMapaY); Tener en cuenta a futuro.
-
-            printf("\nCantidad de pokemón en %d° ubicación: %d", contadorito, nodoDatosPokemon->cantidad);
-            printf("\nUbicacion en 'x': %d", nodoDatosPokemon->posicionEnElMapaX);
-            printf("\nUbicacion en 'y': %d\n", nodoDatosPokemon->posicionEnElMapaY);
-
-            contadorito += 1;
+        printf("----------------COLA DE NEW---------------------------");
+        printf("\nEntrenador n°: %d \n", unEntrenador->id);
+        printf("Posicion X: %d \n", unEntrenador->posicionX);
+        printf("Posicion Y: %d \n", unEntrenador->posicionY);
+        printf("-------------------------------------------");
+        distancia = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
+        printf("\nLa distancia al pokemon es:%.2f\n", distancia);
+        if(distancia < distanciaMenorNew){
+            distanciaMenorNew = distancia;
+            posicionEntrenadorNew = i;
         }
-
-        enviarInt(socketCliente, 4);
-
-        //Le avisamos al Broker que recibimos bien la solicitud.
-
-        //Lógica de lo que hay que hacer con la info recibida:
-
-        //EJ: Agregar todos los pokemon a la lista de pokemon aparecidos, etc, etc.
-
-        break;
-    }
-
-    default:
+	}
+	
+    if(list_size(BLOQUEADOS) > 0)
     {
-
-        log_error(logger, "Recibimos algo del Broker que no sabemos manejar: %d", *tipoMensaje);
-        abort();
-        break;
+        t_Entrenador* unEntrenador = list_get(BLOQUEADOS, 0);
+        distanciaMenorBlock = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
+        posicionEntrenadorBlock = 0;
+    }
+    else
+    {
+        distanciaMenorBlock = 100000;
     }
 
+	for(int i = 1; i < list_size(BLOQUEADOS); i++)
+    {
+        t_Entrenador* unEntrenador = list_get(BLOQUEADOS, i);
+
+        printf("----------------COLA DE BLOQUEADOS---------------------------");
+        printf("\nEntrenador n°: %d \n", unEntrenador->id);
+        printf("Posicion X: %d \n", unEntrenador->posicionX);
+        printf("Posicion Y: %d \n", unEntrenador->posicionY);
+        printf("-------------------------------------------");
+        distancia = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
+        printf("\nLa distancia al pokemon es:%.2f\n", distancia);
+        if(distancia < distanciaMenorBlock){
+            distanciaMenorBlock = distancia;
+            posicionEntrenadorBlock = i;
+        }
+	}
+
+    t_Entrenador* entrenadorRetorno;
+
+    if(distanciaMenorNew <= distanciaMenorBlock) //Asumo q en caso de igualdad se prioriza el q esta en new
+    {
+        entrenadorRetorno = list_remove(NUEVOS, posicionEntrenadorNew);
+    }
+    else
+    {
+        entrenadorRetorno = list_remove(BLOQUEADOS, posicionEntrenadorBlock);
     }
 
-    free(tipoMensaje);
-    free(tamanioMensaje);
-    free(buffer);
-
-    return;
+    return entrenadorRetorno;
 }
 
+bool puedeEjecutarEntrenador()
+{
+//Esta funcion se va a llamar luego de que un entrenador pasa a ejecutar o cuando termina de ejecutar?
+//Si el entrenador que pasa a ejecutar se debe bloquear hay que volver a llamar el planificador?
+    t_Entrenador* unEntrenador = entrenadorEjecutando;
+    if(!puedeAtrapar(unEntrenador))
+    {
+        bloquearEntrenador();
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+/*
 int entrenadorMasCercano(int posXpokemon,int posYpokemon){//recibir por parametro los parametros del pokemon
 
 	float distancia;
@@ -706,7 +793,8 @@ int entrenadorMasCercano(int posXpokemon,int posYpokemon){//recibir por parametr
 
 	//list_add(LISTOS,entrenadorCercano); //agrego a la cola de LISTOS(Ready)
 	return posEntrenador;
-	/*//muestra los entrenadores que hay en LISTOS
+	/*
+    //muestra los entrenadores que hay en LISTOS
 	for(int i = 0; i < list_size(LISTOS); i++){
 		t_Entrenador* otroEnt = list_get(LISTOS,i);
 		printf("\n\n------------------COLA DE READY-------------------------");
@@ -715,13 +803,8 @@ int entrenadorMasCercano(int posXpokemon,int posYpokemon){//recibir por parametr
 	    printf("Posicion Y: %d \n", otroEnt->posicionY);
 	    printf("Estado:%s ",unEntrenador->estado);
 	    printf("-------------------------------------------");
-	}*/
+	}
 
 
 }
-
-float calcularDistancia(int x1,int y1,int x2,int y2)
-{	float distancia;
-	distancia = sqrt(((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1)));
-	return distancia;
-}
+*/
