@@ -66,6 +66,7 @@ typedef struct brokerConfig_s{
 
 //typedef enum tipoMensaje {M_NEW, M_APPEARED, M_CATCH, M_CAUGHT, M_GET, M_LOCALIZED} tipoMensaje_t;
 
+/*Estructura de mensajes entrantes*/
 typedef struct {
 
 	uint32_t idMensaje;
@@ -75,8 +76,9 @@ typedef struct {
 	t_list* suscriptoresEnviados; // uint32_t
 	t_list* acknowledgement; // uint32_t
 	
-} tMensaje;// ??* revisar
+} tMensaje;// ??* revisar creo que falta variable si esta en memoria el mensaje
 
+/*estructura de Suscriptor*/
 typedef struct {
 
 	uint32_t identificador;
@@ -86,12 +88,15 @@ typedef struct {
 		
 } tSuscriptorEnCola;
 
+/*Estructura de particion en memoria*/
 typedef struct {
-
+	uint32_t idParticion;
 	char* posicion;
 	uint32_t tamanio;
 	bool free;
-			
+	uint32_t idMensaje;
+	uint32_t lru;
+				
 } tParticion;
 
 t_list* METADATA_MEMORIA; //tparticion
@@ -139,6 +144,9 @@ uint32_t NUM_SUSCRIPTOR;
 pthread_mutex_t mutex_NUM_SUSCRIPTOR;
 uint32_t ID_MENSAJE;
 pthread_mutex_t mutex_ID_MENSAJE;//??*preguntar si va
+uint32_t ID_PARTICION;
+pthread_mutex_t mutex_ID_PARTICION;
+uint32_t CANTIDAD_BUSQUEDAS_FALLIDAS;
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -159,7 +167,13 @@ void manejarRespuestaATeam(int socketCliente,int idCliente);
 void inicializarMemoria();
 uint32_t generarNuevoIdMensajeBroker();
 uint32_t generarNuevoIdSuscriptor();
-char* getDireccionMemoriaLibre(uint32_t tamanio);
+uint32_t generarNuevoIdParticion();
+char* getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio);
+tParticion * splitParticion(tParticion * unaParticion, uint32_t tamanio);//?* no se si lo va a tomar de ultima pasar a void* y castear
+void  ejecutarCompactacion();
+void compactarMemoria();
+void ejecutarEliminarParticion();
+void eliminarMensaje(uint32_t unIdMensaje);
 
 void ingresarNuevoSuscriber(void* nuevaSuscripcion);
 void reconectarSuscriptor(void *unaNuevaSuscripcion);
@@ -201,10 +215,26 @@ bool existeTipoMensaje(void *mensaje);
 uint32_t tipoMensajeABuscar;
 pthread_mutex_t mutex_tipoMensajeABuscar;
 
+bool existeIdMensaje(void *mensaje);
+uint32_t idMensajeABuscar;
+pthread_mutex_t mutex_idMensajeABuscar;
 
 bool existeAck(void *mensaje);
 uint32_t ackABuscar;
 pthread_mutex_t mutex_ackABuscar;
+
+bool  existeParticionLibre(void *particion);
+uint32_t tamanioParticionABuscar;
+pthread_mutex_t mutex_tamanioParticionABuscar;
+
+bool sortParticionMenor(tParticion *p, tParticion *q);
+bool sortPidMenor(tParticion *p, tParticion *q);
+bool sortTimeMenor(tParticion *p, tParticion *q);
+bool esParticionLibre(void *unaParticion);
+bool esParticionOcupada(void *unaParticion);
+
+tParticion *buscarParticionLibreEnMemoria(uint32_t tamanio);
+t_list *buscarListaDeParticionesLibresEnMemoriaOrdenadas(uint32_t tamanio);
 
 
  // 1 NEW_POKEMON_LISTA 2 APPEARED_POKEMON_LISTA 3 CATCH_POKEMON_LISTA 4 CAUGHT_POKEMON_LISTA 5 GET_POKEMON_LISTA 6 LOCALIZED_POKEMON_LISTA
