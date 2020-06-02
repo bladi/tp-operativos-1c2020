@@ -421,9 +421,9 @@ void pasarEntrenadorAReady(int posXpokemon,int posYpokemon)
 
 void bloquearEntrenador(t_Entrenador* pEntrenador)
 {
-    printf("El estado anterior era: %s", pEntrenador->estado);
+    printf("El estado anterior era: %d\n", pEntrenador->estado);
     cambiarEstado(pEntrenador, BLOCK);
-    printf("El estado nuevo es: %s", pEntrenador->estado);
+    printf("El estado nuevo es: %d\n", pEntrenador->estado);
 }
 
 void finalizarEntrenador(t_Entrenador* pEntrenador)
@@ -560,13 +560,19 @@ void pruebasSanty()
     */
 
     pasarEntrenadorAReady(6,6); //Tendria que cargar el 3er entrenador
+
+    /*
     t_Entrenador* unEntrenador = list_get(LISTOS, 0);
     if(unEntrenador->id = 2)
     {
         printf("Funciono bien\n");
     }
+    */
 
+    printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
     planificar();
+    printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
+    
     if(teamCumplioObjetivos())
     {
         printf("Se cumplieron todos los objetivos \n");
@@ -615,8 +621,16 @@ void agregarPokeALista(t_list* pLista, char* pPokemon)
 
 int cantidadDeUnPokemonEnLista(t_list* pLista, char* pPokemon)
 {
-    t_Pokemon* unPokemon = list_get(pLista, posicionPokeEnLista(pLista, pPokemon));
-    return unPokemon->cantidad;
+    int posicion = posicionPokeEnLista(pLista, pPokemon);
+    if(posicion == -1)
+    {
+        return 0;
+    }
+    else
+    {
+        t_Pokemon* unPokemon = list_get(pLista, posicion);
+        return unPokemon->cantidad;
+    }
 }
 
 int cantidadTotalDePokemonesEnLista(t_list* pLista)
@@ -659,6 +673,14 @@ void planificar()
 void planificarFIFO()
 {
     printf("Planifique FIFO\n");
+    printf("Cantidad de entrenadores en ready: %d\n", list_size(LISTOS));
+    t_Entrenador* unEntrenador = list_remove(LISTOS, 0);
+    printf("Cantidad de entrenadores en ready: %d\n", list_size(LISTOS));
+    cambiarEstado(unEntrenador, EXEC);
+    //Hago lo que tenga que hacer el entrenador
+    printf("Termino de ejecutar\n");
+    entrenadorEjecutando = NULL;
+    entrenadorFinalizoSuTarea(unEntrenador);
 }
 
 void planificarRR()
@@ -729,6 +751,7 @@ void entrenadorFinalizoSuTarea(t_Entrenador* pEntrenador)
     }
     else
     {
+        printf("Id del entrenador a bloquear: %d\n", pEntrenador->id);
         bloquearEntrenador(pEntrenador);
     }
 }
@@ -736,7 +759,7 @@ void entrenadorFinalizoSuTarea(t_Entrenador* pEntrenador)
 //////////////////////// Funciones auxiliares de Team /////////////////////////////////////////////////////
 
 bool teamCumplioObjetivos()
-{
+{//Se puede cambiar el funcionamiento para chequear que todos sus entrenadores esten en exit
     for(int i = 0; i < list_size(listaDeEntrenadores); i++)
     {
         t_Entrenador* unEntrenador = list_get(listaDeEntrenadores, i);
