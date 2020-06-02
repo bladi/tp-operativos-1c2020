@@ -379,12 +379,55 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 void cambiarEstado(t_Entrenador *pEntrenador, Estado pEstado)
 {
     pEntrenador->estado = pEstado;
+    switch(pEstado)
+	{
+		case READY:
+		{
+			list_add(LISTOS, pEntrenador);
+			break;
+		}
+
+		case BLOCK:
+		{
+			list_add(BLOQUEADOS, pEntrenador);
+			break;
+		}
+
+        case EXEC:
+		{
+			entrenadorEjecutando = pEntrenador;
+			break;
+		}
+
+        case EXIT:
+		{
+			list_add(FINALIZADOS, pEntrenador);
+			break;
+		}
+
+        default:
+        {
+            log_error(logger, "No se reconocio el estado indicado");
+            break;
+        }
+    }
 }
 
 void pasarEntrenadorAReady(int posXpokemon,int posYpokemon)
 {
     t_Entrenador* unEntrenador = entrenadorMasCercano(posXpokemon, posYpokemon);
-    list_add(LISTOS, unEntrenador);
+}
+
+void bloquearEntrenador(t_Entrenador* pEntrenador)
+{
+    printf("El estado anterior era: %s", pEntrenador->estado);
+    cambiarEstado(pEntrenador, BLOCK);
+    printf("El estado nuevo es: %s", pEntrenador->estado);
+}
+
+void finalizarEntrenador(t_Entrenador* pEntrenador)
+{
+    cambiarEstado(pEntrenador, EXIT);
 }
 
 ///////////////////////// Inicio y Fin de Team ////////////////////////////////////////////////////////////
@@ -416,30 +459,13 @@ void inicializarHilosYVariablesTeam()
     BLOQUEADOS = list_create();
     EJECUTANDO = list_create();
     FINALIZADOS = list_create();
+    entrenadorEjecutando = NULL;
     pokemonesAtrapados = list_create();
     pokemonesObjetivos = list_create();
     mapa = list_create();
     
     cargarEntrenadoresYListasGlobales();
-    t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
-    unPokemon = list_get(pokemonesAtrapados,0);
-    printf("El primer pokemon atrapado global: %s \n", unPokemon->nombre);
-    printf("La cantidad del primer pokemon atrapado global: %d \n", unPokemon->cantidad);
-    free(unPokemon);
-    unPokemon = malloc(sizeof(t_Pokemon));
-    unPokemon = list_get(pokemonesObjetivos,0);
-    printf("El primer pokemon objetivo global: %s \n", unPokemon->nombre);
-    printf("La cantidad del primer pokemon objetivo global: %d \n", unPokemon->cantidad);
-    free(unPokemon);
-    planificar();
-    if(teamCumplioObjetivos())
-    {
-        printf("Se cumplieron todos los objetivos \n");
-    }
-    else
-    {
-        printf("Todavia no se cumplieron todos los objetivos \n");
-    }
+    pruebasSanty();
 
     socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
@@ -510,6 +536,31 @@ void cargarEntrenadoresYListasGlobales()
         free(otroPokemon);
         list_add(listaDeEntrenadores, unEntrenador);
         list_add(NUEVOS, unEntrenador);
+    }
+}
+
+////////////////////////////// Pruebas ////////////////////////////////////////////////////////////////////
+
+void pruebasSanty()
+{
+    t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
+    unPokemon = list_get(pokemonesAtrapados,0);
+    printf("El primer pokemon atrapado global: %s \n", unPokemon->nombre);
+    printf("La cantidad del primer pokemon atrapado global: %d \n", unPokemon->cantidad);
+    free(unPokemon);
+    unPokemon = malloc(sizeof(t_Pokemon));
+    unPokemon = list_get(pokemonesObjetivos,0);
+    printf("El primer pokemon objetivo global: %s \n", unPokemon->nombre);
+    printf("La cantidad del primer pokemon objetivo global: %d \n", unPokemon->cantidad);
+    free(unPokemon);
+    planificar();
+    if(teamCumplioObjetivos())
+    {
+        printf("Se cumplieron todos los objetivos \n");
+    }
+    else
+    {
+        printf("Todavia no se cumplieron todos los objetivos \n");
     }
 }
 
@@ -640,14 +691,33 @@ bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador)
     return true;
 }
 
-void bloquearEntrenador()
+bool estaBloqueadoPorRecursos(t_Entrenador* pEntrenador)
 {
-    t_Entrenador* unEntrenador = entrenadorEjecutando;
-    entrenadorEjecutando = NULL;
-    printf("El estado anterior era: %s", unEntrenador->estado);
-    cambiarEstado(unEntrenador, BLOCK);
-    printf("El estado nuevo es: %s", unEntrenador->estado);
-    list_add(BLOQUEADOS, unEntrenador);
+    if(!puedeAtrapar(pEntrenador) && !estaEsperando(pEntrenador))
+    {
+        return true;
+    }
+    else
+    {
+        false;
+    }
+}
+
+bool estaEsperando(t_Entrenador* pEntrenador)
+{//TO DO
+    return false;
+}
+
+void entrenadorFinalizoSuTarea(t_Entrenador* pEntrenador)
+{//Se llama cuando un entrenador termina con su objetivo actual
+    if(entrenadorCumplioObjetivos(pEntrenador))
+    {
+        finalizarEntrenador(pEntrenador);
+    }
+    else
+    {
+        bloquearEntrenador(pEntrenador);
+    }
 }
 
 //////////////////////// Funciones auxiliares de Team /////////////////////////////////////////////////////
@@ -749,21 +819,7 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
     return entrenadorRetorno;
 }
 
-bool puedeEjecutarEntrenador()
-{
-//Esta funcion se va a llamar luego de que un entrenador pasa a ejecutar o cuando termina de ejecutar?
-//Si el entrenador que pasa a ejecutar se debe bloquear hay que volver a llamar el planificador?
-    t_Entrenador* unEntrenador = entrenadorEjecutando;
-    if(!puedeAtrapar(unEntrenador))
-    {
-        bloquearEntrenador();
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
+
 
 /*
 int entrenadorMasCercano(int posXpokemon,int posYpokemon){//recibir por parametro los parametros del pokemon
