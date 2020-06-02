@@ -173,7 +173,7 @@ void entrenadorFinalizoSuTarea(t_Entrenador* pEntrenador);
 
 bool teamCumplioObjetivos();
 
-float calcularDistancia(int x1,int y1,int x2,int y2);
+int calcularDistancia(int x1, int y1, int x2, int y2);
 //int entrenadorMasCercano(int posXpokemon,int posYpokemon);
 t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon);
 

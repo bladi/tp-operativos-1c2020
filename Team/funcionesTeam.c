@@ -416,6 +416,7 @@ void cambiarEstado(t_Entrenador *pEntrenador, Estado pEstado)
 void pasarEntrenadorAReady(int posXpokemon,int posYpokemon)
 {
     t_Entrenador* unEntrenador = entrenadorMasCercano(posXpokemon, posYpokemon);
+    cambiarEstado(unEntrenador, READY);
 }
 
 void bloquearEntrenador(t_Entrenador* pEntrenador)
@@ -520,6 +521,7 @@ void cargarEntrenadoresYListasGlobales()
         free(objetivos);
         unEntrenador->estado = NEW;
         unEntrenador->cuantosPuedeAtrapar = cantidadTotalDePokemonesEnLista(unEntrenador->objetivos);
+        /*
         printf("Entrenador n°: %d \n", unEntrenador->id);
         printf("Posicion X: %d \n", unEntrenador->posicionX);
         printf("Posicion Y: %d \n", unEntrenador->posicionY);
@@ -534,6 +536,7 @@ void cargarEntrenadoresYListasGlobales()
         printf("Cantidad de ese primer pokemon que necesita: %d \n", cantidadDeUnPokemonEnLista(unEntrenador->objetivos, otroPokemon->nombre));
         free(unPokemon);
         free(otroPokemon);
+        */
         list_add(listaDeEntrenadores, unEntrenador);
         list_add(NUEVOS, unEntrenador);
     }
@@ -543,6 +546,7 @@ void cargarEntrenadoresYListasGlobales()
 
 void pruebasSanty()
 {
+    /*
     t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
     unPokemon = list_get(pokemonesAtrapados,0);
     printf("El primer pokemon atrapado global: %s \n", unPokemon->nombre);
@@ -553,6 +557,15 @@ void pruebasSanty()
     printf("El primer pokemon objetivo global: %s \n", unPokemon->nombre);
     printf("La cantidad del primer pokemon objetivo global: %d \n", unPokemon->cantidad);
     free(unPokemon);
+    */
+
+    pasarEntrenadorAReady(6,6); //Tendria que cargar el 3er entrenador
+    t_Entrenador* unEntrenador = list_get(LISTOS, 0);
+    if(unEntrenador->id = 2)
+    {
+        printf("Funciono bien\n");
+    }
+
     planificar();
     if(teamCumplioObjetivos())
     {
@@ -735,9 +748,9 @@ bool teamCumplioObjetivos()
     return true;
 }
 
-float calcularDistancia(int x1,int y1,int x2,int y2)
-{	float distancia;
-	distancia = sqrt(((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1)));
+int calcularDistancia(int x1, int y1, int x2, int y2)
+{	int distancia;
+	distancia = abs(x2 - x1) + abs(y2 - y1);
 	return distancia;
 }
 
@@ -752,7 +765,13 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
     if(list_size(NUEVOS) > 0)
     {
         t_Entrenador* unEntrenador = list_get(NUEVOS, 0);
+        printf("----------------COLA DE NEW---------------------------");
+        printf("\nEntrenador n°: %d \n", unEntrenador->id);
+        printf("Posicion X: %d \n", unEntrenador->posicionX);
+        printf("Posicion Y: %d \n", unEntrenador->posicionY);
+        printf("-------------------------------------------");
         distanciaMenorNew = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
+        printf("\nLa distancia al pokemon es:%.2f\n", distanciaMenorNew);
         posicionEntrenadorNew = 0;
     }
     else
@@ -771,7 +790,8 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
         printf("-------------------------------------------");
         distancia = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
         printf("\nLa distancia al pokemon es:%.2f\n", distancia);
-        if(distancia < distanciaMenorNew){
+        if(distancia < distanciaMenorNew)
+        {
             distanciaMenorNew = distancia;
             posicionEntrenadorNew = i;
         }
@@ -780,7 +800,13 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
     if(list_size(BLOQUEADOS) > 0)
     {
         t_Entrenador* unEntrenador = list_get(BLOQUEADOS, 0);
+        printf("----------------COLA DE BLOQUEADOS---------------------------");
+        printf("\nEntrenador n°: %d \n", unEntrenador->id);
+        printf("Posicion X: %d \n", unEntrenador->posicionX);
+        printf("Posicion Y: %d \n", unEntrenador->posicionY);
+        printf("-------------------------------------------");
         distanciaMenorBlock = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
+        printf("\nLa distancia al pokemon es:%.2f\n", distanciaMenorBlock);
         posicionEntrenadorBlock = 0;
     }
     else
@@ -799,7 +825,8 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
         printf("-------------------------------------------");
         distancia = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
         printf("\nLa distancia al pokemon es:%.2f\n", distancia);
-        if(distancia < distanciaMenorBlock){
+        if(distancia < distanciaMenorBlock)
+        {
             distanciaMenorBlock = distancia;
             posicionEntrenadorBlock = i;
         }
