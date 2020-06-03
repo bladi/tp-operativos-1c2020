@@ -92,6 +92,8 @@ typedef struct entrenador
 	t_list* objetivos;
 	Estado estado;
 	int cuantosPuedeAtrapar;
+	int objetivoX;
+	int objetivoY;
 } t_Entrenador;
 
 typedef struct
