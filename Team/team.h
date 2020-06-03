@@ -107,6 +107,12 @@ typedef struct
 	int posicionY;
 } t_posicionPokemon;
 
+typedef struct
+{
+	int id1;
+	int id2;
+} t_entrenadoresEnDeadlock;
+
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
 
 t_config* unTeamArchivoConfig;
@@ -176,6 +182,7 @@ bool teamCumplioObjetivos();
 int calcularDistancia(int x1, int y1, int x2, int y2);
 //int entrenadorMasCercano(int posXpokemon,int posYpokemon);
 t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon);
+t_entrenadoresEnDeadlock* quienesEstanEnDeadlock();
 
 
 #endif

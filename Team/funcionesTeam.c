@@ -561,17 +561,33 @@ void pruebasSanty()
 
     pasarEntrenadorAReady(6,6); //Tendria que cargar el 3er entrenador
 
-    /*
+    
     t_Entrenador* unEntrenador = list_get(LISTOS, 0);
     if(unEntrenador->id = 2)
     {
         printf("Funciono bien\n");
     }
-    */
+    
 
     printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
     planificar();
     printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
+
+    pasarEntrenadorAReady(6,6); //Tendria que cargar el 2do entrenador
+
+    
+    unEntrenador = list_get(LISTOS, 0);
+    if(unEntrenador->id = 1)
+    {
+        printf("Funciono bien\n");
+    }
+    
+
+    printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
+    planificar();
+    printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
+
+    quienesEstanEnDeadlock();
     
     if(teamCumplioObjetivos())
     {
@@ -596,7 +612,9 @@ int posicionPokeEnLista(t_list* pLista, char* pPokemon) //Retorna la posicion do
         t_Pokemon* unPokemon = list_get(pLista,i);
         char* pokeNombre = unPokemon->nombre;
         if(strcmp(pPokemon, pokeNombre) == 0)
+        {
             return i;
+        }
     }
     return -1; //Si no existe
 }
@@ -756,6 +774,31 @@ void entrenadorFinalizoSuTarea(t_Entrenador* pEntrenador)
     }
 }
 
+int posicionEntrenadorEnLista(int pId, t_list* pLista)
+{
+    for(int i = 0; i < list_size(pLista); i++)
+    {
+        t_Entrenador* unEntrenador = list_get(pLista,i);
+        if(unEntrenador->id == pId)
+        {
+            return i;
+        }  
+    }
+    return -1; //Si no existe
+}
+
+bool puedeDesbloquearse(t_Entrenador* pEntrenador)
+{
+    if(puedeAtrapar(pEntrenador) && !estaEsperando(pEntrenador))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 //////////////////////// Funciones auxiliares de Team /////////////////////////////////////////////////////
 
 bool teamCumplioObjetivos()
@@ -779,11 +822,11 @@ int calcularDistancia(int x1, int y1, int x2, int y2)
 
 t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
 {
-    int posicionEntrenadorNew;
-    int posicionEntrenadorBlock;
-    float distanciaMenorNew;
-    float distanciaMenorBlock;
-	float distancia;
+    int idEntrenadorNew;
+    int idEntrenadorBlock;
+    int distanciaMenorNew;
+    int distanciaMenorBlock;
+	int distancia;
 
     if(list_size(NUEVOS) > 0)
     {
@@ -794,8 +837,8 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
         printf("Posicion Y: %d \n", unEntrenador->posicionY);
         printf("-------------------------------------------");
         distanciaMenorNew = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
-        printf("\nLa distancia al pokemon es:%.2f\n", distanciaMenorNew);
-        posicionEntrenadorNew = 0;
+        printf("\nLa distancia al pokemon es: %d\n", distanciaMenorNew);
+        idEntrenadorNew = unEntrenador->id;
     }
     else
     {
@@ -812,25 +855,32 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
         printf("Posicion Y: %d \n", unEntrenador->posicionY);
         printf("-------------------------------------------");
         distancia = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
-        printf("\nLa distancia al pokemon es:%.2f\n", distancia);
+        printf("\nLa distancia al pokemon es: %d\n", distancia);
         if(distancia < distanciaMenorNew)
         {
             distanciaMenorNew = distancia;
-            posicionEntrenadorNew = i;
+            idEntrenadorNew = unEntrenador->id;
         }
 	}
 	
     if(list_size(BLOQUEADOS) > 0)
     {
         t_Entrenador* unEntrenador = list_get(BLOQUEADOS, 0);
-        printf("----------------COLA DE BLOQUEADOS---------------------------");
-        printf("\nEntrenador n°: %d \n", unEntrenador->id);
-        printf("Posicion X: %d \n", unEntrenador->posicionX);
-        printf("Posicion Y: %d \n", unEntrenador->posicionY);
-        printf("-------------------------------------------");
-        distanciaMenorBlock = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
-        printf("\nLa distancia al pokemon es:%.2f\n", distanciaMenorBlock);
-        posicionEntrenadorBlock = 0;
+        if(puedeDesbloquearse(unEntrenador))
+        {
+            printf("----------------COLA DE BLOQUEADOS---------------------------");
+            printf("\nEntrenador n°: %d \n", unEntrenador->id);
+            printf("Posicion X: %d \n", unEntrenador->posicionX);
+            printf("Posicion Y: %d \n", unEntrenador->posicionY);
+            printf("-------------------------------------------");
+            distanciaMenorBlock = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
+            printf("\nLa distancia al pokemon es: %d\n", distanciaMenorBlock);
+            idEntrenadorBlock = unEntrenador->id;
+        }
+        else
+        {
+            distanciaMenorBlock = 100000;
+        }
     }
     else
     {
@@ -840,35 +890,87 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
 	for(int i = 1; i < list_size(BLOQUEADOS); i++)
     {
         t_Entrenador* unEntrenador = list_get(BLOQUEADOS, i);
-
-        printf("----------------COLA DE BLOQUEADOS---------------------------");
-        printf("\nEntrenador n°: %d \n", unEntrenador->id);
-        printf("Posicion X: %d \n", unEntrenador->posicionX);
-        printf("Posicion Y: %d \n", unEntrenador->posicionY);
-        printf("-------------------------------------------");
-        distancia = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
-        printf("\nLa distancia al pokemon es:%.2f\n", distancia);
-        if(distancia < distanciaMenorBlock)
+        if(puedeDesbloquearse(unEntrenador))
         {
-            distanciaMenorBlock = distancia;
-            posicionEntrenadorBlock = i;
+            printf("----------------COLA DE BLOQUEADOS---------------------------");
+            printf("\nEntrenador n°: %d \n", unEntrenador->id);
+            printf("Posicion X: %d \n", unEntrenador->posicionX);
+            printf("Posicion Y: %d \n", unEntrenador->posicionY);
+            printf("-------------------------------------------");
+            distancia = calcularDistancia(unEntrenador->posicionX, unEntrenador->posicionY, posXpokemon, posYpokemon);
+            printf("\nLa distancia al pokemon es: %d\n", distancia);
+            if(distancia < distanciaMenorBlock)
+            {
+                distanciaMenorBlock = distancia;
+                idEntrenadorBlock = unEntrenador->id;
+            }
         }
 	}
 
-    t_Entrenador* entrenadorRetorno;
-
-    if(distanciaMenorNew < distanciaMenorBlock) //Por teoria deberia tener prioridad el q vuelve de block
+    if(distanciaMenorNew == 100000 && distanciaMenorBlock == 100000)
     {
-        entrenadorRetorno = list_remove(NUEVOS, posicionEntrenadorNew);
+        log_error(logger, "No hay entrenadores que puedan pasar a ready");
+        return NULL;
     }
     else
     {
-        entrenadorRetorno = list_remove(BLOQUEADOS, posicionEntrenadorBlock);
+        t_Entrenador* entrenadorRetorno;
+        if(distanciaMenorNew < distanciaMenorBlock) //Por teoria deberia tener prioridad el q vuelve de block
+        {
+            int posicion = posicionEntrenadorEnLista(idEntrenadorNew, NUEVOS);
+            entrenadorRetorno = list_remove(NUEVOS, posicion);
+        }
+        else
+        {
+            int posicion = posicionEntrenadorEnLista(idEntrenadorBlock, BLOQUEADOS);
+            entrenadorRetorno = list_remove(BLOQUEADOS, posicion);
+        }
+        return entrenadorRetorno;
     }
-
-    return entrenadorRetorno;
 }
 
+t_entrenadoresEnDeadlock* quienesEstanEnDeadlock()
+{
+    t_entrenadoresEnDeadlock* entrenadores = malloc(sizeof(t_entrenadoresEnDeadlock));
+    int cantidadDeadlock = 0;
+    for(int i = 0; i < list_size(BLOQUEADOS); i++)
+    {
+        t_Entrenador* unEntrenador = list_get(BLOQUEADOS, i);
+        if(estaBloqueadoPorRecursos(unEntrenador))
+        {
+            cantidadDeadlock++;
+        }
+    }    
+    if(cantidadDeadlock >= 2)
+    {
+
+        //entrenadores->id1 = 0;
+        //entrenadores->id2 = 0;
+        printf("Hay deadlock\n");
+        //for() recorro el primero con deadlock
+        //for() recorro el segundo con deadlock y veo si tiene alguno de sobra que le sirva al primero
+        return entrenadores;
+    }
+    else
+    {
+        entrenadores->id1 = 0;
+        entrenadores->id2 = 0;
+        return entrenadores;
+    }
+}
+
+bool hayDeadlock()
+{
+    t_entrenadoresEnDeadlock* entrenadores = quienesEstanEnDeadlock();
+    if(entrenadores->id1 == 0 && entrenadores->id2 == 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
 
 
 /*
