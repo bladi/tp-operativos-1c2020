@@ -521,6 +521,7 @@ void cargarEntrenadoresYListasGlobales()
         free(objetivos);
         unEntrenador->estado = NEW;
         unEntrenador->cuantosPuedeAtrapar = cantidadTotalDePokemonesEnLista(unEntrenador->objetivos);
+        unEntrenador->objetivo = Ninguno;
         /*
         printf("Entrenador n°: %d \n", unEntrenador->id);
         printf("Posicion X: %d \n", unEntrenador->posicionX);
@@ -587,7 +588,48 @@ void pruebasSanty()
     planificar();
     printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
 
+    pasarEntrenadorAReady(6,6); //Tendria que cargar el 1er entrenador
+
+    
+    unEntrenador = list_get(LISTOS, 0);
+    if(unEntrenador->id = 0)
+    {
+        printf("Funciono bien\n");
+    }
+    
+
+    printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
+    planificar();
+    printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
+
+    t_entrenadoresEnDeadlock* pibesEnDeadlock = quienesEstanEnDeadlock();
+
+    int pos1 = posicionEntrenadorEnLista(LISTOS, pibesEnDeadlock->id1);
+    int pos2 = posicionEntrenadorEnLista(BLOQUEADOS, pibesEnDeadlock->id2);
+
+    if(pos1 != -1 && pos2 != -1)
+    {
+        printf("Ambos entrenadores en deadlock tienen el estado correspondiente para intercambio\n");
+    }
+
+    t_Entrenador* primerEntrenador = list_get(LISTOS, pos1);
+    t_Entrenador* segundoEntrenador = list_get(BLOQUEADOS, pos2);
+
+    if(segundoEntrenador->objetivo == EsperandoIntercambio)
+    {
+        printf("El segundo entrenador esta esperando el intercambio\n");
+    }
+
+    if(primerEntrenador->objetivo == BuscandoIntercambio && primerEntrenador->objetivoX == 3 && primerEntrenador->objetivoY == 7)
+    {
+        printf("El primer entrenador esta buscando el intercambio y sabe a donde ir\n");
+    }
+
+    printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
+
     quienesEstanEnDeadlock();
+
+    printf("El entrenador %d va a tener que ir a la posicion del entrenador %d\n", pibesEnDeadlock->id1, pibesEnDeadlock->id2);
     
     if(teamCumplioObjetivos())
     {
@@ -748,23 +790,19 @@ bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador)
 
 bool estaBloqueadoPorRecursos(t_Entrenador* pEntrenador)
 {
-    if(!puedeAtrapar(pEntrenador) && !estaEsperando(pEntrenador))
+    if(!puedeAtrapar(pEntrenador) && pEntrenador->objetivo == Ninguno)
     {
         return true;
     }
     else
     {
-        false;
+        return false;
     }
-}
-
-bool estaEsperando(t_Entrenador* pEntrenador)
-{//TO DO
-    return false;
 }
 
 void entrenadorFinalizoSuTarea(t_Entrenador* pEntrenador)
 {//Se llama cuando un entrenador termina con su objetivo actual
+    pEntrenador->objetivo = Ninguno;
     if(entrenadorCumplioObjetivos(pEntrenador))
     {
         finalizarEntrenador(pEntrenador);
@@ -776,7 +814,7 @@ void entrenadorFinalizoSuTarea(t_Entrenador* pEntrenador)
     }
 }
 
-int posicionEntrenadorEnLista(int pId, t_list* pLista)
+int posicionEntrenadorEnLista(t_list* pLista, int pId)
 {
     for(int i = 0; i < list_size(pLista); i++)
     {
@@ -791,13 +829,34 @@ int posicionEntrenadorEnLista(int pId, t_list* pLista)
 
 bool puedeDesbloquearse(t_Entrenador* pEntrenador)
 {
-    if(puedeAtrapar(pEntrenador) && !estaEsperando(pEntrenador))
+    if(puedeAtrapar(pEntrenador) && pEntrenador->objetivo == Ninguno)
     {
         return true;
     }
     else
     {
         return false;
+    }
+}
+
+int cuantosLeFaltan(t_Entrenador* pEntrenador, char* pPokemon)
+{//Se puede usar una sola funcion o dividir en 2 entre los q faltan y los que sobran
+    int tiene;
+    int precisa;
+    tiene = cantidadDeUnPokemonEnLista(pEntrenador->pokemones, pPokemon);
+    precisa = cantidadDeUnPokemonEnLista(pEntrenador->objetivos, pPokemon);
+    return precisa - tiene;
+}
+
+char* cualEsElPrimerPokemonQuePrecisa(t_Entrenador* pEntrenador)
+{
+    for(int i = 0; i < list_size(pEntrenador->objetivos); i++)
+    {
+        t_Pokemon* unPokemon = list_get(pEntrenador->objetivos, i);
+        if(cuantosLeFaltan(pEntrenador, unPokemon->nombre) > 0)
+        {
+            return unPokemon->nombre;
+        }
     }
 }
 
@@ -919,16 +978,17 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
         t_Entrenador* entrenadorRetorno;
         if(distanciaMenorNew < distanciaMenorBlock) //Por teoria deberia tener prioridad el q vuelve de block
         {
-            int posicion = posicionEntrenadorEnLista(idEntrenadorNew, NUEVOS);
+            int posicion = posicionEntrenadorEnLista(NUEVOS, idEntrenadorNew);
             entrenadorRetorno = list_remove(NUEVOS, posicion);
         }
         else
         {
-            int posicion = posicionEntrenadorEnLista(idEntrenadorBlock, BLOQUEADOS);
+            int posicion = posicionEntrenadorEnLista(BLOQUEADOS, idEntrenadorBlock);
             entrenadorRetorno = list_remove(BLOQUEADOS, posicion);
         }
         entrenadorRetorno->objetivoX = posXpokemon;
         entrenadorRetorno->objetivoY = posYpokemon;
+        entrenadorRetorno->objetivo = BuscandoAtrapar;
         return entrenadorRetorno;
     }
 }
@@ -936,29 +996,47 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon)
 t_entrenadoresEnDeadlock* quienesEstanEnDeadlock()
 {
     t_entrenadoresEnDeadlock* entrenadores = malloc(sizeof(t_entrenadoresEnDeadlock));
-    int cantidadDeadlock = 0;
+    t_list* listaDeadlock;
+    listaDeadlock = list_create();
     for(int i = 0; i < list_size(BLOQUEADOS); i++)
     {
         t_Entrenador* unEntrenador = list_get(BLOQUEADOS, i);
         if(estaBloqueadoPorRecursos(unEntrenador))
         {
-            cantidadDeadlock++;
+            list_add(listaDeadlock, unEntrenador);
         }
-    }    
-    if(cantidadDeadlock >= 2)
+    }
+    printf("Cantidad de entrenadores en deadlock: %d\n", list_size(listaDeadlock));
+    if(list_size(listaDeadlock) >= 2)
     {
-
-        //entrenadores->id1 = 0;
-        //entrenadores->id2 = 0;
         printf("Hay deadlock\n");
-        //for() recorro el primero con deadlock
-        //for() recorro el segundo con deadlock y veo si tiene alguno de sobra que le sirva al primero
-        return entrenadores;
+        t_Entrenador* primerEntrenador = list_remove(listaDeadlock, 0);
+        entrenadores->id1 = primerEntrenador->id;
+        char* pokemonQuePrecisa = cualEsElPrimerPokemonQuePrecisa(primerEntrenador);
+        printf("El pokemon que precisa es: %s\n", pokemonQuePrecisa);
+        for(int i = 0; i < list_size(listaDeadlock); i++)
+        {
+            t_Entrenador* segundoEntrenador = list_remove(listaDeadlock, i);
+            if(cuantosLeFaltan(segundoEntrenador, pokemonQuePrecisa) < 0)
+            {
+                entrenadores->id2 = segundoEntrenador->id;
+                segundoEntrenador->objetivo = EsperandoIntercambio;
+                primerEntrenador->objetivo = BuscandoIntercambio;
+                primerEntrenador->objetivoX = segundoEntrenador->posicionX;
+                primerEntrenador->objetivoY = segundoEntrenador->posicionY;
+                list_remove(BLOQUEADOS, posicionEntrenadorEnLista(BLOQUEADOS, primerEntrenador->id));
+                cambiarEstado(primerEntrenador, READY);
+                free(listaDeadlock);
+                return entrenadores;
+            }
+        }
     }
     else
     {
+        printf("No hay deadlock\n");
         entrenadores->id1 = 0;
         entrenadores->id2 = 0;
+        free(listaDeadlock);
         return entrenadores;
     }
 }

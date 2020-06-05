@@ -83,6 +83,14 @@ typedef enum {
 typedef t_list *EstadoProceso;
 EstadoProceso NUEVOS, LISTOS, BLOQUEADOS, EJECUTANDO, FINALIZADOS; //Puede que no hagan falta todas las listas
 
+typedef enum Objetivo{
+	Ninguno,
+	BuscandoAtrapar,
+	BuscandoIntercambio,
+	EsperandoMensaje,
+	EsperandoIntercambio
+} Objetivo;
+
 typedef struct entrenador
 {
 	int id;
@@ -94,6 +102,7 @@ typedef struct entrenador
 	int cuantosPuedeAtrapar;
 	int objetivoX;
 	int objetivoY;
+	Objetivo objetivo;
 } t_Entrenador;
 
 typedef struct
@@ -176,13 +185,11 @@ void planificarSRT();
 bool puedeAtrapar(t_Entrenador* pEntrenador);
 bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador);
 bool estaBloqueadoPorRecursos(t_Entrenador* pEntrenador);
-bool estaEsperando(t_Entrenador* pEntrenador);
 void entrenadorFinalizoSuTarea(t_Entrenador* pEntrenador);
 
 bool teamCumplioObjetivos();
 
 int calcularDistancia(int x1, int y1, int x2, int y2);
-//int entrenadorMasCercano(int posXpokemon,int posYpokemon);
 t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon);
 t_entrenadoresEnDeadlock* quienesEstanEnDeadlock();
 
