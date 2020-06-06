@@ -1,12 +1,60 @@
 #include "broker.h"
 
-void configurarLoggerBroker(){
 
-    logger = log_create(CONFIG_BROKER->logFile, "BROKER", true, LOG_LEVEL_TRACE);
-    log_info(logger, "LOG INICIALIZADO CON EXITO");
+////////////////////////////////////////GESTION DEL PROCESO BROKER////////////////////////////////////////////////
+
+/*Carga las configuraciones del broker, logger, inicializa la memoria y los hilos*/
+void inicializarBroker()
+{
+
+    cargarConfiguracionBroker();
+
+    configurarLoggerBroker();
+
+    prueba();
+
+    inicializarMemoria();
+
+    inicializarHilosYVariablesBroker();
+
+    /*
+
+    t_localizedPokemon* unLocalizedPokemon = malloc(sizeof(t_localizedPokemon));
+    int* tamanio = malloc(sizeof(int));
+
+    datosPokemon* nodoUnoDatosPokemon = malloc(sizeof(datosPokemon));
+    datosPokemon* nodoDosDatosPokemon = malloc(sizeof(datosPokemon));
+
+    t_list* listaDatosPokemon = list_create();
+
+    nodoUnoDatosPokemon->cantidad = 10;
+    nodoUnoDatosPokemon->posicionEnElMapaX = 5;
+    nodoUnoDatosPokemon->posicionEnElMapaY = 3;
+
+    list_add(listaDatosPokemon,nodoUnoDatosPokemon);
+
+    nodoDosDatosPokemon->cantidad = 15;
+    nodoDosDatosPokemon->posicionEnElMapaX = 20;
+    nodoDosDatosPokemon->posicionEnElMapaY = 89;
+
+    list_add(listaDatosPokemon,nodoDosDatosPokemon);
+
+    unLocalizedPokemon->identificador = 1;
+    unLocalizedPokemon->identificadorCorrelacional = 2;
+    unLocalizedPokemon->nombrePokemon = string_new();
+    string_append(&unLocalizedPokemon->nombrePokemon,"Pikachu");
+    unLocalizedPokemon->listaDatosPokemon = listaDatosPokemon;
+
+    serializar(tLocalizedPokemon,unLocalizedPokemon,tamanio);
+
+    */
+
+    //inicializarHilosYVariablesBroker();
 }
 
-void cargarConfiguracionBroker(){
+/*Importa la configuracion del archivo config del brooker*/
+void cargarConfiguracionBroker()
+{
 
     CONFIG_BROKER = malloc(sizeof(brokerConfig_t));
 
@@ -52,65 +100,32 @@ void cargarConfiguracionBroker(){
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/*inicializa logger*/
+void configurarLoggerBroker()
+{
 
-void inicializarBroker(){
-
-    cargarConfiguracionBroker();
-
-    configurarLoggerBroker();
-    prueba();
-    inicializarMemoria();
-    inicializarHilosYVariablesBroker();
-
-    /*
-
-    t_localizedPokemon* unLocalizedPokemon = malloc(sizeof(t_localizedPokemon));
-    int* tamanio = malloc(sizeof(int));
-
-    datosPokemon* nodoUnoDatosPokemon = malloc(sizeof(datosPokemon));
-    datosPokemon* nodoDosDatosPokemon = malloc(sizeof(datosPokemon));
-
-    t_list* listaDatosPokemon = list_create();
-
-    nodoUnoDatosPokemon->cantidad = 10;
-    nodoUnoDatosPokemon->posicionEnElMapaX = 5;
-    nodoUnoDatosPokemon->posicionEnElMapaY = 3;
-
-    list_add(listaDatosPokemon,nodoUnoDatosPokemon);
-
-    nodoDosDatosPokemon->cantidad = 15;
-    nodoDosDatosPokemon->posicionEnElMapaX = 20;
-    nodoDosDatosPokemon->posicionEnElMapaY = 89;
-
-    list_add(listaDatosPokemon,nodoDosDatosPokemon);
-
-    unLocalizedPokemon->identificador = 1;
-    unLocalizedPokemon->identificadorCorrelacional = 2;
-    unLocalizedPokemon->nombrePokemon = string_new();
-    string_append(&unLocalizedPokemon->nombrePokemon,"Pikachu");
-    unLocalizedPokemon->listaDatosPokemon = listaDatosPokemon;
-
-    serializar(tLocalizedPokemon,unLocalizedPokemon,tamanio);
-
-    */
-
+    logger = log_create(CONFIG_BROKER->logFile, "BROKER", true, LOG_LEVEL_TRACE);
+    log_info(logger, "LOG INICIALIZADO CON EXITO");
 }
 
-void finalizarBroker(){
+/*libera las variables Globales*/
+void finalizarBroker()
+{
 
     free(CONFIG_BROKER);
     free(logger);
 }
 
-void actualizarConfiguracionBroker(){
-
+/*actualiza cada cierto tiempo el config */
+void actualizarConfiguracionBroker()
+{
+    //?* revisar si funciona la funcion, se podria optimizar
     FILE *archivoConfigFp;
 
     while (1)
     {
 
-        sleep(10);
+        sleep(60);
 
         archivoConfigFp = fopen(PATH_CONFIG_BROKER, "rb");
 
@@ -145,7 +160,9 @@ void actualizarConfiguracionBroker(){
     }
 }
 
-void inicializarHilosYVariablesBroker(){
+/*Inicializa server, las colas y el actualizar config*/
+void inicializarHilosYVariablesBroker()
+{
 
     cantidadDeActualizacionesConfigBroker = 0;
 
@@ -158,7 +175,8 @@ void inicializarHilosYVariablesBroker(){
     //string_append(&unaInfoServidorBroker->ip,CONFIG_BROKER->ipBroker); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
     string_append(&unaInfoServidorBroker->ip, "0");
 
-    pthread_create(&hiloActualizadorConfigBroker, NULL, (void *)actualizarConfiguracionBroker, NULL);
+    pthread_create(&hiloActualizadorConfigBroker, NULL, (void *)actualizarConfiguracionBroker, NULL); // ?* creo que no es necesario
+
     pthread_create(&hiloServidorBroker, NULL, (void *)servidor_inicializar, (void *)unaInfoServidorBroker);
 
     pthread_create(&hiloNew, NULL, (void *)ejecutarColaNewPokemon, NULL);
@@ -171,7 +189,9 @@ void inicializarHilosYVariablesBroker(){
     pthread_join(hiloActualizadorConfigBroker, NULL);
 }
 
-void inicializarMemoria(){
+/*Reserva memoria principal, e inicializa estructuras administrativas de las colas y la metadata*/
+void inicializarMemoria()
+{
 
     if ((MEMORIA_PRINCIPAL = malloc(CONFIG_BROKER->tamanioMemoria)) == NULL)
     {
@@ -182,12 +202,17 @@ void inicializarMemoria(){
     NUM_SUSCRIPTOR = 0;
     ID_MENSAJE = 0;
     METADATA_MEMORIA = list_create();
+    ID_PARTICION = 0;
+    CANTIDAD_BUSQUEDAS_FALLIDAS = 0;
 
     tParticion *unaParti = malloc(sizeof(tParticion));
 
     unaParti->posicion = MEMORIA_PRINCIPAL;
     unaParti->free = true;
     unaParti->tamanio = CONFIG_BROKER->tamanioMemoria;
+    unaParti->idMensaje = -1;
+    unaParti->lru = (uint32_t)time(NULL);
+    unaParti->idParticion = ID_PARTICION;
 
     list_add(METADATA_MEMORIA, unaParti);
 
@@ -207,7 +232,9 @@ void inicializarMemoria(){
     // log_error(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
 }
 
-uint32_t generarNuevoIdMensajeBroker(){
+/*devuelve un nuevo id para un mensaje asociado*/
+uint32_t generarNuevoIdMensajeBroker()
+{
 
     pthread_mutex_lock(&mutex_ID_MENSAJE);
     ID_MENSAJE++;
@@ -216,7 +243,9 @@ uint32_t generarNuevoIdMensajeBroker(){
     return ID_MENSAJE;
 }
 
-uint32_t generarNuevoIdSuscriptor(){
+/*devuelve un nuevo id para un suscriptor asociado*/
+uint32_t generarNuevoIdSuscriptor()
+{
 
     pthread_mutex_lock(&mutex_NUM_SUSCRIPTOR);
     NUM_SUSCRIPTOR++;
@@ -225,14 +254,222 @@ uint32_t generarNuevoIdSuscriptor(){
     return NUM_SUSCRIPTOR;
 }
 
-char *getDireccionMemoriaLibre(uint32_t tamanio){
-    //??* falta comparar con config para buscar que algoritmo ejecutar
-    return malloc(tamanio);
+/*devuelve un nuevo id para un mensaje asociado*/
+uint32_t generarNuevoIdParticion()
+{
+
+    pthread_mutex_lock(&mutex_ID_PARTICION);
+    ID_PARTICION++;
+    pthread_mutex_unlock(&mutex_ID_PARTICION);
+
+    return ID_PARTICION;
 }
 
+/*Devuelve una particion libre de la memoria*/
+char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
+{
+    char *aDevolver = NULL;
+    if (string_equals_ignore_case(CONFIG_BROKER->algoritmoMemoria, "BS"))
+    {
+        //?* falta Hacer BuddySystem
+    }
+    else
+    {
+        // ES PARTICION DINAMICA
+
+        if (string_equals_ignore_case(CONFIG_BROKER->algoritmoParticionLibre, "FF"))
+        {
+            tParticion *unaParticion = buscarParticionLibreEnMemoria(tamanio);
+
+            if (unaParticion != NULL)
+            {
+                unaParticion = splitParticion(unaParticion, tamanio);
+
+                unaParticion->free = false;
+                unaParticion->idMensaje = idMensaje;
+                unaParticion->lru = (uint32_t)time(NULL);
+                aDevolver = unaParticion->posicion;
+            }
+            else
+            {
+                //SE COMPACTA SEGUN CRITERIO DEL CONFIG
+                compactarMemoria();
+                unaParticion = buscarParticionLibreEnMemoria(tamanio);
+                if (unaParticion != NULL)
+                {
+                    unaParticion = splitParticion(unaParticion, tamanio);
+
+                    unaParticion->free = false;
+                    unaParticion->idMensaje = idMensaje;
+                    unaParticion->lru = (uint32_t)time(NULL);
+                    aDevolver = unaParticion->posicion;
+                }
+                else
+                {
+                    ejecutarEliminarParticion();
+                    aDevolver = getDireccionMemoriaLibre(idMensaje, tamanio);
+                }
+            }
+        }
+        else
+        {
+            //BF
+            t_list *ParticionesOrdenadas;
+            ParticionesOrdenadas = buscarListaDeParticionesLibresEnMemoriaOrdenadas(tamanio);
+
+            if (!list_is_empty(ParticionesOrdenadas))
+            {
+
+                tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadas, 0);
+
+                unaParticion = splitParticion(unaParticion, tamanio);
+
+                unaParticion->free = false;
+                unaParticion->idMensaje = idMensaje;
+                unaParticion->lru = (uint32_t)time(NULL);
+                aDevolver = unaParticion->posicion;
+            }
+            else
+            {
+                compactarMemoria();
+                list_destroy(ParticionesOrdenadas);
+                ParticionesOrdenadas = buscarListaDeParticionesLibresEnMemoriaOrdenadas(tamanio);
+                if (!list_is_empty(ParticionesOrdenadas))
+                {
+                    tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadas, 0);
+
+                    unaParticion = splitParticion(unaParticion, tamanio);
+
+                    unaParticion->free = false;
+                    unaParticion->idMensaje = idMensaje;
+                    unaParticion->lru = (uint32_t)time(NULL);
+                    aDevolver = unaParticion->posicion;
+                }
+                else
+                {
+                    ejecutarEliminarParticion();
+                    aDevolver = getDireccionMemoriaLibre(idMensaje, tamanio);
+                }
+            }
+            list_destroy(ParticionesOrdenadas);
+        }
+    }
+
+    return aDevolver;
+}
+
+void ejecutarEliminarParticion()
+{
+    if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
+    {
+        t_list *ParticionesOrdenadasPorPid;
+
+        ParticionesOrdenadasPorPid = list_filter(METADATA_MEMORIA, &esParticionOcupada);
+
+        list_sort(ParticionesOrdenadasPorPid, (void *)sortPidMenor);
+
+        tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorPid, 0);
+
+        list_destroy(ParticionesOrdenadasPorPid);
+
+        eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
+
+        unaParticion->free = true;
+        unaParticion->idParticion = generarNuevoIdParticion();
+    }
+    else
+    {
+        //LRU
+        t_list *ParticionesOrdenadasPorTime;
+
+        ParticionesOrdenadasPorTime = list_filter(METADATA_MEMORIA, &esParticionOcupada);
+
+        list_sort(ParticionesOrdenadasPorTime, (void *)sortTimeMenor);
+
+        tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTime, 0);
+
+        list_destroy(ParticionesOrdenadasPorTime);
+
+        eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
+
+        unaParticion->free = true;
+        unaParticion->idParticion = generarNuevoIdParticion();
+    }
+}
+
+tParticion *splitParticion(tParticion *unaParticion, uint32_t tamanio)
+{
+    if (unaParticion->tamanio > tamanio)
+    {
+
+        tParticion *nuevaParti = malloc(sizeof(tParticion));
+
+        nuevaParti->posicion = unaParticion->posicion + tamanio;
+        nuevaParti->free = true;
+        nuevaParti->tamanio = unaParticion->tamanio - tamanio;
+        nuevaParti->idMensaje = -1;
+        nuevaParti->lru = (uint32_t)time(NULL);
+        nuevaParti->idParticion = generarNuevoIdParticion();
+
+        unaParticion->tamanio = tamanio;
+
+        list_add(METADATA_MEMORIA, nuevaParti);
+    }
+
+    return unaParticion;
+}
+
+void compactarMemoria()
+{
+
+    if (CONFIG_BROKER->frecuenciaCompactacion == -1 && list_all_satisfy(METADATA_MEMORIA, &esParticionLibre))
+    {
+        ejecutarCompactacion();
+    }
+    else
+    {
+
+        if (CONFIG_BROKER->frecuenciaCompactacion == CANTIDAD_BUSQUEDAS_FALLIDAS)
+        {
+            ejecutarCompactacion();
+        }
+        else
+        {
+            CANTIDAD_BUSQUEDAS_FALLIDAS++; //?*revisar esta mal creo
+        }
+    }
+}
+
+void ejecutarCompactacion()
+{
+    //?*falta Compactacion
+}
+
+void eliminarMensaje(uint32_t unIdMensaje)
+{
+    tMensaje* unMensaje;
+
+    pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+    idMensajeABuscar = unIdMensaje;
+
+    unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+
+    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+    if(unMensaje != NULL){
+        list_destroy(unMensaje->acknowledgement);
+        list_destroy(unMensaje->suscriptoresEnviados);
+        free(unMensaje);      
+        
+        
+    }
+}
 ////////////////////////////////////////MANEJAR NUEVOS MENSAJES EN COLA////////////////////////////////////////////////
 
-void administradorDeConexiones(void *infoAdmin){
+/*administra el primer encuentro con la conexion asociada*/
+void administradorDeConexiones(void *infoAdmin)
+{
 
     infoAdminConexiones_t *unaInfoAdmin = (infoAdminConexiones_t *)infoAdmin;
 
@@ -265,7 +502,7 @@ void administradorDeConexiones(void *infoAdmin){
             manejarRespuestaATeam(unaInfoAdmin->socketCliente, idCliente);
             break;
         }
-        
+
         case -1:
         {
 
@@ -299,19 +536,20 @@ void administradorDeConexiones(void *infoAdmin){
     {
 
         log_info(logger, "ME HICIERON UN PING\n\n\n");
-        
     }
-    else if(resultado < -2){
-        
+    else if (resultado < -2)
+    {
+
         log_warning(logger, "Se desconectó el broker, o bien, terminó el tiempo de suscripcióna la cola de mensajes.");
         close(unaInfoAdmin->socketCliente);
-       
     }
 
     return;
 }
 
-void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
+/*determina que hacer dependiendo el tipo de paquete*/
+void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
+{
 
     int *tipoMensaje = malloc(sizeof(int));
     int *tamanioMensaje = malloc(sizeof(int));
@@ -362,7 +600,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
         unMensaje->idMensaje = generarNuevoIdMensajeBroker();
         unMensaje->idMensajeCorrelacional = 0;
         unMensaje->tipoMensaje = tNewPokemon; //NEW
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
+        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
         memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
         desplazamiento += sizeof(uint32_t);
@@ -414,7 +652,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
         unMensaje->idMensaje = unGetPokemon->identificador;
         unMensaje->idMensajeCorrelacional = unGetPokemon->identificadorCorrelacional;
         unMensaje->tipoMensaje = tGetPokemon; //GET
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
+        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
         memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
         desplazamiento += sizeof(uint32_t);
@@ -460,7 +698,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
         unMensaje->idMensaje = unCatchPokemon->identificador;
         unMensaje->idMensajeCorrelacional = unCatchPokemon->identificadorCorrelacional;
         unMensaje->tipoMensaje = tCatchPokemon; //CATCH
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
+        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
         memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
         desplazamiento += sizeof(uint32_t);
@@ -513,7 +751,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
         unMensaje->idMensaje = unAppeardPokemon->identificador;
         unMensaje->idMensajeCorrelacional = 0;
         unMensaje->tipoMensaje = tAppearedPokemon; //APPEARED
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
+        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
         memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
         desplazamiento += sizeof(uint32_t);
@@ -552,7 +790,9 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
     return;
 }
 
-void manejarRespuestaAGameCard(int socketCliente, int idCliente){
+/*determina que hacer dependiendo el tipo de paquete*/
+void manejarRespuestaAGameCard(int socketCliente, int idCliente)
+{
 
     int *tipoMensaje = malloc(sizeof(int));
     int *tamanioMensaje = malloc(sizeof(int));
@@ -615,7 +855,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente){
         unMensaje->idMensaje = unCaughtPokemon->identificador;
         unMensaje->idMensajeCorrelacional = unCaughtPokemon->identificadorCorrelacional;
         unMensaje->tipoMensaje = tCaughtPokemon; //CAUGHT
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
+        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
         memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t)); //??* ACORDARSE QUE TIENE Q SER UINT32 Y NO BOOL
         desplazamiento += sizeof(uint32_t);
@@ -680,7 +920,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente){
         unMensaje->idMensaje = unLocalizedPokemon->identificador;
         unMensaje->idMensajeCorrelacional = unLocalizedPokemon->identificadorCorrelacional;
         unMensaje->tipoMensaje = tLocalizedPokemon; //LOCALIZED
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
+        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
         memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
         desplazamiento += sizeof(uint32_t);
@@ -745,7 +985,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente){
         unMensaje->idMensaje = unAppeardPokemon->identificador;
         unMensaje->idMensajeCorrelacional = unAppeardPokemon->identificadorCorrelacional;
         unMensaje->tipoMensaje = tAppearedPokemon; //APPEARED
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
+        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
         memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
         desplazamiento += sizeof(uint32_t);
@@ -763,7 +1003,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente){
 
         list_add(MENSAJES_LISTA, unMensaje);
 
-       // enviarInt(socketCliente, 1);
+        // enviarInt(socketCliente, 1);
 
         break;
     }
@@ -784,7 +1024,9 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente){
     return;
 }
 
-void manejarRespuestaATeam(int socketCliente, int idCliente){
+/*determina que hacer dependiendo el tipo de paquete*/
+void manejarRespuestaATeam(int socketCliente, int idCliente)
+{
 
     int *tipoMensaje = malloc(sizeof(int));
     int *tamanioMensaje = malloc(sizeof(int));
@@ -837,7 +1079,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente){
         unMensaje->idMensaje = unGetPokemon->identificador;
         unMensaje->idMensajeCorrelacional = unGetPokemon->identificadorCorrelacional;
         unMensaje->tipoMensaje = tGetPokemon; //GET
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
+        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
         memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
         desplazamiento += sizeof(uint32_t);
@@ -913,7 +1155,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente){
         unMensaje->idMensaje = unCatchPokemon->identificador;
         unMensaje->idMensajeCorrelacional = unCatchPokemon->identificadorCorrelacional;
         unMensaje->tipoMensaje = tCatchPokemon; //CATCH
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(tamanio);
+        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
         memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
         desplazamiento += sizeof(uint32_t);
@@ -983,7 +1225,9 @@ void manejarRespuestaATeam(int socketCliente, int idCliente){
 
 ////////////////////////////////////////FUNCION NUEVO SUSCRIBER////////////////////////////////////////////////
 
-void ingresarNuevoSuscriber(void *unaNuevaSuscripcion){
+/*Se crea nuevo suscriptor y se lo asocia a una cola */
+void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
+{
 
     t_suscriptor *nuevaSuscripcion = (t_suscriptor *)unaNuevaSuscripcion;
     // LO BUSCO EN LISTA DE SUSCRIPTORES_LISTA
@@ -1020,6 +1264,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion){
 
             pthread_mutex_unlock(&mutex_idSuscriberABuscar);
 
+            /*Si existe no hago nada*/
             if (unSuscriptorEnCola == NULL)
             {
                 unSuscriptorEnCola = malloc(sizeof(tSuscriptorEnCola));
@@ -1187,6 +1432,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion){
 
         log_warning(logger, "\n\t--NUEVO CLIENTE: %d\n\t--IP: %s\n\t--PUERTO: %d\n\t--SOCKET: %d ", unSuscriptor->identificador, unSuscriptor->ip, unSuscriptor->puerto, unSuscriptor->identificadorCorrelacional);
 
+        /* ?* Nota de editor: en la lista de suscriptores solo va a quedar asociada la primer cola suscripta*/
         list_add(SUSCRIPTORES_LISTA, unSuscriptor);
 
         // log_info(logger, "\n\nSUSCRIPTOR ............................: \n");
@@ -1201,22 +1447,22 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion){
     }
 }
 
-void reconectarSuscriptor(void *unaNuevaSuscripcion){
+/*En caso de que un suscriptor se desconecte voy a tratar de reconectarme haciendo un ping y determinar si esta vivo y se actualiza el socket = identificadorCorrelacional*/
+void reconectarSuscriptor(void *unaNuevaSuscripcion)
+{
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
-    if(enviarInt(unSuscriptor->identificadorCorrelacional, PING ) < 0){
+    if (enviarInt(unSuscriptor->identificadorCorrelacional, PING) < 0)
+    {
 
-        log_warning(logger, "\n\t----------Reconectando con Suscriptor-----------------");    
+        log_warning(logger, "\n\t----------Reconectando con Suscriptor-----------------");
 
         unSuscriptor->identificadorCorrelacional = cliente(unSuscriptor->ip, unSuscriptor->puerto, 5);
 
-        log_warning(logger, "\n\t--Suscriptor reconectado: %d\n\t--IP: %s\n\t--PUERTO: %d\n\t--SOCKET: %d ", 
-        unSuscriptor->identificador, unSuscriptor->ip, unSuscriptor->puerto, unSuscriptor->identificadorCorrelacional);
+        log_warning(logger, "\n\t--Suscriptor reconectado: %d\n\t--IP: %s\n\t--PUERTO: %d\n\t--SOCKET: %d ",
+                    unSuscriptor->identificador, unSuscriptor->ip, unSuscriptor->puerto, unSuscriptor->identificadorCorrelacional);
     }
-
-
-
 }
 
 ////////////////////////////////////////FUNCIONES ENVIAR MENSAJES A SUSCRIBER////////////////////////////////////////////////
@@ -1760,7 +2006,7 @@ void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcio
     }
     else
     {
-        log_error(logger, "ERROR enviarMensajeunLocalizedPokemon() no recibi nada server apagado "); 
+        log_error(logger, "ERROR enviarMensajeunLocalizedPokemon() no recibi nada server apagado ");
         reconectarSuscriptor(unSuscriptor);
     }
 
@@ -1771,7 +2017,7 @@ void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcio
 
 void ejecutarColaNewPokemon(){
 
-    t_list *mensajesAEnviar = list_create();
+    t_list *mensajesAEnviar;
     tMensaje *unMensaje;
     int suscriptoresCant;
     tSuscriptorEnCola *unSuscriptorCola;
@@ -1831,17 +2077,15 @@ void ejecutarColaNewPokemon(){
                     }
                 }
             }
-
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
-
         }
     }
 }
 
 void ejecutarColaAppearedPokemon(){
 
-    t_list *mensajesAEnviar = list_create();
+    t_list *mensajesAEnviar;
     tMensaje *unMensaje;
     int suscriptoresCant;
     tSuscriptorEnCola *unSuscriptorCola;
@@ -1901,7 +2145,6 @@ void ejecutarColaAppearedPokemon(){
                     }
                 }
             }
-
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
         }
@@ -1910,7 +2153,7 @@ void ejecutarColaAppearedPokemon(){
 
 void ejecutarColaCatchPokemon(){
 
-    t_list *mensajesAEnviar = list_create();
+    t_list *mensajesAEnviar;
     tMensaje *unMensaje;
     int suscriptoresCant;
     tSuscriptorEnCola *unSuscriptorCola;
@@ -1970,10 +2213,8 @@ void ejecutarColaCatchPokemon(){
                     }
                 }
             }
-
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
-
         }
     }
 }
@@ -2040,7 +2281,6 @@ void ejecutarColaCaughtPokemon(){
                     }
                 }
             }
-
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
         }
@@ -2049,7 +2289,7 @@ void ejecutarColaCaughtPokemon(){
 
 void ejecutarColaGetPokemon(){
 
-    t_list *mensajesAEnviar = list_create();
+    t_list *mensajesAEnviar;
     tMensaje *unMensaje;
     int suscriptoresCant;
     tSuscriptorEnCola *unSuscriptorCola;
@@ -2109,17 +2349,15 @@ void ejecutarColaGetPokemon(){
                     }
                 }
             }
-
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
-
         }
     }
 }
 
 void ejecutarColaLocalizedPokemon(){
 
-    t_list *mensajesAEnviar = list_create();
+    t_list *mensajesAEnviar;
     tMensaje *unMensaje;
     int suscriptoresCant;
     tSuscriptorEnCola *unSuscriptorCola;
@@ -2179,10 +2417,8 @@ void ejecutarColaLocalizedPokemon(){
                     }
                 }
             }
-
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
-
         }
     }
 }
@@ -2231,7 +2467,23 @@ bool existeTipoMensaje(void *mensaje){
     return existe;
 }
 
-bool existeIdSuscriptor(void *suscriptor){
+bool existeIdMensaje(void *mensaje)
+{
+
+    tMensaje *p = (tMensaje *)mensaje;
+
+    bool existe = false;
+
+    if ((p->idMensaje == idMensajeABuscar))
+    {
+        existe = true;
+    }
+
+    return existe;
+}
+
+bool existeIdSuscriptor(void *suscriptor)
+{
 
     t_suscriptor *p = (t_suscriptor *)suscriptor;
 
@@ -2257,6 +2509,77 @@ bool existeAck(void *numero){
     }
 
     return existe;
+}
+
+bool existeParticionLibre(void *particion)
+{
+
+    tParticion *p = (tParticion *)particion;
+
+    bool existe = false;
+
+    if ((p->free == true) && (p->tamanio >= tamanioParticionABuscar))
+    {
+        existe = true;
+    }
+
+    return existe;
+}
+
+bool sortParticionMenor(tParticion *p, tParticion *q)
+{
+    return p->tamanio < q->tamanio;
+}
+
+bool sortPidMenor(tParticion *p, tParticion *q)
+{
+    return p->idParticion < q->idParticion;
+}
+
+bool sortTimeMenor(tParticion *p, tParticion *q)
+{
+    return p->lru < q->lru;
+}
+
+bool esParticionLibre(void *unaParticion)
+{
+
+    tParticion *p = (tParticion *)unaParticion;
+    return p->free == true;
+}
+
+bool esParticionOcupada(void *unaParticion)
+{
+
+    tParticion *p = (tParticion *)unaParticion;
+    return p->free == false;
+}
+
+tParticion *buscarParticionLibreEnMemoria(uint32_t tamanio)
+{
+
+    pthread_mutex_lock(&mutex_tamanioParticionABuscar);
+
+    tamanioParticionABuscar = tamanio;
+    tParticion *unaParticion = (tParticion *)list_find(METADATA_MEMORIA, &existeParticionLibre);
+
+    pthread_mutex_unlock(&mutex_tamanioParticionABuscar);
+
+    return unaParticion;
+}
+
+t_list *buscarListaDeParticionesLibresEnMemoriaOrdenadas(uint32_t tamanio)
+{
+    t_list *ParticionesOrdenadas;
+
+    pthread_mutex_lock(&mutex_tamanioParticionABuscar);
+
+    tamanioParticionABuscar = tamanio;
+    ParticionesOrdenadas = list_filter(METADATA_MEMORIA, &existeParticionLibre);
+
+    pthread_mutex_unlock(&mutex_tamanioParticionABuscar);
+    list_sort(ParticionesOrdenadas, (void *)sortParticionMenor);
+    return ParticionesOrdenadas;
 }
 
 
@@ -2357,6 +2680,12 @@ void prueba(){
 
     free(particionesReLocas);
 }
+
+
+
+
+
+
 /*
 
 typedef struct {
