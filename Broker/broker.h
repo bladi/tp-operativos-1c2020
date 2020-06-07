@@ -98,6 +98,7 @@ typedef struct {
 	bool free;
 	uint32_t idMensaje;
 	uint32_t lru;
+	uint32_t timeInit;
 				
 } tParticion;
 
@@ -180,6 +181,7 @@ void compactarMemoria();
 void ejecutarEliminarParticion();
 void ejecutarEliminarParticionBuddy();
 void eliminarMensaje(uint32_t unIdMensaje);
+void killMe(uint32_t index);
 
 void ingresarNuevoSuscriber(void* nuevaSuscripcion);
 void reconectarSuscriptor(void *unaNuevaSuscripcion);
@@ -243,6 +245,7 @@ pthread_mutex_t mutex_idParticionABuscar;
 bool sortParticionMenor(tParticion *p, tParticion *q);
 bool sortPidMenor(tParticion *p, tParticion *q);
 bool sortTimeMenor(tParticion *p, tParticion *q);
+bool sortInitMenor(tParticion *p, tParticion *q);
 bool esParticionLibre(void *unaParticion);
 bool esParticionOcupada(void *unaParticion);
 

@@ -211,6 +211,7 @@ void inicializarMemoria()
     unaParti->tamanio = CONFIG_BROKER->tamanioMemoria;
     unaParti->idMensaje = -1;
     unaParti->lru = (uint32_t)time(NULL);
+    unaParti->timeInit = (uint32_t)time(NULL);
     unaParti->idParticion = ID_PARTICION;
 
     list_add(METADATA_MEMORIA, unaParti);
@@ -272,10 +273,10 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
     {
         //ingresamos siempre por la primera particion 0
         aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, 0);
-        while(aDevolver == NULL){
-           ejecutarEliminarParticionBuddy();
-           aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, 0);
-
+        while (aDevolver == NULL)
+        {
+            ejecutarEliminarParticionBuddy();
+            aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, 0);
         }
     }
     else
@@ -293,6 +294,7 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
                 unaParticion->free = false;
                 unaParticion->idMensaje = idMensaje;
                 unaParticion->lru = (uint32_t)time(NULL);
+                unaParticion->timeInit = (uint32_t)time(NULL);
                 aDevolver = unaParticion->posicion;
             }
             else
@@ -307,6 +309,7 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
                     unaParticion->free = false;
                     unaParticion->idMensaje = idMensaje;
                     unaParticion->lru = (uint32_t)time(NULL);
+                    unaParticion->timeInit = (uint32_t)time(NULL);
                     aDevolver = unaParticion->posicion;
                 }
                 else
@@ -332,6 +335,7 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
                 unaParticion->free = false;
                 unaParticion->idMensaje = idMensaje;
                 unaParticion->lru = (uint32_t)time(NULL);
+                unaParticion->timeInit = (uint32_t)time(NULL);
                 aDevolver = unaParticion->posicion;
             }
             else
@@ -348,6 +352,7 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
                     unaParticion->free = false;
                     unaParticion->idMensaje = idMensaje;
                     unaParticion->lru = (uint32_t)time(NULL);
+                    unaParticion->timeInit = (uint32_t)time(NULL);
                     aDevolver = unaParticion->posicion;
                 }
                 else
@@ -396,6 +401,7 @@ char *getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, 
                 unaParticion->free = false;
                 unaParticion->idMensaje = idMensaje;
                 unaParticion->lru = (uint32_t)time(NULL);
+                unaParticion->timeInit = (uint32_t)time(NULL);
                 aDevolver = unaParticion->posicion;
             }
             else
@@ -413,7 +419,7 @@ char *getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, 
                 aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, 2 * index + 2);
             }
         }
-    } 
+    }
 
     return aDevolver;
 }
@@ -440,6 +446,7 @@ void splitBuddy(uint32_t index)
         leftChild->tamanio = father->tamanio / 2;
         leftChild->idMensaje = -1;
         leftChild->lru = (uint32_t)time(NULL);
+        leftChild->timeInit = (uint32_t)time(NULL);
         leftChild->idParticion = 2 * index + 1;
 
         tParticion *rightChild = malloc(sizeof(tParticion));
@@ -449,12 +456,11 @@ void splitBuddy(uint32_t index)
         rightChild->tamanio = father->tamanio / 2;
         rightChild->idMensaje = -1;
         rightChild->lru = (uint32_t)time(NULL);
+        rightChild->timeInit = (uint32_t)time(NULL);
         rightChild->idParticion = 2 * index + 2;
 
         list_add(METADATA_MEMORIA, leftChild);
         list_add(METADATA_MEMORIA, rightChild);
-
-
     }
 }
 
@@ -462,27 +468,28 @@ void ejecutarEliminarParticionBuddy()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
     {
-        t_list *ParticionesOrdenadasPorPid;
+        t_list *ParticionesOrdenadasPorTimeInit;
 
-        ParticionesOrdenadasPorPid = list_filter(METADATA_MEMORIA, &esParticionOcupada);
+        ParticionesOrdenadasPorTimeInit = list_filter(METADATA_MEMORIA, &esParticionOcupadaConMensaje);
 
-        list_sort(ParticionesOrdenadasPorPid, (void *)sortPidMenor);
+        list_sort(ParticionesOrdenadasPorTimeInit, (void *)sortInitMenor);
 
-        tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorPid, 0);
+        tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTimeInit, 0);
 
-        list_destroy(ParticionesOrdenadasPorPid);
+        list_destroy(ParticionesOrdenadasPorTimeInit);
 
         eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
 
         unaParticion->free = true;
-        unaParticion->idParticion = generarNuevoIdParticion();
+        unaParticion->idMensaje = -1;
+        killMe(unaParticion->idParticion); //?*falta matar a los hijos de ser necesario
     }
     else
     {
         //LRU
         t_list *ParticionesOrdenadasPorTime;
 
-        ParticionesOrdenadasPorTime = list_filter(METADATA_MEMORIA, &esParticionOcupada);
+        ParticionesOrdenadasPorTime = list_filter(METADATA_MEMORIA, &esParticionOcupadaConMensaje);
 
         list_sort(ParticionesOrdenadasPorTime, (void *)sortTimeMenor);
 
@@ -493,23 +500,96 @@ void ejecutarEliminarParticionBuddy()
         eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
 
         unaParticion->free = true;
-        unaParticion->idParticion = generarNuevoIdParticion();
+        unaParticion->idMensaje = -1;
+        killMe(unaParticion->idParticion);
     }
+}
+
+void killMe(uint32_t index)
+{
+
+    if (index == 0)
+    {
+        pthread_mutex_lock(&mutex_idParticionABuscar);
+
+        idParticionABuscar = index;
+        tParticion *father = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
+
+        pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+        father->free = true;
+        father->idMensaje = -1;
+        father->timeInit = (uint32_t)time(NULL);
+        father->lru = (uint32_t)time(NULL);
+        killChilds(0);
+    }
+    else
+    {
+        if (index % 2 == 0)
+        {
+            //ES HIJO DERECHO
+            pthread_mutex_lock(&mutex_idParticionABuscar);
+
+            idParticionABuscar = index;
+            tParticion *father = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
+
+            pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+            father->free = true;
+            father->idMensaje = -1;
+            father->timeInit = (uint32_t)time(NULL);
+            father->lru = (uint32_t)time(NULL);
+            killChilds((index-2)/2);
+        }
+        else
+        {
+            //ES HIJO IZQUIERDO
+            pthread_mutex_lock(&mutex_idParticionABuscar);
+
+            idParticionABuscar = index;
+            tParticion *father = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
+
+            pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+            father->free = true;
+            father->idMensaje = -1;
+            father->timeInit = (uint32_t)time(NULL);
+            father->lru = (uint32_t)time(NULL);
+            killChilds((index-1)/2);
+        }
+    }
+
+}
+
+void killChilds(uint32_t index)//?*creo que no la voy a usar
+{
+    pthread_mutex_lock(&mutex_idParticionABuscar);
+
+    idParticionABuscar = index;
+    tParticion *father = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
+
+    pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+    if (father != NULL)
+    {
+        
+    }
+
 }
 
 void ejecutarEliminarParticion()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
     {
-        t_list *ParticionesOrdenadasPorPid;
+        t_list *ParticionesOrdenadasPorTimeInit;
 
-        ParticionesOrdenadasPorPid = list_filter(METADATA_MEMORIA, &esParticionOcupada);
+        ParticionesOrdenadasPorTimeInit = list_filter(METADATA_MEMORIA, &esParticionOcupada);
 
-        list_sort(ParticionesOrdenadasPorPid, (void *)sortPidMenor);
+        list_sort(ParticionesOrdenadasPorTimeInit, (void *)sortInitMenor); //?*sortPidMenor quedo en desuso
 
-        tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorPid, 0);
+        tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTimeInit, 0);
 
-        list_destroy(ParticionesOrdenadasPorPid);
+        list_destroy(ParticionesOrdenadasPorTimeInit);
 
         eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
 
@@ -548,6 +628,7 @@ tParticion *splitParticion(tParticion *unaParticion, uint32_t tamanio)
         nuevaParti->tamanio = unaParticion->tamanio - tamanio;
         nuevaParti->idMensaje = -1;
         nuevaParti->lru = (uint32_t)time(NULL);
+        nuevaParti->timeInit = (uint32_t)time(NULL);
         nuevaParti->idParticion = generarNuevoIdParticion();
 
         unaParticion->tamanio = tamanio;
@@ -2696,6 +2777,11 @@ bool sortTimeMenor(tParticion *p, tParticion *q)
     return p->lru < q->lru;
 }
 
+bool sortInitMenor(tParticion *p, tParticion *q)
+{
+    return p->timeInit < q->timeInit;
+}
+
 bool esParticionLibre(void *unaParticion)
 {
 
@@ -2708,6 +2794,21 @@ bool esParticionOcupada(void *unaParticion)
 
     tParticion *p = (tParticion *)unaParticion;
     return p->free == false;
+}
+
+bool esParticionOcupadaConMensaje(void *particion)
+{
+
+    tParticion *p = (tParticion *)particion;
+
+    bool existe = false;
+
+    if ((p->free == false) && (p->idMensaje != -1))
+    {
+        existe = true;
+    }
+
+    return existe;
 }
 
 tParticion *buscarParticionLibreEnMemoria(uint32_t tamanio)
