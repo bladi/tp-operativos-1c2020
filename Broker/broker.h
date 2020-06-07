@@ -171,10 +171,14 @@ uint32_t generarNuevoIdMensajeBroker();
 uint32_t generarNuevoIdSuscriptor();
 uint32_t generarNuevoIdParticion();
 char* getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio);
+char* getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, uint32_t index);
+
 tParticion * splitParticion(tParticion * unaParticion, uint32_t tamanio);//?* no se si lo va a tomar de ultima pasar a void* y castear
+void splitBuddy(uint32_t index);
 void  ejecutarCompactacion();
 void compactarMemoria();
 void ejecutarEliminarParticion();
+void ejecutarEliminarParticionBuddy();
 void eliminarMensaje(uint32_t unIdMensaje);
 
 void ingresarNuevoSuscriber(void* nuevaSuscripcion);
@@ -231,6 +235,10 @@ pthread_mutex_t mutex_ackABuscar;
 bool  existeParticionLibre(void *particion);
 uint32_t tamanioParticionABuscar;
 pthread_mutex_t mutex_tamanioParticionABuscar;
+
+bool existeIdParticion(void *partition);
+uint32_t idParticionABuscar;
+pthread_mutex_t mutex_idParticionABuscar;
 
 bool sortParticionMenor(tParticion *p, tParticion *q);
 bool sortPidMenor(tParticion *p, tParticion *q);

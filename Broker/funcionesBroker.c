@@ -1,6 +1,5 @@
 #include "broker.h"
 
-
 ////////////////////////////////////////GESTION DEL PROCESO BROKER////////////////////////////////////////////////
 
 /*Carga las configuraciones del broker, logger, inicializa la memoria y los hilos*/
@@ -271,7 +270,13 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
     char *aDevolver = NULL;
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoMemoria, "BS"))
     {
-        //?* falta Hacer BuddySystem
+        //ingresamos siempre por la primera particion 0
+        aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, 0);
+        while(aDevolver == NULL){
+           ejecutarEliminarParticionBuddy();
+           aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, 0);
+
+        }
     }
     else
     {
@@ -356,6 +361,140 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
     }
 
     return aDevolver;
+}
+
+char *getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, uint32_t index)
+{
+
+    char *aDevolver = NULL;
+
+    pthread_mutex_lock(&mutex_idParticionABuscar);
+
+    idParticionABuscar = index;
+    tParticion *unaParticion = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
+
+    pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+    if (unaParticion != NULL)
+    {
+
+        if (tamanio > unaParticion->tamanio)
+        {
+
+            if (unaParticion->idParticion == 0)
+            {
+                log_error(logger, "\n\t--ERROR TAMANIO BUDDY SYSTEM PEDIDO ES MAYOR A MEMORIA TOTAL: %d ", tamanio); // Seguro rompe si pasa esto
+            }
+
+            return NULL;
+        }
+
+        if (unaParticion->free == true)
+        {
+            if (tamanio <= unaParticion->tamanio && tamanio > (unaParticion->tamanio / 2))
+            {
+                unaParticion->free = false;
+                unaParticion->idMensaje = idMensaje;
+                unaParticion->lru = (uint32_t)time(NULL);
+                aDevolver = unaParticion->posicion;
+            }
+            else
+            {
+                splitBuddy(index);
+                aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, index);
+            }
+        }
+        else
+        { //PAPA ESTA OCUPADO
+
+            aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, 2 * index + 1);
+            if (!aDevolver)
+            {
+                aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, 2 * index + 2);
+            }
+        }
+    } 
+
+    return aDevolver;
+}
+
+void splitBuddy(uint32_t index)
+{
+
+    pthread_mutex_lock(&mutex_idParticionABuscar);
+
+    idParticionABuscar = index;
+    tParticion *father = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
+
+    pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+    if (father != NULL)
+    {
+
+        father->free = false;
+
+        tParticion *leftChild = malloc(sizeof(tParticion));
+
+        leftChild->posicion = father->posicion;
+        leftChild->free = true;
+        leftChild->tamanio = father->tamanio / 2;
+        leftChild->idMensaje = -1;
+        leftChild->lru = (uint32_t)time(NULL);
+        leftChild->idParticion = 2 * index + 1;
+
+        tParticion *rightChild = malloc(sizeof(tParticion));
+
+        rightChild->posicion = father->posicion + father->tamanio / 2;
+        rightChild->free = true;
+        rightChild->tamanio = father->tamanio / 2;
+        rightChild->idMensaje = -1;
+        rightChild->lru = (uint32_t)time(NULL);
+        rightChild->idParticion = 2 * index + 2;
+
+        list_add(METADATA_MEMORIA, leftChild);
+        list_add(METADATA_MEMORIA, rightChild);
+
+
+    }
+}
+
+void ejecutarEliminarParticionBuddy()
+{
+    if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
+    {
+        t_list *ParticionesOrdenadasPorPid;
+
+        ParticionesOrdenadasPorPid = list_filter(METADATA_MEMORIA, &esParticionOcupada);
+
+        list_sort(ParticionesOrdenadasPorPid, (void *)sortPidMenor);
+
+        tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorPid, 0);
+
+        list_destroy(ParticionesOrdenadasPorPid);
+
+        eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
+
+        unaParticion->free = true;
+        unaParticion->idParticion = generarNuevoIdParticion();
+    }
+    else
+    {
+        //LRU
+        t_list *ParticionesOrdenadasPorTime;
+
+        ParticionesOrdenadasPorTime = list_filter(METADATA_MEMORIA, &esParticionOcupada);
+
+        list_sort(ParticionesOrdenadasPorTime, (void *)sortTimeMenor);
+
+        tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTime, 0);
+
+        list_destroy(ParticionesOrdenadasPorTime);
+
+        eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
+
+        unaParticion->free = true;
+        unaParticion->idParticion = generarNuevoIdParticion();
+    }
 }
 
 void ejecutarEliminarParticion()
@@ -447,7 +586,7 @@ void ejecutarCompactacion()
 
 void eliminarMensaje(uint32_t unIdMensaje)
 {
-    tMensaje* unMensaje;
+    tMensaje *unMensaje;
 
     pthread_mutex_lock(&mutex_idMensajeABuscar);
 
@@ -457,12 +596,11 @@ void eliminarMensaje(uint32_t unIdMensaje)
 
     pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-    if(unMensaje != NULL){
+    if (unMensaje != NULL)
+    {
         list_destroy(unMensaje->acknowledgement);
         list_destroy(unMensaje->suscriptoresEnviados);
-        free(unMensaje);      
-        
-        
+        free(unMensaje);
     }
 }
 ////////////////////////////////////////MANEJAR NUEVOS MENSAJES EN COLA////////////////////////////////////////////////
@@ -1244,7 +1382,8 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
     pthread_mutex_unlock(&mutex_ipServerABuscar);
     pthread_mutex_unlock(&mutex_PuertoEschuchaABuscar);
 
-    if (unSuscriptor != NULL){
+    if (unSuscriptor != NULL)
+    {
         // 1 NEW_POKEMON_LISTA 2 APPEARED_POKEMON_LISTA 3 CATCH_POKEMON_LISTA 4 CAUGHT_POKEMON_LISTA 5 GET_POKEMON_LISTA 6 LOCALIZED_POKEMON_LISTA
 
         switch (nuevaSuscripcion->colaDeMensajes)
@@ -1467,7 +1606,8 @@ void reconectarSuscriptor(void *unaNuevaSuscripcion)
 
 ////////////////////////////////////////FUNCIONES ENVIAR MENSAJES A SUSCRIBER////////////////////////////////////////////////
 
-void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
+void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+{
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
     uint32_t desplazamiento = 0;
@@ -1561,7 +1701,8 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
     free(unNewPokemon);
 }
 
-void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
+void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+{
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -1654,7 +1795,8 @@ void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion
     free(unAppearedPokemon);
 }
 
-void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
+void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+{
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -1744,7 +1886,8 @@ void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
     free(unCatchPokemon);
 }
 
-void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
+void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+{
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -1813,7 +1956,8 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
     free(unCaughtPokemon);
 }
 
-void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
+void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+{
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -1898,7 +2042,8 @@ void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
     free(unGetPokemon);
 }
 
-void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion){
+void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+{
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
 
@@ -2015,7 +2160,8 @@ void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcio
 
 ////////////////////////////////////////HILOS DE COLAS////////////////////////////////////////////////
 
-void ejecutarColaNewPokemon(){
+void ejecutarColaNewPokemon()
+{
 
     t_list *mensajesAEnviar;
     tMensaje *unMensaje;
@@ -2083,7 +2229,8 @@ void ejecutarColaNewPokemon(){
     }
 }
 
-void ejecutarColaAppearedPokemon(){
+void ejecutarColaAppearedPokemon()
+{
 
     t_list *mensajesAEnviar;
     tMensaje *unMensaje;
@@ -2151,7 +2298,8 @@ void ejecutarColaAppearedPokemon(){
     }
 }
 
-void ejecutarColaCatchPokemon(){
+void ejecutarColaCatchPokemon()
+{
 
     t_list *mensajesAEnviar;
     tMensaje *unMensaje;
@@ -2219,7 +2367,8 @@ void ejecutarColaCatchPokemon(){
     }
 }
 
-void ejecutarColaCaughtPokemon(){
+void ejecutarColaCaughtPokemon()
+{
 
     t_list *mensajesAEnviar = list_create();
     tMensaje *unMensaje;
@@ -2287,7 +2436,8 @@ void ejecutarColaCaughtPokemon(){
     }
 }
 
-void ejecutarColaGetPokemon(){
+void ejecutarColaGetPokemon()
+{
 
     t_list *mensajesAEnviar;
     tMensaje *unMensaje;
@@ -2355,7 +2505,8 @@ void ejecutarColaGetPokemon(){
     }
 }
 
-void ejecutarColaLocalizedPokemon(){
+void ejecutarColaLocalizedPokemon()
+{
 
     t_list *mensajesAEnviar;
     tMensaje *unMensaje;
@@ -2425,7 +2576,8 @@ void ejecutarColaLocalizedPokemon(){
 
 ////////////////////////////////////////FUNCIONES LISTAS////////////////////////////////////////////////
 
-bool existeNuevoSuscriber(void *unSuscriber){
+bool existeNuevoSuscriber(void *unSuscriber)
+{
 
     t_suscriptor *p = (t_suscriptor *)unSuscriber;
 
@@ -2439,7 +2591,8 @@ bool existeNuevoSuscriber(void *unSuscriber){
     return existe;
 }
 
-bool existeIdSuscriberEnCola(void *suscriptorEnCola){
+bool existeIdSuscriberEnCola(void *suscriptorEnCola)
+{
 
     tSuscriptorEnCola *p = (tSuscriptorEnCola *)suscriptorEnCola;
 
@@ -2453,7 +2606,8 @@ bool existeIdSuscriberEnCola(void *suscriptorEnCola){
     return existe;
 }
 
-bool existeTipoMensaje(void *mensaje){
+bool existeTipoMensaje(void *mensaje)
+{
 
     tMensaje *p = (tMensaje *)mensaje;
 
@@ -2497,7 +2651,8 @@ bool existeIdSuscriptor(void *suscriptor)
     return existe;
 }
 
-bool existeAck(void *numero){
+bool existeAck(void *numero)
+{
 
     uint32_t *p = (uint32_t *)numero;
 
@@ -2582,53 +2737,70 @@ t_list *buscarListaDeParticionesLibresEnMemoriaOrdenadas(uint32_t tamanio)
     return ParticionesOrdenadas;
 }
 
+bool existeIdParticion(void *partition)
+{
+
+    tParticion *p = (tParticion *)partition;
+
+    bool existe = false;
+
+    if ((p->idParticion == idParticionABuscar))
+    {
+        existe = true;
+    }
+
+    return existe;
+}
 
 //////////////////////////////////////////////DUMP CACHE////////////////////////////////////////////////
-void dumpCache(t_list* particiones){
+
+void dumpCache(t_list *particiones)
+{
 
     FILE *f;
     int cantParticiones = list_size(particiones);
 
-    char* contenidoDump = string_new();
-    char* fecha = string_new();
-    char* horaCompleta = temporal_get_string_time();
-    char* hora = string_substring(horaCompleta,0,8);
+    char *contenidoDump = string_new();
+    char *fecha = string_new();
+    char *horaCompleta = temporal_get_string_time();
+    char *hora = string_substring(horaCompleta, 0, 8);
 
     time_t t;
-    t=time(NULL);
+    t = time(NULL);
     struct tm tm = *localtime(&t);
     //strftime(fecha,11,"%d/%m/%Y", tm);
-    string_append_with_format(&fecha, "%d/%d/%d", tm.tm_mday, tm.tm_mon + 1,  tm.tm_year + 1900);
-    
+    string_append_with_format(&fecha, "%d/%d/%d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
 
     string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
     string_append_with_format(&contenidoDump, "Dump:                            %s                              %s\n", fecha, hora);
-    tParticion* particion;// = malloc(sizeof(tParticion));
-    char* limiteParticion;
+    tParticion *particion; // = malloc(sizeof(tParticion));
+    char *limiteParticion;
     char libre;
-    
-    for(int i = 0; i<cantParticiones; i++){
-        
-        particion = list_get(particiones,i);
 
-        if(particion->free){
+    for (int i = 0; i < cantParticiones; i++)
+    {
+
+        particion = list_get(particiones, i);
+
+        if (particion->free)
+        {
             libre = 'L';
-        } else { 
+        }
+        else
+        {
             libre = 'X';
         }
-        limiteParticion = particion->posicion + particion->tamanio;    //in rodri we trust.
-        string_append_with_format(&contenidoDump,"Particion %d: %p",i, particion->posicion);
-        string_append_with_format(&contenidoDump," - %p.",limiteParticion);
-        string_append_with_format(&contenidoDump,"    [%c]    Size: %db\n",libre, particion->tamanio);
+        limiteParticion = particion->posicion + particion->tamanio; //in rodri we trust.
+        string_append_with_format(&contenidoDump, "Particion %d: %p", i, particion->posicion);
+        string_append_with_format(&contenidoDump, " - %p.", limiteParticion);
+        string_append_with_format(&contenidoDump, "    [%c]    Size: %db\n", libre, particion->tamanio);
         //string_append_with_format(&contenidoDump,"    LRU[%d] Cola:[%s]    ID:[%d]\n",particion->valorLRU, particion->cola, particion->id);
-
     }
     string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 
     f = fopen(CONFIG_BROKER->pathDump, "w+");
 
-    log_debug(logger,"CREANDO ARCHIVO DUMP EN %s", CONFIG_BROKER->pathDump);
-
+    log_debug(logger, "CREANDO ARCHIVO DUMP EN %s", CONFIG_BROKER->pathDump);
 
     fputs(contenidoDump, f);
     fseek(f, 0, SEEK_SET);
@@ -2637,19 +2809,17 @@ void dumpCache(t_list* particiones){
     free(contenidoDump);
     free(fecha);
     free(hora);
-
 }
+//////////////////////////////////////////////PRUEBAS////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void prueba()
+{
 
+    t_list *particionesReLocas = list_create();
 
-void prueba(){
-
-    t_list* particionesReLocas = list_create();
-
-    tParticion* particion1 = malloc(sizeof(tParticion));
-    tParticion* particion2 = malloc(sizeof(tParticion));
-    tParticion* particion3 = malloc(sizeof(tParticion));
+    tParticion *particion1 = malloc(sizeof(tParticion));
+    tParticion *particion2 = malloc(sizeof(tParticion));
+    tParticion *particion3 = malloc(sizeof(tParticion));
     /*
     char* posicion1 = string_new();
     char* posicion2 = string_new();
@@ -2659,32 +2829,27 @@ void prueba(){
     string_append(&posicion2, "Cocholates");
     string_append(&posicion3, "alvaritoReloca");
     */
-    
+
     particion1->free = 1;
-    particion1->posicion = (char*)particion1;
+    particion1->posicion = (char *)particion1;
     particion1->tamanio = 11;
 
     particion2->free = 0;
-    particion2->posicion = (char*)particion2;
+    particion2->posicion = (char *)particion2;
     particion2->tamanio = 22;
-    
+
     particion3->free = 1;
-    particion3->posicion = (char*)particion3;
+    particion3->posicion = (char *)particion3;
     particion3->tamanio = 33;
 
-    list_add(particionesReLocas,particion1);
-    list_add(particionesReLocas,particion2);
-    list_add(particionesReLocas,particion3);
+    list_add(particionesReLocas, particion1);
+    list_add(particionesReLocas, particion2);
+    list_add(particionesReLocas, particion3);
 
     dumpCache(particionesReLocas);
 
     free(particionesReLocas);
 }
-
-
-
-
-
 
 /*
 
