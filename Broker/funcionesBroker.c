@@ -265,7 +265,7 @@ uint32_t generarNuevoIdParticion()
     return ID_PARTICION;
 }
 
-/*Devuelve una particion libre de la memoria*/
+/*Devuelve una particion libre de la memoria general*/
 char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
 {
     char *aDevolver = NULL;
@@ -368,6 +368,7 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
     return aDevolver;
 }
 
+/*Devuelve una particion libre de la memoria bs*/
 char *getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, uint32_t index)
 {
 
@@ -424,6 +425,7 @@ char *getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, 
     return aDevolver;
 }
 
+/*divide el segmento de memoria en 2*/
 void splitBuddy(uint32_t index)
 {
 
@@ -464,6 +466,7 @@ void splitBuddy(uint32_t index)
     }
 }
 
+/*se decide que particion eliminar y se elimina*/
 void ejecutarEliminarParticionBuddy()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
@@ -505,6 +508,7 @@ void ejecutarEliminarParticionBuddy()
     }
 }
 
+/*se elimina particion bs y se rearma la estructura*/
 void killMe(uint32_t index)
 {
 
@@ -521,7 +525,7 @@ void killMe(uint32_t index)
         father->idMensaje = -1;
         father->timeInit = (uint32_t)time(NULL);
         father->lru = (uint32_t)time(NULL);
-        killChilds(0);
+        
     }
     else
     {
@@ -531,15 +535,52 @@ void killMe(uint32_t index)
             pthread_mutex_lock(&mutex_idParticionABuscar);
 
             idParticionABuscar = index;
-            tParticion *father = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
+            tParticion *right = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
 
             pthread_mutex_unlock(&mutex_idParticionABuscar);
 
-            father->free = true;
-            father->idMensaje = -1;
-            father->timeInit = (uint32_t)time(NULL);
-            father->lru = (uint32_t)time(NULL);
-            killChilds((index-2)/2);
+            right->free = true;
+            right->idMensaje = -1;
+            right->timeInit = (uint32_t)time(NULL);
+            right->lru = (uint32_t)time(NULL);
+
+            uint32_t indexFather = (index - 2) / 2;
+
+            pthread_mutex_lock(&mutex_idParticionABuscar);
+
+            idParticionABuscar = 2 * indexFather + 1; //Busco al izquierdo
+            tParticion *left = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
+
+            pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+            if (left)
+            {
+                if (left->free == true)
+                {
+
+                    pthread_mutex_lock(&mutex_idParticionABuscar);
+
+                    idParticionABuscar = 2 * indexFather + 1; //lo saco de la lista
+                    left = (tParticion *)list_remove_by_condition(METADATA_MEMORIA, &existeIdParticion);
+
+                    pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+                    pthread_mutex_lock(&mutex_idParticionABuscar);
+
+                    idParticionABuscar = 2 * indexFather + 2;
+                    right = (tParticion *)list_remove_by_condition(METADATA_MEMORIA, &existeIdParticion);
+
+                    pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+                    free(left);
+                    free(right);
+                    killMe(indexFather);
+                }
+            }
+            else
+            {
+                log_error(logger, "ERROR KILLME(): NO EXISTE EL HIJO IZQUIERDO ");
+            }
         }
         else
         {
@@ -547,34 +588,54 @@ void killMe(uint32_t index)
             pthread_mutex_lock(&mutex_idParticionABuscar);
 
             idParticionABuscar = index;
-            tParticion *father = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
+            tParticion *left = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
 
             pthread_mutex_unlock(&mutex_idParticionABuscar);
 
-            father->free = true;
-            father->idMensaje = -1;
-            father->timeInit = (uint32_t)time(NULL);
-            father->lru = (uint32_t)time(NULL);
-            killChilds((index-1)/2);
+            left->free = true;
+            left->idMensaje = -1;
+            left->timeInit = (uint32_t)time(NULL);
+            left->lru = (uint32_t)time(NULL);
+
+            uint32_t indexFather = (index - 1) / 2;
+
+            pthread_mutex_lock(&mutex_idParticionABuscar);
+
+            idParticionABuscar = 2 * indexFather + 2; //Busco al derecho
+            tParticion *right = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
+
+            pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+            if (right)
+            {
+                if (right->free == true)
+                {
+
+                    pthread_mutex_lock(&mutex_idParticionABuscar);
+
+                    idParticionABuscar = 2 * indexFather + 1; //lo saco de la lista
+                    left = (tParticion *)list_remove_by_condition(METADATA_MEMORIA, &existeIdParticion);
+
+                    pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+                    pthread_mutex_lock(&mutex_idParticionABuscar);
+
+                    idParticionABuscar = 2 * indexFather + 2;
+                    right = (tParticion *)list_remove_by_condition(METADATA_MEMORIA, &existeIdParticion);
+
+                    pthread_mutex_unlock(&mutex_idParticionABuscar);
+
+                    free(left);
+                    free(right);
+                    killMe(indexFather);
+                }
+            }
+            else
+            {
+                log_error(logger, "ERROR KILLME(): NO EXISTE EL HIJO DERECHO ");
+            }
         }
     }
-
-}
-
-void killChilds(uint32_t index)//?*creo que no la voy a usar
-{
-    pthread_mutex_lock(&mutex_idParticionABuscar);
-
-    idParticionABuscar = index;
-    tParticion *father = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
-
-    pthread_mutex_unlock(&mutex_idParticionABuscar);
-
-    if (father != NULL)
-    {
-        
-    }
-
 }
 
 void ejecutarEliminarParticion()

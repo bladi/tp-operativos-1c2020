@@ -248,6 +248,7 @@ bool sortTimeMenor(tParticion *p, tParticion *q);
 bool sortInitMenor(tParticion *p, tParticion *q);
 bool esParticionLibre(void *unaParticion);
 bool esParticionOcupada(void *unaParticion);
+bool esParticionOcupadaConMensaje(void *particion);
 
 tParticion *buscarParticionLibreEnMemoria(uint32_t tamanio);
 t_list *buscarListaDeParticionesLibresEnMemoriaOrdenadas(uint32_t tamanio);
