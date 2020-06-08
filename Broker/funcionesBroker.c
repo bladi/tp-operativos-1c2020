@@ -743,135 +743,134 @@ void eliminarMensaje(uint32_t unIdMensaje)
     {
         switch (unMensaje->tipoMensaje)
         {
-            case tNewPokemon:
-            {
-                pthread_mutex_lock(&mutex_MENSAJES_NEW_POKEMON);
-                
-                pthread_mutex_lock(&mutex_idMensajeABuscar);
+        case tNewPokemon:
+        {
+            pthread_mutex_lock(&mutex_MENSAJES_NEW_POKEMON);
 
-                idMensajeABuscar = unIdMensaje;
+            pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+            idMensajeABuscar = unIdMensaje;
 
-                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+            unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
 
-                list_destroy(unMensaje->acknowledgement);
-                list_destroy(unMensaje->suscriptoresEnviados);
-                free(unMensaje);
+            pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-                pthread_mutex_unlock(&mutex_MENSAJES_NEW_POKEMON);
+            list_destroy(unMensaje->acknowledgement);
+            list_destroy(unMensaje->suscriptoresEnviados);
+            free(unMensaje);
 
-                break;
-            }
-            case tAppearedPokemon:
-            {
-                pthread_mutex_lock(&mutex_MENSAJES_APPEARED_POKEMON);
-                
-                pthread_mutex_lock(&mutex_idMensajeABuscar);
+            pthread_mutex_unlock(&mutex_MENSAJES_NEW_POKEMON);
 
-                idMensajeABuscar = unIdMensaje;
+            break;
+        }
+        case tAppearedPokemon:
+        {
+            pthread_mutex_lock(&mutex_MENSAJES_APPEARED_POKEMON);
 
-                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+            pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+            idMensajeABuscar = unIdMensaje;
 
-                list_destroy(unMensaje->acknowledgement);
-                list_destroy(unMensaje->suscriptoresEnviados);
-                free(unMensaje);
+            unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
 
-                pthread_mutex_unlock(&mutex_MENSAJES_APPEARED_POKEMON);
-                
-                break;
-            }
-            case tCatchPokemon:
-            {
-                pthread_mutex_lock(&mutex_MENSAJES_CATCH_POKEMON);
-                
-                pthread_mutex_lock(&mutex_idMensajeABuscar);
+            pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-                idMensajeABuscar = unIdMensaje;
+            list_destroy(unMensaje->acknowledgement);
+            list_destroy(unMensaje->suscriptoresEnviados);
+            free(unMensaje);
 
-                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+            pthread_mutex_unlock(&mutex_MENSAJES_APPEARED_POKEMON);
 
-                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+            break;
+        }
+        case tCatchPokemon:
+        {
+            pthread_mutex_lock(&mutex_MENSAJES_CATCH_POKEMON);
 
-                list_destroy(unMensaje->acknowledgement);
-                list_destroy(unMensaje->suscriptoresEnviados);
-                free(unMensaje);
+            pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-                pthread_mutex_unlock(&mutex_MENSAJES_CATCH_POKEMON);
-                
-                break;
-            }
-            case tCaughtPokemon:
-            {
-                pthread_mutex_lock(&mutex_MENSAJES_CAUGHT_POKEMON);
-                
-                pthread_mutex_lock(&mutex_idMensajeABuscar);
+            idMensajeABuscar = unIdMensaje;
 
-                idMensajeABuscar = unIdMensaje;
+            unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
 
-                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+            pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+            list_destroy(unMensaje->acknowledgement);
+            list_destroy(unMensaje->suscriptoresEnviados);
+            free(unMensaje);
 
-                list_destroy(unMensaje->acknowledgement);
-                list_destroy(unMensaje->suscriptoresEnviados);
-                free(unMensaje);
+            pthread_mutex_unlock(&mutex_MENSAJES_CATCH_POKEMON);
 
-                pthread_mutex_unlock(&mutex_MENSAJES_CAUGHT_POKEMON);
-                
-                break;
-            }
-            case tGetPokemon:
-            {
-                pthread_mutex_lock(&mutex_MENSAJES_GET_POKEMON);
-                
-                pthread_mutex_lock(&mutex_idMensajeABuscar);
+            break;
+        }
+        case tCaughtPokemon:
+        {
+            pthread_mutex_lock(&mutex_MENSAJES_CAUGHT_POKEMON);
 
-                idMensajeABuscar = unIdMensaje;
+            pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+            idMensajeABuscar = unIdMensaje;
 
-                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+            unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
 
-                list_destroy(unMensaje->acknowledgement);
-                list_destroy(unMensaje->suscriptoresEnviados);
-                free(unMensaje);
+            pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-                pthread_mutex_unlock(&mutex_MENSAJES_GET_POKEMON);
-                
-                break;
-            }
-            case tLocalizedPokemon:
-            {
-                pthread_mutex_lock(&mutex_MENSAJES_LOCALIZED_POKEMON);
-                
-                pthread_mutex_lock(&mutex_idMensajeABuscar);
+            list_destroy(unMensaje->acknowledgement);
+            list_destroy(unMensaje->suscriptoresEnviados);
+            free(unMensaje);
 
-                idMensajeABuscar = unIdMensaje;
+            pthread_mutex_unlock(&mutex_MENSAJES_CAUGHT_POKEMON);
 
-                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+            break;
+        }
+        case tGetPokemon:
+        {
+            pthread_mutex_lock(&mutex_MENSAJES_GET_POKEMON);
 
-                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+            pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-                list_destroy(unMensaje->acknowledgement);
-                list_destroy(unMensaje->suscriptoresEnviados);
-                free(unMensaje);
+            idMensajeABuscar = unIdMensaje;
 
-                pthread_mutex_unlock(&mutex_MENSAJES_LOCALIZED_POKEMON);
-                
-                break;
-            }            
-            default:
-            {
+            unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
 
-                log_warning(logger, "ERROR TIPO DE MENSAJE NO VALIDO- ELIMINARMENSAJE(): ");
-                break;
-            }
+            pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+            list_destroy(unMensaje->acknowledgement);
+            list_destroy(unMensaje->suscriptoresEnviados);
+            free(unMensaje);
+
+            pthread_mutex_unlock(&mutex_MENSAJES_GET_POKEMON);
+
+            break;
+        }
+        case tLocalizedPokemon:
+        {
+            pthread_mutex_lock(&mutex_MENSAJES_LOCALIZED_POKEMON);
+
+            pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+            idMensajeABuscar = unIdMensaje;
+
+            unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+
+            pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+            list_destroy(unMensaje->acknowledgement);
+            list_destroy(unMensaje->suscriptoresEnviados);
+            free(unMensaje);
+
+            pthread_mutex_unlock(&mutex_MENSAJES_LOCALIZED_POKEMON);
+
+            break;
+        }
+        default:
+        {
+
+            log_warning(logger, "ERROR TIPO DE MENSAJE NO VALIDO- ELIMINARMENSAJE(): ");
+            break;
+        }
         }
     }
-
 }
 ////////////////////////////////////////MANEJAR NUEVOS MENSAJES EN COLA////////////////////////////////////////////////
 
@@ -1876,39 +1875,10 @@ void reconectarSuscriptor(void *unaNuevaSuscripcion)
 
 ////////////////////////////////////////FUNCIONES ENVIAR MENSAJES A SUSCRIBER////////////////////////////////////////////////
 
-void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, void *unPokemon)
 {
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
-
-    uint32_t desplazamiento = 0;
-    uint32_t tamanioNombrePokemon = 0;
-
-    t_newPokemon *unNewPokemon = malloc(sizeof(t_newPokemon));
-
-    unNewPokemon->identificador = unMensaje->idMensaje;
-    unNewPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
-
-    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
-    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
-    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
-    desplazamiento += tamanioNombrePokemon;
-
-    unNewPokemon->nombrePokemon = string_new();
-    string_append(&unNewPokemon->nombrePokemon, bufferNombrePokemon);
-
-    memcpy(&unNewPokemon->posicionEnElMapaX, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    memcpy(&unNewPokemon->posicionEnElMapaY, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    memcpy(&unNewPokemon->cantidadDePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    free(bufferNombrePokemon);
+    t_newPokemon *unNewPokemon = (t_newPokemon *)unPokemon;
 
     int tamanioNewPokemon = 0;
 
@@ -1967,43 +1937,13 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
         log_error(logger, "ERROR enviarMensaje-NewPokemon no recibi nada server apagado ");
         reconectarSuscriptor(unSuscriptor);
     }
-
-    free(unNewPokemon);
 }
 
-void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, void *unPokemon)
 {
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
-
-    t_appearedPokemon *unAppearedPokemon = malloc(sizeof(t_appearedPokemon));
-
-    uint32_t desplazamiento = 0;
-    uint32_t tamanioNombrePokemon = 0;
-
-    unAppearedPokemon->identificador = unMensaje->idMensaje;
-    unAppearedPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
-
-    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
-
-    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
-    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
-    desplazamiento += tamanioNombrePokemon;
-
-    memcpy(&unAppearedPokemon->posicionEnElMapaX, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    memcpy(&unAppearedPokemon->posicionEnElMapaY, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    unAppearedPokemon->nombrePokemon = string_new();
-
-    string_append(&unAppearedPokemon->nombrePokemon, bufferNombrePokemon);
-
-    free(bufferNombrePokemon);
+    t_appearedPokemon *unAppearedPokemon = (t_appearedPokemon *)unPokemon;
 
     int tamanioPokemon = 0;
 
@@ -2065,38 +2005,11 @@ void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion
     free(unAppearedPokemon);
 }
 
-void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, void *unPokemon)
 {
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
-
-    uint32_t desplazamiento = 0;
-    uint32_t tamanioNombrePokemon = 0;
-
-    t_catchPokemon *unCatchPokemon = malloc(sizeof(t_catchPokemon));
-
-    unCatchPokemon->identificador = unMensaje->idMensaje;
-    unCatchPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
-
-    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
-    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
-    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
-    desplazamiento += tamanioNombrePokemon;
-
-    memcpy(&unCatchPokemon->posicionEnElMapaX, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    memcpy(&unCatchPokemon->posicionEnElMapaY, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    unCatchPokemon->nombrePokemon = string_new();
-
-    string_append(&unCatchPokemon->nombrePokemon, bufferNombrePokemon);
-
-    free(bufferNombrePokemon);
+    t_catchPokemon *unCatchPokemon = (t_catchPokemon *)unPokemon;
 
     int tamanioPokemon = 0;
 
@@ -2156,17 +2069,11 @@ void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
     free(unCatchPokemon);
 }
 
-void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, void *unPokemon)
 {
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
-
-    t_caughtPokemon *unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
-
-    unCaughtPokemon->identificador = unMensaje->idMensaje;
-    unCaughtPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
-
-    memcpy(&unCaughtPokemon->resultado, unMensaje->posicionEnMemoria, sizeof(uint32_t));
+    t_caughtPokemon *unCaughtPokemon = (t_caughtPokemon *)unPokemon;
 
     int tamanioPokemon = 0;
 
@@ -2226,32 +2133,11 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
     free(unCaughtPokemon);
 }
 
-void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, void *unPokemon)
 {
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
-
-    uint32_t desplazamiento = 0;
-    uint32_t tamanioNombrePokemon = 0;
-
-    t_getPokemon *unGetPokemon = malloc(sizeof(t_getPokemon));
-
-    unGetPokemon->identificador = unMensaje->idMensaje;
-    unGetPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
-
-    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
-    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
-    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
-    desplazamiento += tamanioNombrePokemon;
-
-    unGetPokemon->nombrePokemon = string_new();
-
-    string_append(&unGetPokemon->nombrePokemon, bufferNombrePokemon);
-
-    free(bufferNombrePokemon);
+    t_getPokemon *unGetPokemon = (t_getPokemon *)unPokemon;
 
     int tamanioPokemon = 0;
 
@@ -2312,62 +2198,11 @@ void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
     free(unGetPokemon);
 }
 
-void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion)
+void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, void *unPokemon)
 {
 
     t_suscriptor *unSuscriptor = (t_suscriptor *)unaNuevaSuscripcion;
-
-    uint32_t desplazamiento = 0;
-    uint32_t tamanioNombrePokemon = 0;
-    uint32_t tamanioBuffer = 0;
-
-    t_localizedPokemon *unLocalizedPokemon = malloc(sizeof(t_localizedPokemon));
-
-    unLocalizedPokemon->identificador = unMensaje->idMensaje;
-    unLocalizedPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
-
-    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
-    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
-    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
-    desplazamiento += tamanioNombrePokemon;
-
-    unLocalizedPokemon->nombrePokemon = string_new();
-    string_append(&unLocalizedPokemon->nombrePokemon, bufferNombrePokemon);
-
-    free(bufferNombrePokemon);
-
-    uint32_t cantidadListaDatosPokemon = 0;
-
-    memcpy(&cantidadListaDatosPokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    t_list *unaListaDatosPokemon = list_create();
-
-    int contador = 0;
-
-    while (contador < cantidadListaDatosPokemon)
-    {
-
-        datosPokemon *nodoDatosPokemon = malloc(sizeof(datosPokemon));
-
-        memcpy(&nodoDatosPokemon->cantidad, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(&nodoDatosPokemon->posicionEnElMapaX, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(&nodoDatosPokemon->posicionEnElMapaY, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        contador += 1;
-
-        list_add(unaListaDatosPokemon, nodoDatosPokemon);
-    }
-
-    unLocalizedPokemon->listaDatosPokemon = unaListaDatosPokemon;
+    t_localizedPokemon *unLocalizedPokemon = (t_localizedPokemon *)unPokemon;
 
     int tamanioPokemon = 0;
 
@@ -2440,13 +2275,14 @@ void ejecutarColaNewPokemon()
     bool anyAck = false;
     t_suscriptor *unSuscriptor;
     uint32_t tiempoActual;
+    t_newPokemon *unNewPokemon;
 
     while (true)
     {
 
         if (!list_is_empty(NEW_POKEMON_LISTA))
         {
-            pthread_mutex_lock(&mutex_MENSAJES_NEW_POKEMON); //este mutex cuando se elimina algun mensaje de lista Mensajes
+            pthread_mutex_lock(&mutex_MENSAJES_NEW_POKEMON); //bloquea al momento de eliminar un mensaje de tipo new
 
             pthread_mutex_lock(&mutex_tipoMensajeABuscar);
 
@@ -2461,15 +2297,15 @@ void ejecutarColaNewPokemon()
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
                 suscriptoresCant = list_size(NEW_POKEMON_LISTA);
+                unNewPokemon = (t_newPokemon *)buscarEnMemoriaNewPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
-
                     unSuscriptorCola = list_get(NEW_POKEMON_LISTA, i);
 
                     tiempoActual = (uint32_t)time(NULL);
 
-                    if (unSuscriptorCola->timeToLive == 0 || unSuscriptorCola->timeToLive >= (tiempoActual - unSuscriptorCola->startTime)) //??*FALTA ELIMINAR SUSCRIPTORES SI EL TIME SE ACABA
+                    if (unSuscriptorCola->timeToLive == 0 || unSuscriptorCola->timeToLive >= (tiempoActual - unSuscriptorCola->startTime)) //??*FALTA ELIMINAR SUSCRIPTORES SI EL TIME SE ACABA Buscar si es realmente asi
                     {
                         pthread_mutex_lock(&mutex_ackABuscar);
 
@@ -2489,10 +2325,12 @@ void ejecutarColaNewPokemon()
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
-                            enviarMensajeNewPokemon(unMensaje, unSuscriptor);
+                            enviarMensajeNewPokemon(unMensaje, unSuscriptor, unNewPokemon);
                         }
                     }
                 }
+
+                free(unNewPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
@@ -2511,6 +2349,7 @@ void ejecutarColaAppearedPokemon()
     bool anyAck = false;
     t_suscriptor *unSuscriptor;
     uint32_t tiempoActual;
+    t_appearedPokemon *unPokemon;
 
     while (true)
     {
@@ -2532,6 +2371,7 @@ void ejecutarColaAppearedPokemon()
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
                 suscriptoresCant = list_size(APPEARED_POKEMON_LISTA);
+                unPokemon = (t_appearedPokemon *)buscarEnMemoriaAppearedPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
@@ -2560,10 +2400,12 @@ void ejecutarColaAppearedPokemon()
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
-                            enviarMensajeAppearedPokemon(unMensaje, unSuscriptor);
+                            enviarMensajeAppearedPokemon(unMensaje, unSuscriptor, unPokemon);
                         }
                     }
                 }
+
+                free(unPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
@@ -2582,6 +2424,7 @@ void ejecutarColaCatchPokemon()
     bool anyAck = false;
     t_suscriptor *unSuscriptor;
     uint32_t tiempoActual;
+    t_catchPokemon *unPokemon;
 
     while (true)
     {
@@ -2603,6 +2446,7 @@ void ejecutarColaCatchPokemon()
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
                 suscriptoresCant = list_size(CATCH_POKEMON_LISTA);
+                unPokemon = (t_catchPokemon *)buscarEnMemoriaCatchPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
@@ -2631,10 +2475,12 @@ void ejecutarColaCatchPokemon()
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
-                            enviarMensajeCatchPokemon(unMensaje, unSuscriptor);
+                            enviarMensajeCatchPokemon(unMensaje, unSuscriptor, unPokemon);
                         }
                     }
                 }
+
+                free(unPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
@@ -2653,6 +2499,7 @@ void ejecutarColaCaughtPokemon()
     bool anyAck = false;
     t_suscriptor *unSuscriptor;
     uint32_t tiempoActual;
+    t_caughtPokemon *unPokemon;
 
     while (true)
     {
@@ -2674,6 +2521,7 @@ void ejecutarColaCaughtPokemon()
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
                 suscriptoresCant = list_size(CAUGHT_POKEMON_LISTA);
+                unPokemon = (t_caughtPokemon *)buscarEnMemoriaCaughtPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
@@ -2702,10 +2550,12 @@ void ejecutarColaCaughtPokemon()
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
-                            enviarMensajeCaughtPokemon(unMensaje, unSuscriptor);
+                            enviarMensajeCaughtPokemon(unMensaje, unSuscriptor, unPokemon);
                         }
                     }
                 }
+
+                free(unPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
@@ -2724,6 +2574,7 @@ void ejecutarColaGetPokemon()
     bool anyAck = false;
     t_suscriptor *unSuscriptor;
     uint32_t tiempoActual;
+    t_getPokemon *unPokemon;
 
     while (true)
     {
@@ -2745,6 +2596,7 @@ void ejecutarColaGetPokemon()
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
                 suscriptoresCant = list_size(GET_POKEMON_LISTA);
+                unPokemon = (t_getPokemon *)buscarEnMemoriaGetPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
@@ -2773,10 +2625,12 @@ void ejecutarColaGetPokemon()
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
-                            enviarMensajeGetPokemon(unMensaje, unSuscriptor);
+                            enviarMensajeGetPokemon(unMensaje, unSuscriptor, unPokemon);
                         }
                     }
                 }
+
+                free(unPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
@@ -2795,6 +2649,7 @@ void ejecutarColaLocalizedPokemon()
     bool anyAck = false;
     t_suscriptor *unSuscriptor;
     uint32_t tiempoActual;
+    t_localizedPokemon *unPokemon;
 
     while (true)
     {
@@ -2816,6 +2671,7 @@ void ejecutarColaLocalizedPokemon()
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
                 suscriptoresCant = list_size(LOCALIZED_POKEMON_LISTA);
+                unPokemon = (t_localizedPokemon *)buscarEnMemoriaLocalizedPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
@@ -2844,16 +2700,302 @@ void ejecutarColaLocalizedPokemon()
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
-                            enviarMensajeLocalizedPokemon(unMensaje, unSuscriptor);
+                            enviarMensajeLocalizedPokemon(unMensaje, unSuscriptor, unPokemon);
                         }
                     }
                 }
+
+                free(unPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
             pthread_mutex_unlock(&mutex_MENSAJES_LOCALIZED_POKEMON);
         }
     }
+}
+
+////////////////////////////////////////LEVANTAR POKEMON DE MEMORIA////////////////////////////////////////////////
+
+void *buscarEnMemoriaNewPokemon(tMensaje *unMensaje)
+{
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = 0;
+
+    t_newPokemon *unNewPokemon = malloc(sizeof(t_newPokemon));
+
+    unNewPokemon->identificador = unMensaje->idMensaje;
+    unNewPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
+
+    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
+    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
+    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
+    desplazamiento += tamanioNombrePokemon;
+
+    unNewPokemon->nombrePokemon = string_new();
+    string_append(&unNewPokemon->nombrePokemon, bufferNombrePokemon);
+
+    memcpy(&unNewPokemon->posicionEnElMapaX, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(&unNewPokemon->posicionEnElMapaY, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(&unNewPokemon->cantidadDePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    free(bufferNombrePokemon);
+
+    pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+    idMensajeABuscar = unMensaje->idMensaje;
+
+    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+
+    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+    if (unaParti)
+    {
+        unaParti->lru = (uint32_t)time(NULL);
+    }
+
+    return unNewPokemon;
+}
+
+void *buscarEnMemoriaAppearedPokemon(tMensaje *unMensaje)
+{
+
+    t_appearedPokemon *unAppearedPokemon = malloc(sizeof(t_appearedPokemon));
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = 0;
+
+    unAppearedPokemon->identificador = unMensaje->idMensaje;
+    unAppearedPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
+
+    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
+
+    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
+    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
+    desplazamiento += tamanioNombrePokemon;
+
+    memcpy(&unAppearedPokemon->posicionEnElMapaX, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(&unAppearedPokemon->posicionEnElMapaY, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    unAppearedPokemon->nombrePokemon = string_new();
+
+    string_append(&unAppearedPokemon->nombrePokemon, bufferNombrePokemon);
+
+    free(bufferNombrePokemon);
+
+    pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+    idMensajeABuscar = unMensaje->idMensaje;
+
+    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+
+    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+    if (unaParti)
+    {
+        unaParti->lru = (uint32_t)time(NULL);
+    }
+
+    return unAppearedPokemon;
+}
+
+void *buscarEnMemoriaCatchPokemon(tMensaje *unMensaje)
+{
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = 0;
+
+    t_catchPokemon *unCatchPokemon = malloc(sizeof(t_catchPokemon));
+
+    unCatchPokemon->identificador = unMensaje->idMensaje;
+    unCatchPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
+
+    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
+    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
+    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
+    desplazamiento += tamanioNombrePokemon;
+
+    memcpy(&unCatchPokemon->posicionEnElMapaX, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(&unCatchPokemon->posicionEnElMapaY, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    unCatchPokemon->nombrePokemon = string_new();
+
+    string_append(&unCatchPokemon->nombrePokemon, bufferNombrePokemon);
+
+    free(bufferNombrePokemon);
+
+    pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+    idMensajeABuscar = unMensaje->idMensaje;
+
+    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+
+    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+    if (unaParti)
+    {
+        unaParti->lru = (uint32_t)time(NULL);
+    }
+
+    return unCatchPokemon;
+}
+
+void *buscarEnMemoriaCaughtPokemon(tMensaje *unMensaje)
+{
+
+    t_caughtPokemon *unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
+
+    unCaughtPokemon->identificador = unMensaje->idMensaje;
+    unCaughtPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
+
+    memcpy(&unCaughtPokemon->resultado, unMensaje->posicionEnMemoria, sizeof(uint32_t));
+
+    pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+    idMensajeABuscar = unMensaje->idMensaje;
+
+    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+
+    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+    if (unaParti)
+    {
+        unaParti->lru = (uint32_t)time(NULL);
+    }
+
+    return unCaughtPokemon;
+}
+
+void *buscarEnMemoriaGetPokemon(tMensaje *unMensaje)
+{
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = 0;
+
+    t_getPokemon *unGetPokemon = malloc(sizeof(t_getPokemon));
+
+    unGetPokemon->identificador = unMensaje->idMensaje;
+    unGetPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
+
+    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
+    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
+    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
+    desplazamiento += tamanioNombrePokemon;
+
+    unGetPokemon->nombrePokemon = string_new();
+
+    string_append(&unGetPokemon->nombrePokemon, bufferNombrePokemon);
+
+    free(bufferNombrePokemon);
+
+    pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+    idMensajeABuscar = unMensaje->idMensaje;
+
+    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+
+    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+    if (unaParti)
+    {
+        unaParti->lru = (uint32_t)time(NULL);
+    }
+
+    return unGetPokemon;
+}
+
+void *buscarEnMemoriaLocalizedPokemon(tMensaje *unMensaje)
+{
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = 0;
+    uint32_t tamanioBuffer = 0;
+
+    t_localizedPokemon *unLocalizedPokemon = malloc(sizeof(t_localizedPokemon));
+
+    unLocalizedPokemon->identificador = unMensaje->idMensaje;
+    unLocalizedPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
+
+    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
+    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
+    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
+    desplazamiento += tamanioNombrePokemon;
+
+    unLocalizedPokemon->nombrePokemon = string_new();
+    string_append(&unLocalizedPokemon->nombrePokemon, bufferNombrePokemon);
+
+    free(bufferNombrePokemon);
+
+    uint32_t cantidadListaDatosPokemon = 0;
+
+    memcpy(&cantidadListaDatosPokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    t_list *unaListaDatosPokemon = list_create();
+
+    int contador = 0;
+
+    while (contador < cantidadListaDatosPokemon)
+    {
+
+        datosPokemon *nodoDatosPokemon = malloc(sizeof(datosPokemon));
+
+        memcpy(&nodoDatosPokemon->cantidad, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        memcpy(&nodoDatosPokemon->posicionEnElMapaX, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        memcpy(&nodoDatosPokemon->posicionEnElMapaY, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        contador += 1;
+
+        list_add(unaListaDatosPokemon, nodoDatosPokemon);
+    }
+
+    unLocalizedPokemon->listaDatosPokemon = unaListaDatosPokemon;
+
+    pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+    idMensajeABuscar = unMensaje->idMensaje;
+
+    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+
+    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+    if (unaParti)
+    {
+        unaParti->lru = (uint32_t)time(NULL);
+    }
+
+    return unLocalizedPokemon;
 }
 
 ////////////////////////////////////////FUNCIONES LISTAS////////////////////////////////////////////////
@@ -2907,6 +3049,21 @@ bool existeIdMensaje(void *mensaje)
 {
 
     tMensaje *p = (tMensaje *)mensaje;
+
+    bool existe = false;
+
+    if ((p->idMensaje == idMensajeABuscar))
+    {
+        existe = true;
+    }
+
+    return existe;
+}
+
+bool existeIdMensajeEnParticion(void *parti)
+{
+
+    tParticion *p = (tParticion *)parti;
 
     bool existe = false;
 

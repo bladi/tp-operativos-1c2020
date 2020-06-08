@@ -193,12 +193,19 @@ void killMe(uint32_t index);
 void ingresarNuevoSuscriber(void* nuevaSuscripcion);
 void reconectarSuscriptor(void *unaNuevaSuscripcion);
 
-void enviarMensajeNewPokemon(tMensaje* unMensaje,void* unSuscriptor);
-void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void* unSuscriptor);
-void enviarMensajeCatchPokemon(tMensaje *unMensaje, void* unSuscriptor);
-void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void* unSuscriptor);
-void enviarMensajeGetPokemon(tMensaje *unMensaje, void* unSuscriptor);
-void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void* unSuscriptor);
+void enviarMensajeNewPokemon(tMensaje* unMensaje,void* unSuscriptor, void *unPokemon);
+void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void* unSuscriptor, void *unPokemon);
+void enviarMensajeCatchPokemon(tMensaje *unMensaje, void* unSuscriptor, void *unPokemon);
+void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void* unSuscriptor, void *unPokemon);
+void enviarMensajeGetPokemon(tMensaje *unMensaje, void* unSuscriptor, void *unPokemon);
+void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void* unSuscriptor, void *unPokemon);
+
+void* buscarEnMemoriaNewPokemon(tMensaje* unMensaje);
+void* buscarEnMemoriaAppearedPokemon(tMensaje* unMensaje);
+void* buscarEnMemoriaCatchPokemon(tMensaje* unMensaje);
+void* buscarEnMemoriaCaughtPokemon(tMensaje* unMensaje);
+void* buscarEnMemoriaGetPokemon(tMensaje* unMensaje);
+void* buscarEnMemoriaLocalizedPokemon(tMensaje* unMensaje);
 
 void ejecutarColaNewPokemon();
 void ejecutarColaAppearedPokemon();
@@ -234,6 +241,7 @@ uint32_t tipoMensajeABuscar;
 pthread_mutex_t mutex_tipoMensajeABuscar;
 
 bool existeIdMensaje(void *mensaje);
+bool existeIdMensajeEnParticion(void *parti);
 uint32_t idMensajeABuscar;
 pthread_mutex_t mutex_idMensajeABuscar;
 
