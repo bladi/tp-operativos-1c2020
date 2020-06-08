@@ -141,6 +141,13 @@ pthread_t hiloCaught;
 pthread_t hiloGet;
 pthread_t hiloLocalized;
 
+pthread_mutex_t mutex_MENSAJES_NEW_POKEMON;
+pthread_mutex_t mutex_MENSAJES_APPEARED_POKEMON;
+pthread_mutex_t mutex_MENSAJES_CATCH_POKEMON;
+pthread_mutex_t mutex_MENSAJES_CAUGHT_POKEMON;
+pthread_mutex_t mutex_MENSAJES_GET_POKEMON;
+pthread_mutex_t mutex_MENSAJES_LOCALIZED_POKEMON;
+
 
 char *MEMORIA_PRINCIPAL;
 uint32_t NUM_SUSCRIPTOR;

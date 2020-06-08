@@ -466,7 +466,7 @@ void splitBuddy(uint32_t index)
     }
 }
 
-/*se decide que particion eliminar y se elimina*/
+/*se decide que particion eliminar y se elimina dentro de Buddy*/
 void ejecutarEliminarParticionBuddy()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
@@ -525,7 +525,6 @@ void killMe(uint32_t index)
         father->idMensaje = -1;
         father->timeInit = (uint32_t)time(NULL);
         father->lru = (uint32_t)time(NULL);
-        
     }
     else
     {
@@ -638,6 +637,7 @@ void killMe(uint32_t index)
     }
 }
 
+/*se elimina particion dentro de particion dinamica*/
 void ejecutarEliminarParticion()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
@@ -652,10 +652,10 @@ void ejecutarEliminarParticion()
 
         list_destroy(ParticionesOrdenadasPorTimeInit);
 
-        eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
+        eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar
 
         unaParticion->free = true;
-        unaParticion->idParticion = generarNuevoIdParticion();
+        unaParticion->idMensaje = -1;
     }
     else
     {
@@ -673,7 +673,7 @@ void ejecutarEliminarParticion()
         eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
 
         unaParticion->free = true;
-        unaParticion->idParticion = generarNuevoIdParticion();
+        unaParticion->idMensaje = -1;
     }
 }
 
@@ -728,22 +728,150 @@ void ejecutarCompactacion()
 
 void eliminarMensaje(uint32_t unIdMensaje)
 {
+    //MUTEX DE LA LISTA MENSAJES SE UTILIZAN EN ENVIAR MENSAJES
     tMensaje *unMensaje;
 
     pthread_mutex_lock(&mutex_idMensajeABuscar);
 
     idMensajeABuscar = unIdMensaje;
 
-    unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+    unMensaje = list_find(MENSAJES_LISTA, &existeIdMensaje);
 
     pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
     if (unMensaje != NULL)
     {
-        list_destroy(unMensaje->acknowledgement);
-        list_destroy(unMensaje->suscriptoresEnviados);
-        free(unMensaje);
+        switch (unMensaje->tipoMensaje)
+        {
+            case tNewPokemon:
+            {
+                pthread_mutex_lock(&mutex_MENSAJES_NEW_POKEMON);
+                
+                pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+                idMensajeABuscar = unIdMensaje;
+
+                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+
+                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+                list_destroy(unMensaje->acknowledgement);
+                list_destroy(unMensaje->suscriptoresEnviados);
+                free(unMensaje);
+
+                pthread_mutex_unlock(&mutex_MENSAJES_NEW_POKEMON);
+
+                break;
+            }
+            case tAppearedPokemon:
+            {
+                pthread_mutex_lock(&mutex_MENSAJES_APPEARED_POKEMON);
+                
+                pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+                idMensajeABuscar = unIdMensaje;
+
+                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+
+                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+                list_destroy(unMensaje->acknowledgement);
+                list_destroy(unMensaje->suscriptoresEnviados);
+                free(unMensaje);
+
+                pthread_mutex_unlock(&mutex_MENSAJES_APPEARED_POKEMON);
+                
+                break;
+            }
+            case tCatchPokemon:
+            {
+                pthread_mutex_lock(&mutex_MENSAJES_CATCH_POKEMON);
+                
+                pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+                idMensajeABuscar = unIdMensaje;
+
+                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+
+                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+                list_destroy(unMensaje->acknowledgement);
+                list_destroy(unMensaje->suscriptoresEnviados);
+                free(unMensaje);
+
+                pthread_mutex_unlock(&mutex_MENSAJES_CATCH_POKEMON);
+                
+                break;
+            }
+            case tCaughtPokemon:
+            {
+                pthread_mutex_lock(&mutex_MENSAJES_CAUGHT_POKEMON);
+                
+                pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+                idMensajeABuscar = unIdMensaje;
+
+                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+
+                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+                list_destroy(unMensaje->acknowledgement);
+                list_destroy(unMensaje->suscriptoresEnviados);
+                free(unMensaje);
+
+                pthread_mutex_unlock(&mutex_MENSAJES_CAUGHT_POKEMON);
+                
+                break;
+            }
+            case tGetPokemon:
+            {
+                pthread_mutex_lock(&mutex_MENSAJES_GET_POKEMON);
+                
+                pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+                idMensajeABuscar = unIdMensaje;
+
+                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+
+                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+                list_destroy(unMensaje->acknowledgement);
+                list_destroy(unMensaje->suscriptoresEnviados);
+                free(unMensaje);
+
+                pthread_mutex_unlock(&mutex_MENSAJES_GET_POKEMON);
+                
+                break;
+            }
+            case tLocalizedPokemon:
+            {
+                pthread_mutex_lock(&mutex_MENSAJES_LOCALIZED_POKEMON);
+                
+                pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+                idMensajeABuscar = unIdMensaje;
+
+                unMensaje = list_remove_by_condition(MENSAJES_LISTA, &existeIdMensaje);
+
+                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+                list_destroy(unMensaje->acknowledgement);
+                list_destroy(unMensaje->suscriptoresEnviados);
+                free(unMensaje);
+
+                pthread_mutex_unlock(&mutex_MENSAJES_LOCALIZED_POKEMON);
+                
+                break;
+            }            
+            default:
+            {
+
+                log_warning(logger, "ERROR TIPO DE MENSAJE NO VALIDO- ELIMINARMENSAJE(): ");
+                break;
+            }
+        }
     }
+
 }
 ////////////////////////////////////////MANEJAR NUEVOS MENSAJES EN COLA////////////////////////////////////////////////
 
@@ -2318,6 +2446,7 @@ void ejecutarColaNewPokemon()
 
         if (!list_is_empty(NEW_POKEMON_LISTA))
         {
+            pthread_mutex_lock(&mutex_MENSAJES_NEW_POKEMON); //este mutex cuando se elimina algun mensaje de lista Mensajes
 
             pthread_mutex_lock(&mutex_tipoMensajeABuscar);
 
@@ -2367,6 +2496,7 @@ void ejecutarColaNewPokemon()
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
+            pthread_mutex_unlock(&mutex_MENSAJES_NEW_POKEMON);
         }
     }
 }
@@ -2387,6 +2517,7 @@ void ejecutarColaAppearedPokemon()
 
         if (!list_is_empty(APPEARED_POKEMON_LISTA))
         {
+            pthread_mutex_lock(&mutex_MENSAJES_APPEARED_POKEMON); //este mutex cuando se elimina algun mensaje de lista Mensajes
 
             pthread_mutex_lock(&mutex_tipoMensajeABuscar);
 
@@ -2436,6 +2567,7 @@ void ejecutarColaAppearedPokemon()
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
+            pthread_mutex_unlock(&mutex_MENSAJES_APPEARED_POKEMON);
         }
     }
 }
@@ -2456,6 +2588,7 @@ void ejecutarColaCatchPokemon()
 
         if (!list_is_empty(CATCH_POKEMON_LISTA))
         {
+            pthread_mutex_lock(&mutex_MENSAJES_CATCH_POKEMON); //este mutex cuando se elimina algun mensaje de lista Mensajes
 
             pthread_mutex_lock(&mutex_tipoMensajeABuscar);
 
@@ -2505,6 +2638,7 @@ void ejecutarColaCatchPokemon()
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
+            pthread_mutex_unlock(&mutex_MENSAJES_CATCH_POKEMON);
         }
     }
 }
@@ -2525,6 +2659,7 @@ void ejecutarColaCaughtPokemon()
 
         if (!list_is_empty(CAUGHT_POKEMON_LISTA))
         {
+            pthread_mutex_lock(&mutex_MENSAJES_CAUGHT_POKEMON); //este mutex cuando se elimina algun mensaje de MENSAJES_LISTA
 
             pthread_mutex_lock(&mutex_tipoMensajeABuscar);
 
@@ -2574,6 +2709,7 @@ void ejecutarColaCaughtPokemon()
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
+            pthread_mutex_unlock(&mutex_MENSAJES_CAUGHT_POKEMON);
         }
     }
 }
@@ -2594,6 +2730,7 @@ void ejecutarColaGetPokemon()
 
         if (!list_is_empty(GET_POKEMON_LISTA))
         {
+            pthread_mutex_lock(&mutex_MENSAJES_GET_POKEMON); //este mutex cuando se elimina algun mensaje de MENSAJES_LISTA
 
             pthread_mutex_lock(&mutex_tipoMensajeABuscar);
 
@@ -2643,6 +2780,7 @@ void ejecutarColaGetPokemon()
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
+            pthread_mutex_unlock(&mutex_MENSAJES_GET_POKEMON);
         }
     }
 }
@@ -2663,6 +2801,7 @@ void ejecutarColaLocalizedPokemon()
 
         if (!list_is_empty(LOCALIZED_POKEMON_LISTA))
         {
+            pthread_mutex_lock(&mutex_MENSAJES_LOCALIZED_POKEMON); //este mutex cuando se elimina algun mensaje de lista Mensajes
 
             pthread_mutex_lock(&mutex_tipoMensajeABuscar);
 
@@ -2712,6 +2851,7 @@ void ejecutarColaLocalizedPokemon()
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
+            pthread_mutex_unlock(&mutex_MENSAJES_LOCALIZED_POKEMON);
         }
     }
 }
