@@ -3392,6 +3392,7 @@ void dumpCache(t_list *particiones)
     string_append_with_format(&contenidoDump, "Dump:                            %s                              %s\n", fecha, hora);
     tParticion *particion; // = malloc(sizeof(tParticion));
     char *limiteParticion;
+    char* nombreCola;
     char libre;
 
     for (int i = 0; i < cantParticiones; i++)
@@ -3411,8 +3412,13 @@ void dumpCache(t_list *particiones)
         string_append_with_format(&contenidoDump, "Particion %d: %p", i, particion->posicion);
         string_append_with_format(&contenidoDump, " - %p.", limiteParticion);
         string_append_with_format(&contenidoDump, "    [%c]    Size: %db\n", libre, particion->tamanio);
-        //string_append_with_format(&contenidoDump,"    LRU[%d] Cola:[%s]    ID:[%d]\n",particion->valorLRU, particion->cola, particion->id);
+
+        nombreCola = buscarColaAPartirDeIdMensaje(particion->idMensaje);
+
+        string_append_with_format(&contenidoDump,"    LRU[%d] Cola:[%s]    ID:[%d]\n",particion->lru, nombreCola, particion->idMensaje);
+
     }
+
     string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 
     f = fopen(CONFIG_BROKER->pathDump, "w+");
@@ -3469,12 +3475,27 @@ void prueba()
 }
 
 /*
+void manejarSeniales(int signum)
+{
+    if (signum == SIGUSR1)
+    {
+        printf("Received SIGUSR1!\n");
+        //dumpCache(particionesReLocas);
+    }
+
+    signal(SIGUSR1, manejarSeniales);
+}
+/*
 
 typedef struct {
 
+	uint32_t idParticion;
 	char* posicion;
 	uint32_t tamanio;
 	bool free;
+	uint32_t idMensaje;
+	uint32_t lru;
+	uint32_t timeInit;
 			
 } tParticion;
 
@@ -3545,3 +3566,69 @@ void enviarMensajesAnteriores(uint32_t nroCola, tSuscriptorEnCola *unSuscriptorE
     }
 }
 */
+
+char* buscarColaAPartirDeIdMensaje(uint32_t idMensaje){
+
+    tMensaje *unMensaje;
+
+    pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+    idMensajeABuscar = idMensaje;
+
+    unMensaje = list_find(MENSAJES_LISTA, &existeIdMensaje);
+
+    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+    char* nombreCola = string_new();
+
+    switch (unMensaje->tipoMensaje){
+
+        case 1:
+
+            string_append(&nombreCola, "NEW_POKEMON");
+
+            break;
+
+        case 2:
+
+            string_append(&nombreCola, "APPEARED_POKEMON");
+
+            break;
+
+        case 3:
+
+            string_append(&nombreCola, "CATCH_POKEMON");
+
+            break;
+
+        case 4:
+
+            string_append(&nombreCola, "CAUGHT_POKEMON_LISTA");
+
+            break;
+
+        case 5:
+
+            string_append(&nombreCola, "GET_POKEMON");
+
+            break;
+
+        case 6:
+
+            string_append(&nombreCola, "LOCALIZED_POKEMON");
+
+            break;
+
+        default:
+
+            string_append(&nombreCola, "VALOR INVALIDO DE COLA");
+
+            log_error(logger, "Se encontró un %s a partir del idMensaje %d. Error.", nombreCola, idMensaje);
+
+            break;
+
+    }
+
+    return nombreCola;
+
+}

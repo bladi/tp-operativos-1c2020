@@ -356,3 +356,41 @@
 [TRACE] 20:28:54:969 GAME CARD/(5759:5759): - Conectado a Broker a través del socket 4
 [INFO] 20:28:54:969 GAME CARD/(5759:5759): - SE HAN ENVIADO 41 BYTES CON EXITO
 [INFO] 20:28:54:981 GAME CARD/(5759:5759): Pedido de suscripción realizado con éxito
+[INFO] 17:19:23:712 GAME CARD/(4791:4791): LOG INICIALIZADO CON EXITO
+[INFO] 17:19:23:713 GAME CARD/(4791:4791): NO EXISTE UN BITMAP PREVIO, CREO UNO NUEVO
+[INFO] 17:19:23:715 GAME CARD/(4791:4791): ARCHIVO BITMAP CREADO EN: /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Metadata/Bitmap.bin
+[INFO] 17:19:23:716 GAME CARD/(4791:4791): Cantidad de bloques del FS: 50
+[INFO] 17:19:23:717 GAME CARD/(4791:4791): La carpeta Files no estaba creada, se creó correctamente.
+[ERROR] 17:19:23:718 GAME CARD/(4791:4791): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 17:19:23:718 GAME CARD/(4791:4791): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 17:19:23:718 GAME CARD/(4791:4791): Hubo un error al recibir el resultado de la operación desde el Broker.
+[DEBUG] 17:19:33:726 GAME CARD/(4791:4794): Variable brokerActivo: -1
+[DEBUG] 17:19:33:727 GAME CARD/(4791:4794): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 17:19:33:727 GAME CARD/(4791:4794): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 17:19:33:727 GAME CARD/(4791:4794): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 17:19:33:727 GAME CARD/(4791:4794): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 17:19:33:727 GAME CARD/(4791:4794): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 17:19:43:728 GAME CARD/(4791:4794): Variable brokerActivo: -1
+[DEBUG] 17:19:43:731 GAME CARD/(4791:4794): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 17:19:43:731 GAME CARD/(4791:4794): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 17:19:43:731 GAME CARD/(4791:4794): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 17:19:43:732 GAME CARD/(4791:4794): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 17:19:43:732 GAME CARD/(4791:4794): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 17:19:53:732 GAME CARD/(4791:4794): Variable brokerActivo: -1
+[DEBUG] 17:19:53:732 GAME CARD/(4791:4794): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 17:19:53:732 GAME CARD/(4791:4794): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 17:19:53:734 GAME CARD/(4791:4794): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 17:19:53:734 GAME CARD/(4791:4794): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 17:19:53:734 GAME CARD/(4791:4794): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 17:20:03:734 GAME CARD/(4791:4794): Variable brokerActivo: -1
+[DEBUG] 17:20:03:736 GAME CARD/(4791:4794): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 17:20:03:736 GAME CARD/(4791:4794): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 17:20:03:736 GAME CARD/(4791:4794): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 17:20:03:736 GAME CARD/(4791:4794): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 17:20:03:736 GAME CARD/(4791:4794): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 17:20:13:736 GAME CARD/(4791:4794): Variable brokerActivo: -1
+[DEBUG] 17:20:13:737 GAME CARD/(4791:4794): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 17:20:13:737 GAME CARD/(4791:4794): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 17:20:13:737 GAME CARD/(4791:4794): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 17:20:13:737 GAME CARD/(4791:4794): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 17:20:13:737 GAME CARD/(4791:4794): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.

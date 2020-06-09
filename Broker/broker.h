@@ -25,6 +25,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <signal.h>
+
 
 ////////////////////////////////////////////////////////////////////////LIBS COMPARTIDAS/////////////////////////////////////////////////////////////////////////////////
 
@@ -215,6 +217,8 @@ void* buscarEnMemoriaCatchPokemon(tMensaje* unMensaje);
 void* buscarEnMemoriaCaughtPokemon(tMensaje* unMensaje);
 void* buscarEnMemoriaGetPokemon(tMensaje* unMensaje);
 void* buscarEnMemoriaLocalizedPokemon(tMensaje* unMensaje);
+
+char* buscarColaAPartirDeIdMensaje(uint32_t idMensaje);
 
 void ejecutarColaNewPokemon();
 void ejecutarColaAppearedPokemon();

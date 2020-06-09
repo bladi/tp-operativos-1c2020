@@ -114,6 +114,7 @@ void configurarLoggerGameCard();
 
 void cargarConfiguracionGameCard();
 void actualizarConfiguracionGameCard();
+void crearCarpetaFiles();
 
 void inicializarGameCard();
 void inicializarHilosYVariablesGameCard();

@@ -68,6 +68,19 @@ void cargarConfiguracionGameCard(){
     }
 }
 
+void crearCarpetaFiles(){
+
+    char* pathFiles = string_new();
+    string_append_with_format(&pathFiles, "%sFiles/", unGameCardConfig->puntoMontajeTallGrass);
+
+    if (!mkdir(pathFiles, 0777))
+    {
+        log_info(logger,"La carpeta Files no estaba creada, se creó correctamente.");
+    }
+
+    free(pathFiles);
+}
+
 void inicializarGameCard(){
 
     cargarConfiguracionGameCard();
@@ -77,6 +90,8 @@ void inicializarGameCard(){
     inicializarBitMap();
 
     crearBloquesFileSystem();
+
+    crearCarpetaFiles();
 
     inicializarHilosYVariablesGameCard();
 }
