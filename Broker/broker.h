@@ -147,6 +147,7 @@ pthread_mutex_t mutex_MENSAJES_CATCH_POKEMON;
 pthread_mutex_t mutex_MENSAJES_CAUGHT_POKEMON;
 pthread_mutex_t mutex_MENSAJES_GET_POKEMON;
 pthread_mutex_t mutex_MENSAJES_LOCALIZED_POKEMON;
+pthread_mutex_t mutex_METADATA_MEMORIA;
 
 
 char *MEMORIA_PRINCIPAL;
@@ -185,6 +186,7 @@ tParticion * splitParticion(tParticion * unaParticion, uint32_t tamanio);//?* no
 void splitBuddy(uint32_t index);
 void  ejecutarCompactacion();
 void compactarMemoria();
+void compactacion(char *posicion);
 void ejecutarEliminarParticion();
 void ejecutarEliminarParticionBuddy();
 void eliminarMensaje(uint32_t unIdMensaje);
@@ -263,6 +265,10 @@ pthread_mutex_t mutex_tamanioParticionABuscar;
 bool existeIdParticion(void *partition);
 uint32_t idParticionABuscar;
 pthread_mutex_t mutex_idParticionABuscar;
+
+bool existePosicionParticion(void *unaParticion);
+char* posicionParticionABuscar;
+pthread_mutex_t mutex_posicionParticionABuscar;
 
 bool sortParticionMenor(tParticion *p, tParticion *q);
 bool sortPidMenor(tParticion *p, tParticion *q);

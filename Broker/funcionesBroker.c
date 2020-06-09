@@ -274,11 +274,19 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoMemoria, "BS"))
     {
         //ingresamos siempre por la primera particion 0
+        pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
         aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, 0);
+
+        pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
+
         while (aDevolver == NULL)
         {
             ejecutarEliminarParticionBuddy();
+
+            pthread_mutex_lock(&mutex_METADATA_MEMORIA);
             aDevolver = getDireccionMemoriaLibreBuddySystem(idMensaje, tamanio, 0);
+            pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
         }
     }
     else
@@ -287,6 +295,7 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
 
         if (string_equals_ignore_case(CONFIG_BROKER->algoritmoParticionLibre, "FF"))
         {
+            pthread_mutex_lock(&mutex_METADATA_MEMORIA);
             tParticion *unaParticion = buscarParticionLibreEnMemoria(tamanio);
 
             if (unaParticion != NULL)
@@ -298,11 +307,15 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
                 unaParticion->lru = (uint32_t)time(NULL);
                 unaParticion->timeInit = (uint32_t)time(NULL);
                 aDevolver = unaParticion->posicion;
+                pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
             }
             else
             {
+                pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
                 //SE COMPACTA SEGUN CRITERIO DEL CONFIG
                 compactarMemoria();
+
+                pthread_mutex_lock(&mutex_METADATA_MEMORIA);
                 unaParticion = buscarParticionLibreEnMemoria(tamanio);
                 if (unaParticion != NULL)
                 {
@@ -313,9 +326,11 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
                     unaParticion->lru = (uint32_t)time(NULL);
                     unaParticion->timeInit = (uint32_t)time(NULL);
                     aDevolver = unaParticion->posicion;
+                    pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
                 }
                 else
                 {
+                    pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
                     ejecutarEliminarParticion();
                     aDevolver = getDireccionMemoriaLibre(idMensaje, tamanio);
                 }
@@ -325,6 +340,8 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
         {
             //BF
             t_list *ParticionesOrdenadas;
+
+            pthread_mutex_lock(&mutex_METADATA_MEMORIA);
             ParticionesOrdenadas = buscarListaDeParticionesLibresEnMemoriaOrdenadas(tamanio);
 
             if (!list_is_empty(ParticionesOrdenadas))
@@ -339,12 +356,20 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
                 unaParticion->lru = (uint32_t)time(NULL);
                 unaParticion->timeInit = (uint32_t)time(NULL);
                 aDevolver = unaParticion->posicion;
+                pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
             }
             else
             {
-                compactarMemoria();
                 list_destroy(ParticionesOrdenadas);
+
+                pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
+
+                compactarMemoria();
+
+                pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
                 ParticionesOrdenadas = buscarListaDeParticionesLibresEnMemoriaOrdenadas(tamanio);
+
                 if (!list_is_empty(ParticionesOrdenadas))
                 {
                     tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadas, 0);
@@ -356,9 +381,12 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
                     unaParticion->lru = (uint32_t)time(NULL);
                     unaParticion->timeInit = (uint32_t)time(NULL);
                     aDevolver = unaParticion->posicion;
+
+                    pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
                 }
                 else
                 {
+                    pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
                     ejecutarEliminarParticion();
                     aDevolver = getDireccionMemoriaLibre(idMensaje, tamanio);
                 }
@@ -483,7 +511,7 @@ void ejecutarEliminarParticionBuddy()
 
         list_destroy(ParticionesOrdenadasPorTimeInit);
 
-        eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
+        eliminarMensaje(unaParticion->idMensaje); //SE ELIMINA EL MENSAJE ANTES DE ELIMINAR LA PARTICION PARA QUE NO SE GENERE ERRORES
 
         unaParticion->free = true;
         unaParticion->idMensaje = -1;
@@ -502,7 +530,7 @@ void ejecutarEliminarParticionBuddy()
 
         list_destroy(ParticionesOrdenadasPorTime);
 
-        eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
+        eliminarMensaje(unaParticion->idMensaje); //SE ELIMINA EL MENSAJE ANTES DE ELIMINAR LA PARTICION PARA QUE NO SE GENERE ERRORES
 
         unaParticion->free = true;
         unaParticion->idMensaje = -1;
@@ -654,10 +682,12 @@ void ejecutarEliminarParticion()
 
         list_destroy(ParticionesOrdenadasPorTimeInit);
 
-        eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar
+        eliminarMensaje(unaParticion->idMensaje); //SE ELIMINA EL MENSAJE ANTES DE ELIMINAR LA PARTICION PARA QUE NO SE GENERE ERRORES
 
+        pthread_mutex_lock(&mutex_METADATA_MEMORIA);
         unaParticion->free = true;
         unaParticion->idMensaje = -1;
+        pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
     }
     else
     {
@@ -672,10 +702,12 @@ void ejecutarEliminarParticion()
 
         list_destroy(ParticionesOrdenadasPorTime);
 
-        eliminarMensaje(unaParticion->idMensaje); //elimina de lista mensajes agregar mutex de listamensajes
+        eliminarMensaje(unaParticion->idMensaje); //SE ELIMINA EL MENSAJE ANTES DE ELIMINAR LA PARTICION PARA QUE NO SE GENERE ERRORES
 
+        pthread_mutex_lock(&mutex_METADATA_MEMORIA);
         unaParticion->free = true;
         unaParticion->idMensaje = -1;
+        pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
     }
 }
 
@@ -705,7 +737,7 @@ tParticion *splitParticion(tParticion *unaParticion, uint32_t tamanio)
 /*Gestiona la compactacion y la manda a ejecutar*/
 void compactarMemoria()
 {
-
+    //?*revisar En el enunciado si esto es asi
     if (CONFIG_BROKER->frecuenciaCompactacion == -1 && list_all_satisfy(METADATA_MEMORIA, &esParticionLibre))
     {
         ejecutarCompactacion();
@@ -724,10 +756,179 @@ void compactarMemoria()
     }
 }
 
-/*Ejecuta la Compactacion*/
+/*Ejecuta la Compactacion y Actualiza id Particion*/
 void ejecutarCompactacion()
 {
-    //?*falta Compactacion
+    pthread_mutex_lock(&mutex_MENSAJES_NEW_POKEMON);
+
+    pthread_mutex_lock(&mutex_MENSAJES_APPEARED_POKEMON);
+
+    pthread_mutex_lock(&mutex_MENSAJES_CATCH_POKEMON);
+
+    pthread_mutex_lock(&mutex_MENSAJES_CAUGHT_POKEMON);
+
+    pthread_mutex_lock(&mutex_MENSAJES_GET_POKEMON);
+
+    pthread_mutex_lock(&mutex_MENSAJES_LOCALIZED_POKEMON);
+
+    pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
+    compactacion(MEMORIA_PRINCIPAL);
+
+    u_int32_t cantParticiones = list_size(METADATA_MEMORIA);
+    tParticion *unaParticion;
+    tMensaje *unMensaje;
+
+    for (int i = 0; i < cantParticiones; i++)
+    {
+        unaParticion = list_get(METADATA_MEMORIA, i);
+
+        if (unaParticion)
+        {
+            unaParticion->idParticion = i;
+
+            if (unaParticion->free == false)
+            {               
+
+                pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+                idMensajeABuscar = unaParticion->idMensaje;
+
+                unMensaje = list_find(MENSAJES_LISTA, &existeIdMensaje);
+
+                pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+                unMensaje->posicionEnMemoria = unaParticion->posicion;
+
+
+            }else{
+                unaParticion->idMensaje = -1;
+            }
+        }
+    }
+
+    pthread_mutex_lock(&mutex_ID_PARTICION);
+
+    ID_PARTICION = cantParticiones + 1;
+
+    pthread_mutex_unlock(&mutex_ID_PARTICION);
+
+    CANTIDAD_BUSQUEDAS_FALLIDAS = 0;
+
+    pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
+
+    pthread_mutex_unlock(&mutex_MENSAJES_NEW_POKEMON);
+
+    pthread_mutex_unlock(&mutex_MENSAJES_APPEARED_POKEMON);
+
+    pthread_mutex_unlock(&mutex_MENSAJES_CATCH_POKEMON);
+
+    pthread_mutex_unlock(&mutex_MENSAJES_CAUGHT_POKEMON);
+
+    pthread_mutex_unlock(&mutex_MENSAJES_GET_POKEMON);
+
+    pthread_mutex_unlock(&mutex_MENSAJES_LOCALIZED_POKEMON);
+}
+
+/*Compacta la memoria dejando una unica particion libre al final de la MEMORIA_PRINCIPAL */
+void compactacion(char *posicion)
+{
+
+    pthread_mutex_lock(&mutex_posicionParticionABuscar);
+
+    posicionParticionABuscar = posicion;
+    tParticion *primera = (tParticion *)list_find(METADATA_MEMORIA, &existePosicionParticion);
+
+    pthread_mutex_unlock(&mutex_posicionParticionABuscar);
+
+    if (primera)
+    {
+        if (primera->free == true)
+        {
+            pthread_mutex_lock(&mutex_posicionParticionABuscar);
+
+            posicionParticionABuscar = primera->posicion + primera->tamanio;
+            tParticion *next = (tParticion *)list_find(METADATA_MEMORIA, &existePosicionParticion);
+
+            pthread_mutex_unlock(&mutex_posicionParticionABuscar);
+
+            if (next)
+            {
+                if (next->free == true)
+                {
+
+                    pthread_mutex_lock(&mutex_posicionParticionABuscar);
+
+                    posicionParticionABuscar = primera->posicion + primera->tamanio;
+                    next = (tParticion *)list_remove_by_condition(METADATA_MEMORIA, &existePosicionParticion);
+
+                    pthread_mutex_unlock(&mutex_posicionParticionABuscar);
+
+                    primera->tamanio += next->tamanio;
+
+                    free(next);
+                    compactacion(primera->posicion);
+                }
+                else
+                {
+                    if (primera->tamanio >= next->tamanio)
+                    {
+
+                        memcpy(primera->posicion, next->posicion, sizeof(next->tamanio));
+
+                        uint32_t auxTam = primera->tamanio;
+
+                        primera->tamanio = next->tamanio;
+
+                        next->tamanio = auxTam;
+
+                        next->posicion = primera->posicion + primera->tamanio;
+
+                        primera->free = false;
+
+                        next->free = true;
+
+                        primera->idMensaje = next->idMensaje;
+
+                        primera->lru = next->lru;
+
+                        primera->timeInit = next->timeInit;
+
+                        compactacion(next->posicion);
+                    }
+                    else
+                    {
+
+                        memmove(primera->posicion, next->posicion, sizeof(next->tamanio)); //PERMITE OVERLAPPING EN MEMORIA PERO ES MAS LENTO
+
+                        uint32_t auxTam = primera->tamanio;
+
+                        primera->tamanio = next->tamanio;
+
+                        next->tamanio = auxTam;
+
+                        next->posicion = primera->posicion + primera->tamanio;
+
+                        primera->free = false;
+
+                        next->free = true;
+
+                        primera->idMensaje = next->idMensaje;
+
+                        primera->lru = next->lru;
+
+                        primera->timeInit = next->timeInit;
+
+                        compactacion(next->posicion);
+                    }
+                }
+            }
+        }
+        else
+        {
+            compactacion(primera->posicion + primera->tamanio);
+        }
+    }
 }
 
 /*Destruye el Mensaje de la lista*/
@@ -3159,6 +3360,13 @@ bool existeIdParticion(void *partition)
     }
 
     return existe;
+}
+
+bool existePosicionParticion(void *unaParticion)
+{
+
+    tParticion *p = (tParticion *)unaParticion;
+    return p->posicion == posicionParticionABuscar;
 }
 
 //////////////////////////////////////////////DUMP CACHE////////////////////////////////////////////////
