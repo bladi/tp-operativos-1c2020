@@ -200,6 +200,13 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void* unSuscriptor, void *u
 void enviarMensajeGetPokemon(tMensaje *unMensaje, void* unSuscriptor, void *unPokemon);
 void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void* unSuscriptor, void *unPokemon);
 
+void guardarEnMemoriaNewPokemon(void*unPokemon);
+void guardarEnMemoriaAppearedPokemon(void*unPokemon);
+void guardarEnMemoriaCatchPokemon(void*unPokemon);
+void guardarEnMemoriaCaughtPokemon(void*unPokemon);
+void guardarEnMemoriaGetPokemon(void*unPokemon);
+void guardarEnMemoriaLocalizedPokemon(void*unPokemon);
+
 void* buscarEnMemoriaNewPokemon(tMensaje* unMensaje);
 void* buscarEnMemoriaAppearedPokemon(tMensaje* unMensaje);
 void* buscarEnMemoriaCatchPokemon(tMensaje* unMensaje);

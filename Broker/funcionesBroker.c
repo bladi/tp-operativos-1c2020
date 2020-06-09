@@ -99,7 +99,7 @@ void cargarConfiguracionBroker()
     }
 }
 
-/*inicializa logger*/
+/*Inicializa logger*/
 void configurarLoggerBroker()
 {
 
@@ -107,7 +107,7 @@ void configurarLoggerBroker()
     log_info(logger, "LOG INICIALIZADO CON EXITO");
 }
 
-/*libera las variables Globales*/
+/*Libera las variables Globales*/
 void finalizarBroker()
 {
 
@@ -115,7 +115,7 @@ void finalizarBroker()
     free(logger);
 }
 
-/*actualiza cada cierto tiempo el config */
+/*Actualiza cada cierto tiempo el config */
 void actualizarConfiguracionBroker()
 {
     //?* revisar si funciona la funcion, se podria optimizar
@@ -234,7 +234,7 @@ void inicializarMemoria()
     // log_error(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
 }
 
-/*devuelve un nuevo id para un mensaje asociado*/
+/*Devuelve un nuevo id para un mensaje asociado*/
 uint32_t generarNuevoIdMensajeBroker()
 {
 
@@ -245,7 +245,7 @@ uint32_t generarNuevoIdMensajeBroker()
     return ID_MENSAJE;
 }
 
-/*devuelve un nuevo id para un suscriptor asociado*/
+/*Devuelve un nuevo id para un suscriptor asociado*/
 uint32_t generarNuevoIdSuscriptor()
 {
 
@@ -256,7 +256,7 @@ uint32_t generarNuevoIdSuscriptor()
     return NUM_SUSCRIPTOR;
 }
 
-/*devuelve un nuevo id para un mensaje asociado*/
+/*Devuelve un nuevo id para un mensaje asociado*/
 uint32_t generarNuevoIdParticion()
 {
 
@@ -427,7 +427,7 @@ char *getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, 
     return aDevolver;
 }
 
-/*divide el segmento de memoria en 2*/
+/*Divide el segmento de memoria en 2*/
 void splitBuddy(uint32_t index)
 {
 
@@ -468,7 +468,7 @@ void splitBuddy(uint32_t index)
     }
 }
 
-/*se decide que particion eliminar y se elimina dentro de Buddy*/
+/*Se decide que particion eliminar y se elimina dentro de Buddy*/
 void ejecutarEliminarParticionBuddy()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
@@ -510,7 +510,7 @@ void ejecutarEliminarParticionBuddy()
     }
 }
 
-/*se elimina particion bs y se rearma la estructura*/
+/*Se elimina particion bs y se rearma la estructura*/
 void killMe(uint32_t index)
 {
 
@@ -639,7 +639,7 @@ void killMe(uint32_t index)
     }
 }
 
-/*se elimina particion dentro de particion dinamica*/
+/*Se elimina particion dentro de particion dinamica*/
 void ejecutarEliminarParticion()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
@@ -880,7 +880,7 @@ void eliminarMensaje(uint32_t unIdMensaje)
 
 ////////////////////////////////////////RECEPCION DE PAQUETES CON PROCESOS EXTERNOS////////////////////////////////////////////////
 
-/*administra el primer encuentro con la conexion asociada*/
+/*Administra el primer encuentro con la conexion asociada*/
 void administradorDeConexiones(void *infoAdmin)
 {
 
@@ -960,7 +960,7 @@ void administradorDeConexiones(void *infoAdmin)
     return;
 }
 
-/*determina que hacer dependiendo el tipo de paquete*/
+/*Determina que hacer dependiendo el tipo de paquete*/
 void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 {
 
@@ -991,48 +991,12 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         t_newPokemon *unNewPokemon = (t_newPokemon *)buffer;
 
-        //log_debug(logger, "\n\t--GAMEBOY PUBLISH -> NEWPOKEMON: %s", unNewPokemon->nombrePokemon);
-        //log_info(logger, "La posicion del Pokémon es: %d %d", unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY);
-
         unNewPokemon->identificador = generarNuevoIdMensajeBroker();
 
-        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN NEWPOKEMON DE GAMEBOY
+        guardarEnMemoriaNewPokemon(unNewPokemon);
 
-        //enviarInt(socketCliente, unNewPokemon->identificador);
+        free(unNewPokemon);
 
-        uint32_t desplazamiento = 0;
-        uint32_t tamanioNombrePokemon = string_length(unNewPokemon->nombrePokemon);
-        uint32_t tamanio = 0;
-
-        tamanio = tamanioNombrePokemon + 4 * sizeof(uint32_t);
-
-        tMensaje *unMensaje = malloc(sizeof(tMensaje));
-
-        unMensaje->acknowledgement = list_create();
-        unMensaje->suscriptoresEnviados = list_create();
-        unMensaje->idMensaje = generarNuevoIdMensajeBroker();
-        unMensaje->idMensajeCorrelacional = 0;
-        unMensaje->tipoMensaje = tNewPokemon; //NEW
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, unNewPokemon->nombrePokemon, tamanioNombrePokemon);
-        desplazamiento += tamanioNombrePokemon;
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unNewPokemon->posicionEnElMapaX, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unNewPokemon->posicionEnElMapaY, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unNewPokemon->cantidadDePokemon, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        //??* falta eliminar unNewPokemon
-
-        list_add(MENSAJES_LISTA, unMensaje);
         enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
         break;
@@ -1044,38 +1008,9 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         t_getPokemon *unGetPokemon = (t_getPokemon *)buffer;
 
-        //log_debug(logger, "\n\t--GAMEBOY PUBLISH -> El nombre del Pokemón es: %s", unGetPokemon->nombrePokemon);
+        guardarEnMemoriaGetPokemon(unGetPokemon);
 
-        unGetPokemon->identificador = generarNuevoIdMensajeBroker();
-
-        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN GAMEBOY
-
-        // enviarInt(socketCliente, unGetPokemon->identificador);
-
-        uint32_t desplazamiento = 0;
-        uint32_t tamanioNombrePokemon = string_length(unGetPokemon->nombrePokemon);
-        uint32_t tamanio = 0;
-
-        tamanio = tamanioNombrePokemon + sizeof(uint32_t);
-
-        tMensaje *unMensaje = malloc(sizeof(tMensaje));
-
-        unMensaje->acknowledgement = list_create();
-        unMensaje->suscriptoresEnviados = list_create();
-        unMensaje->idMensaje = unGetPokemon->identificador;
-        unMensaje->idMensajeCorrelacional = unGetPokemon->identificadorCorrelacional;
-        unMensaje->tipoMensaje = tGetPokemon; //GET
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, unGetPokemon->nombrePokemon, tamanioNombrePokemon);
-        desplazamiento += tamanioNombrePokemon;
-
-        //??* falta eliminar unGetPokemon
-
-        list_add(MENSAJES_LISTA, unMensaje);
+        free(unGetPokemon);
 
         enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
@@ -1088,46 +1023,10 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         t_catchPokemon *unCatchPokemon = (t_catchPokemon *)buffer;
 
-        //log_info(logger, "El nombre del Pokemón es: %s", unCatchPokemon->nombrePokemon);
-        //log_info(logger, "La posicion del Pokémon era: %d %d", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
-        //log_info(logger, "El nombre del entrenador es: %s", unCatchPokemon->nombrePokemon);
+        guardarEnMemoriaCatchPokemon(unCatchPokemon);
 
-        unCatchPokemon->identificador = generarNuevoIdMensajeBroker();
+        free(unCatchPokemon);
 
-        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN GAMEBOY
-
-        // enviarInt(socketCliente, unCatchPokemon->identificador);
-
-        uint32_t desplazamiento = 0;
-        uint32_t tamanioNombrePokemon = string_length(unCatchPokemon->nombrePokemon);
-        uint32_t tamanio = 0;
-
-        tamanio = tamanioNombrePokemon + 3 * sizeof(uint32_t);
-
-        tMensaje *unMensaje = malloc(sizeof(tMensaje));
-
-        unMensaje->acknowledgement = list_create();
-        unMensaje->suscriptoresEnviados = list_create();
-        unMensaje->idMensaje = unCatchPokemon->identificador;
-        unMensaje->idMensajeCorrelacional = unCatchPokemon->identificadorCorrelacional;
-        unMensaje->tipoMensaje = tCatchPokemon; //CATCH
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, unCatchPokemon->nombrePokemon, tamanioNombrePokemon);
-        desplazamiento += tamanioNombrePokemon;
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCatchPokemon->posicionEnElMapaX, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCatchPokemon->posicionEnElMapaY, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        //??* falta eliminar unCatchPokemon
-
-        list_add(MENSAJES_LISTA, unMensaje);
         enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
         break;
@@ -1139,48 +1038,9 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
 
-        //log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
-        //log_info(logger, "La posicion del Pokémon era: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
+        guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
 
-        if (unAppeardPokemon->identificador == 0)
-        {
-            unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
-        }
-
-        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER-> NO EN GAMEBOY
-
-        //enviarInt(socketCliente, unAppeardPokemon->identificador);
-
-        uint32_t desplazamiento = 0;
-        uint32_t tamanioNombrePokemon = string_length(unAppeardPokemon->nombrePokemon);
-        uint32_t tamanio = 0;
-
-        tamanio = tamanioNombrePokemon + 3 * sizeof(uint32_t);
-
-        tMensaje *unMensaje = malloc(sizeof(tMensaje));
-
-        unMensaje->acknowledgement = list_create();
-        unMensaje->suscriptoresEnviados = list_create();
-        unMensaje->idMensaje = unAppeardPokemon->identificador;
-        unMensaje->idMensajeCorrelacional = 0;
-        unMensaje->tipoMensaje = tAppearedPokemon; //APPEARED
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, unAppeardPokemon->nombrePokemon, tamanioNombrePokemon);
-        desplazamiento += tamanioNombrePokemon;
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unAppeardPokemon->posicionEnElMapaX, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unAppeardPokemon->posicionEnElMapaY, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        //??* falta eliminar unAppeardPokemon
-
-        list_add(MENSAJES_LISTA, unMensaje);
+        free(unAppeardPokemon);
 
         enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
@@ -1203,7 +1063,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
     return;
 }
 
-/*determina que hacer dependiendo el tipo de paquete*/
+/*Determina que hacer dependiendo el tipo de paquete*/
 void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 {
 
@@ -1252,30 +1112,13 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
 
+        guardarEnMemoriaCaughtPokemon(unCaughtPokemon);
+
+        free(unCaughtPokemon);
+
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
         enviarInt(socketCliente, unCaughtPokemon->identificador);
-
-        uint32_t desplazamiento = 0;
-        uint32_t tamanio = 0;
-
-        tamanio = sizeof(uint32_t);
-
-        tMensaje *unMensaje = malloc(sizeof(tMensaje));
-
-        unMensaje->acknowledgement = list_create();
-        unMensaje->suscriptoresEnviados = list_create();
-        unMensaje->idMensaje = unCaughtPokemon->identificador;
-        unMensaje->idMensajeCorrelacional = unCaughtPokemon->identificadorCorrelacional;
-        unMensaje->tipoMensaje = tCaughtPokemon; //CAUGHT
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t)); //??* ACORDARSE QUE TIENE Q SER UINT32 Y NO BOOL
-        desplazamiento += sizeof(uint32_t);
-
-        //??* falta eliminar unCaughtPokemon
-
-        list_add(MENSAJES_LISTA, unMensaje);
 
         enviarInt(socketCliente, 1);
 
@@ -1288,82 +1131,15 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         t_localizedPokemon *unLocalizedPokemon = (t_localizedPokemon *)buffer;
 
-        //log_info(logger, "El nombre del Pokemón es: %s", unLocalizedPokemon->nombrePokemon);
-
-        int cantidadListaDatosPokemon = list_size(unLocalizedPokemon->listaDatosPokemon);
-
-        int contadorito = 0;
-
-        printf("\n\nLOCALIZED_POKEMON DESERIALIZADO: \n");
-        printf("\nIdentificador: %d", unLocalizedPokemon->identificador);
-        printf("\nIdentificador Correlacional: %d", unLocalizedPokemon->identificadorCorrelacional);
-        printf("\nNombre del Pokemón: %s", unLocalizedPokemon->nombrePokemon);
-
-        datosPokemon *nodoDatosPokemon;
-
-        while (contadorito < cantidadListaDatosPokemon)
-        {
-
-            nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contadorito);
-
-            printf("\nCantidad de pokemón en %d° ubicación: %d", contadorito, nodoDatosPokemon->cantidad);
-            printf("\nUbicacion en 'x': %d", nodoDatosPokemon->posicionEnElMapaX);
-            printf("\nUbicacion en 'y': %d\n", nodoDatosPokemon->posicionEnElMapaY);
-
-            contadorito += 1;
-        }
-
-        //HAsta aca
-
         unLocalizedPokemon->identificador = generarNuevoIdMensajeBroker();
+
+        guardarEnMemoriaLocalizedPokemon(unLocalizedPokemon);
+
+        free(unLocalizedPokemon);
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
         enviarInt(socketCliente, unLocalizedPokemon->identificador);
-
-        uint32_t desplazamiento = 0;
-        uint32_t tamanioNombrePokemon = string_length(unLocalizedPokemon->nombrePokemon);
-        uint32_t tamanioLista = list_size(unLocalizedPokemon->listaDatosPokemon);
-        uint32_t tamanio = sizeof(uint32_t) + tamanioNombrePokemon + sizeof(datosPokemon) * tamanioLista; //??*revisar si esta bien
-        uint32_t contador = 0;
-        tMensaje *unMensaje = malloc(sizeof(tMensaje));
-
-        unMensaje->acknowledgement = list_create();
-        unMensaje->suscriptoresEnviados = list_create();
-        unMensaje->idMensaje = unLocalizedPokemon->identificador;
-        unMensaje->idMensajeCorrelacional = unLocalizedPokemon->identificadorCorrelacional;
-        unMensaje->tipoMensaje = tLocalizedPokemon; //LOCALIZED
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, unLocalizedPokemon->nombrePokemon, tamanioNombrePokemon);
-        desplazamiento += tamanioNombrePokemon;
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioLista, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        while (contador < tamanioLista)
-        {
-
-            datosPokemon *nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contador); //??* posible error de casteo revisar (datosPokemon*)
-
-            memcpy(unMensaje->posicionEnMemoria + desplazamiento, &nodoDatosPokemon->cantidad, sizeof(uint32_t));
-            desplazamiento += sizeof(uint32_t);
-
-            memcpy(unMensaje->posicionEnMemoria + desplazamiento, &nodoDatosPokemon->posicionEnElMapaX, sizeof(uint32_t));
-            desplazamiento += sizeof(uint32_t);
-
-            memcpy(unMensaje->posicionEnMemoria + desplazamiento, &nodoDatosPokemon->posicionEnElMapaY, sizeof(uint32_t));
-            desplazamiento += sizeof(uint32_t);
-
-            contador += 1;
-        }
-
-        //??* falta eliminar unLocalizedPokemon
-
-        list_add(MENSAJES_LISTA, unMensaje);
 
         //enviarInt(socketCliente, 1);
 
@@ -1381,40 +1157,13 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
 
+        guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
+
+        free(unAppeardPokemon);
+
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
         enviarInt(socketCliente, unAppeardPokemon->identificador);
-
-        uint32_t desplazamiento = 0;
-        uint32_t tamanioNombrePokemon = string_length(unAppeardPokemon->nombrePokemon);
-        uint32_t tamanio = 0;
-
-        tamanio = tamanioNombrePokemon + 3 * sizeof(uint32_t);
-
-        tMensaje *unMensaje = malloc(sizeof(tMensaje));
-
-        unMensaje->acknowledgement = list_create();
-        unMensaje->suscriptoresEnviados = list_create();
-        unMensaje->idMensaje = unAppeardPokemon->identificador;
-        unMensaje->idMensajeCorrelacional = unAppeardPokemon->identificadorCorrelacional;
-        unMensaje->tipoMensaje = tAppearedPokemon; //APPEARED
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, unAppeardPokemon->nombrePokemon, tamanioNombrePokemon);
-        desplazamiento += tamanioNombrePokemon;
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unAppeardPokemon->posicionEnElMapaX, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unAppeardPokemon->posicionEnElMapaY, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        //??* falta eliminar unAppeardPokemon
-
-        list_add(MENSAJES_LISTA, unMensaje);
 
         // enviarInt(socketCliente, 1);
 
@@ -1437,7 +1186,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
     return;
 }
 
-/*determina que hacer dependiendo el tipo de paquete*/
+/*Determina que hacer dependiendo el tipo de paquete*/
 void manejarRespuestaATeam(int socketCliente, int idCliente)
 {
 
@@ -1477,64 +1226,13 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
+        guardarEnMemoriaGetPokemon(unGetPokemon);
+
+        free(unGetPokemon);
+
         enviarInt(socketCliente, unGetPokemon->identificador);
 
-        uint32_t desplazamiento = 0;
-        uint32_t tamanioNombrePokemon = string_length(unGetPokemon->nombrePokemon);
-        uint32_t tamanio = 0;
-
-        tamanio = tamanioNombrePokemon + sizeof(uint32_t);
-
-        tMensaje *unMensaje = malloc(sizeof(tMensaje));
-
-        unMensaje->acknowledgement = list_create();
-        unMensaje->suscriptoresEnviados = list_create();
-        unMensaje->idMensaje = unGetPokemon->identificador;
-        unMensaje->idMensajeCorrelacional = unGetPokemon->identificadorCorrelacional;
-        unMensaje->tipoMensaje = tGetPokemon; //GET
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, unGetPokemon->nombrePokemon, tamanioNombrePokemon);
-        desplazamiento += tamanioNombrePokemon;
-
-        //??* falta eliminar unGetPokemon
-
-        list_add(MENSAJES_LISTA, unMensaje);
-
         enviarInt(socketCliente, 1);
-
-        /*
-            
-            Casteo de estructura (ejemplo): 
-            
-            t_getPokemon* unGetPokemon = (t_getPokemon*) buffer;
-
-            */
-
-        /*
-            
-            Logueo de lo recibido (ejemplo):
-
-            log_info(logger,"El nombre del Pokemón es: %s",unGetPokemon->nombrePokemon);
-            log_info(logger,"Las posiciones del Pokémon son: %d %d", unGetPokemon->posicion[0], unGetPokemon->posicion[1]);
-            log_info(logger,"La cantidad que hay de ese Pokémon es: %d",unGetPokemon->cantidad);
-            
-            */
-
-        /*
-
-           Funciones que se invocan luego de recibir un GET_POKEMON_LISTA (ejemplo):
-
-           int idNuevoMensaje = generarNuevoIdMensajeBroker();
-
-           pedirAGameCardPosicionesDePokemon(unGetPokemon->nombrePokemon, idNuevoMensaje);
-           recibirRespuestaGameCard(idNuevoMensaje);
-           avisarATeamPokemonLocalizado(unGetPokemon->nombrePokemon,idNuevoMensaje);
-
-            */
 
         break;
     }
@@ -1545,77 +1243,21 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         t_catchPokemon *unCatchPokemon = (t_catchPokemon *)buffer;
 
-        log_info(logger, "El nombre del Pokemón es: %s", unCatchPokemon->nombrePokemon);
-        log_info(logger, "La posicion del Pokémon era: %d %d", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
-        log_info(logger, "El nombre del entrenador es: %s", unCatchPokemon->nombrePokemon);
+        //log_info(logger, "El nombre del Pokemón es: %s", unCatchPokemon->nombrePokemon);
+        //log_info(logger, "La posicion del Pokémon era: %d %d", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
+        //log_info(logger, "El nombre del entrenador es: %s", unCatchPokemon->nombrePokemon);
 
         unCatchPokemon->identificador = generarNuevoIdMensajeBroker();
+
+        guardarEnMemoriaCatchPokemon(unCatchPokemon);
+
+        free(unCatchPokemon);
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
         enviarInt(socketCliente, unCatchPokemon->identificador);
 
-        uint32_t desplazamiento = 0;
-        uint32_t tamanioNombrePokemon = string_length(unCatchPokemon->nombrePokemon);
-        uint32_t tamanio = 0;
-
-        tamanio = tamanioNombrePokemon + 3 * sizeof(uint32_t);
-
-        tMensaje *unMensaje = malloc(sizeof(tMensaje));
-
-        unMensaje->acknowledgement = list_create();
-        unMensaje->suscriptoresEnviados = list_create();
-        unMensaje->idMensaje = unCatchPokemon->identificador;
-        unMensaje->idMensajeCorrelacional = unCatchPokemon->identificadorCorrelacional;
-        unMensaje->tipoMensaje = tCatchPokemon; //CATCH
-        unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, unCatchPokemon->nombrePokemon, tamanioNombrePokemon);
-        desplazamiento += tamanioNombrePokemon;
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCatchPokemon->posicionEnElMapaX, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCatchPokemon->posicionEnElMapaY, sizeof(uint32_t));
-        desplazamiento += sizeof(uint32_t);
-
-        //??* falta eliminar unCatchPokemon
-
-        list_add(MENSAJES_LISTA, unMensaje);
-
         enviarInt(socketCliente, 1);
-        /*
-            
-            Casteo de estructura (ejemplo): 
-            
-            t_catchPokemon* unCatchPokemon = (t_catchPokemon*) buffer;
-
-            */
-
-        /*
-            
-            Logueo de lo recibido (ejemplo):
-
-            log_info(logger,"El nombre del Pokemón es: %s",unCatchPokemon->nombrePokemon);
-            log_info(logger,"La posicion del Pokémon era: %d %d", unCatchPokemon->posicion[0], unCatchPokemon->posicion[1]);
-            log_info(logger,"El nombre del entrenador es: %s",unCatchPokemon->nombreEntrenador);
-            
-            */
-
-        /*
-
-            Funciones que se invocan luego de recibir un CATCH_POKEMON_LISTA (ejemplo):
-
-            int idNuevoMensaje = generarNuevoIdMensajeBroker();
-
-            darAGameCardPokemonAtrapado(unCatchPokemon->nombrePokemon,unCatchPokemon->posicion, idNuevoMensaje);
-            recibirRespuestaGameCard(idNuevoMensaje);
-            avisarATeamPokemonAtrapado(unGetPokemon->nombrePokemon,idNuevoMensaje);
-
-            */
 
         break;
     }
@@ -2070,7 +1712,7 @@ void ejecutarColaCatchPokemon()
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
 
-                    unSuscriptorCola = list_get(CATCH_POKEMON_LISTA, i);//?* puede llegar a romper en el caso de que se eliminen suscriptores en medio de la ejecucion entre list_size(CATCH_POKEMON_LISTA)y linea actual
+                    unSuscriptorCola = list_get(CATCH_POKEMON_LISTA, i); //?* puede llegar a romper en el caso de que se eliminen suscriptores en medio de la ejecucion entre list_size(CATCH_POKEMON_LISTA)y linea actual
 
                     tiempoActual = (uint32_t)time(NULL);
 
@@ -2324,7 +1966,7 @@ void ejecutarColaLocalizedPokemon()
 
                             enviarMensajeLocalizedPokemon(unMensaje, unSuscriptor, unPokemon);
                         }
-                    }//?* preguntar si cuando se acaba el tiempo el suscriptor hay queeliminarlo???
+                    } //?* preguntar si cuando se acaba el tiempo el suscriptor hay queeliminarlo???
                 }
 
                 free(unPokemon);
@@ -2732,7 +2374,6 @@ void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcio
     free(unLocalizedPokemon);
 }
 
-
 ////////////////////////////////////////LEVANTAR POKEMON DE MEMORIA////////////////////////////////////////////////
 
 /*Crea Estructura NewPokemon, la copia de memoria y Actualiza LRU de la particion*/
@@ -3021,6 +2662,290 @@ void *buscarEnMemoriaLocalizedPokemon(tMensaje *unMensaje)
     }
 
     return unLocalizedPokemon;
+}
+////////////////////////////////////////GUARDAR POKEMON EN MEMORIA////////////////////////////////////////////////
+
+/*Recibe un NewPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
+void guardarEnMemoriaNewPokemon(void *unPokemon)
+{
+
+    t_newPokemon *unNewPokemon = (t_newPokemon *)unPokemon;
+
+    //log_debug(logger, "\n\t--GAMEBOY PUBLISH -> NEWPOKEMON: %s", unNewPokemon->nombrePokemon);
+    //log_info(logger, "La posicion del Pokémon es: %d %d", unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY);
+
+    //?*SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN NEWPOKEMON DE GAMEBOY
+
+    //enviarInt(socketCliente, unNewPokemon->identificador);
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = string_length(unNewPokemon->nombrePokemon);
+    uint32_t tamanio = 0;
+
+    tamanio = tamanioNombrePokemon + 4 * sizeof(uint32_t);
+
+    tMensaje *unMensaje = malloc(sizeof(tMensaje));
+
+    unMensaje->acknowledgement = list_create();
+    unMensaje->suscriptoresEnviados = list_create();
+    unMensaje->idMensaje = generarNuevoIdMensajeBroker();
+    unMensaje->idMensajeCorrelacional = 0;
+    unMensaje->tipoMensaje = tNewPokemon; //NEW
+    unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, unNewPokemon->nombrePokemon, tamanioNombrePokemon);
+    desplazamiento += tamanioNombrePokemon;
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unNewPokemon->posicionEnElMapaX, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unNewPokemon->posicionEnElMapaY, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unNewPokemon->cantidadDePokemon, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    list_add(MENSAJES_LISTA, unMensaje);
+}
+
+/*Recibe un AppearedPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
+void guardarEnMemoriaAppearedPokemon(void *unPokemon)
+{
+
+    t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)unPokemon;
+
+    //log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
+    //log_info(logger, "La posicion del Pokémon era: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
+
+    if (unAppeardPokemon->identificador == 0)
+    {
+        unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
+    }
+
+    //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER-> NO EN GAMEBOY
+
+    //enviarInt(socketCliente, unAppeardPokemon->identificador);
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = string_length(unAppeardPokemon->nombrePokemon);
+    uint32_t tamanio = 0;
+
+    tamanio = tamanioNombrePokemon + 3 * sizeof(uint32_t);
+
+    tMensaje *unMensaje = malloc(sizeof(tMensaje));
+
+    unMensaje->acknowledgement = list_create();
+    unMensaje->suscriptoresEnviados = list_create();
+    unMensaje->idMensaje = unAppeardPokemon->identificador;
+    unMensaje->idMensajeCorrelacional = 0;
+    unMensaje->tipoMensaje = tAppearedPokemon; //APPEARED
+    unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, unAppeardPokemon->nombrePokemon, tamanioNombrePokemon);
+    desplazamiento += tamanioNombrePokemon;
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unAppeardPokemon->posicionEnElMapaX, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unAppeardPokemon->posicionEnElMapaY, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    list_add(MENSAJES_LISTA, unMensaje);
+}
+
+/*Recibe un CatchPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
+void guardarEnMemoriaCatchPokemon(void *unPokemon)
+{
+
+    t_catchPokemon *unCatchPokemon = (t_catchPokemon *)unPokemon;
+
+    //log_info(logger, "El nombre del Pokemón es: %s", unCatchPokemon->nombrePokemon);
+    //log_info(logger, "La posicion del Pokémon era: %d %d", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
+    //log_info(logger, "El nombre del entrenador es: %s", unCatchPokemon->nombrePokemon);
+
+    unCatchPokemon->identificador = generarNuevoIdMensajeBroker();
+
+    //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN GAMEBOY
+
+    // enviarInt(socketCliente, unCatchPokemon->identificador);
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = string_length(unCatchPokemon->nombrePokemon);
+    uint32_t tamanio = 0;
+
+    tamanio = tamanioNombrePokemon + 3 * sizeof(uint32_t);
+
+    tMensaje *unMensaje = malloc(sizeof(tMensaje));
+
+    unMensaje->acknowledgement = list_create();
+    unMensaje->suscriptoresEnviados = list_create();
+    unMensaje->idMensaje = unCatchPokemon->identificador;
+    unMensaje->idMensajeCorrelacional = unCatchPokemon->identificadorCorrelacional;
+    unMensaje->tipoMensaje = tCatchPokemon; //CATCH
+    unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, unCatchPokemon->nombrePokemon, tamanioNombrePokemon);
+    desplazamiento += tamanioNombrePokemon;
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCatchPokemon->posicionEnElMapaX, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCatchPokemon->posicionEnElMapaY, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    list_add(MENSAJES_LISTA, unMensaje);
+}
+
+/*Recibe un CaughtPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
+void guardarEnMemoriaCaughtPokemon(void *unPokemon)
+{
+
+    t_caughtPokemon *unCaughtPokemon = (t_caughtPokemon *)unPokemon;
+    uint32_t desplazamiento = 0;
+    uint32_t tamanio = 0;
+
+    tamanio = sizeof(uint32_t);
+
+    tMensaje *unMensaje = malloc(sizeof(tMensaje));
+
+    unMensaje->acknowledgement = list_create();
+    unMensaje->suscriptoresEnviados = list_create();
+    unMensaje->idMensaje = unCaughtPokemon->identificador;
+    unMensaje->idMensajeCorrelacional = unCaughtPokemon->identificadorCorrelacional;
+    unMensaje->tipoMensaje = tCaughtPokemon; //CAUGHT
+    unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t)); //??* ACORDARSE QUE TIENE Q SER UINT32 Y NO BOOL
+    desplazamiento += sizeof(uint32_t);
+
+    //??* falta eliminar unCaughtPokemon
+
+    list_add(MENSAJES_LISTA, unMensaje);
+}
+
+/*Recibe un GetPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
+void guardarEnMemoriaGetPokemon(void *unPokemon)
+{
+
+    t_getPokemon *unGetPokemon = (t_getPokemon *)unPokemon;
+
+    //log_debug(logger, "\n\t--GAMEBOY PUBLISH -> El nombre del Pokemón es: %s", unGetPokemon->nombrePokemon);
+
+    unGetPokemon->identificador = generarNuevoIdMensajeBroker();
+
+    //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN GAMEBOY
+
+    // enviarInt(socketCliente, unGetPokemon->identificador);
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = string_length(unGetPokemon->nombrePokemon);
+    uint32_t tamanio = 0;
+
+    tamanio = tamanioNombrePokemon + sizeof(uint32_t);
+
+    tMensaje *unMensaje = malloc(sizeof(tMensaje));
+
+    unMensaje->acknowledgement = list_create();
+    unMensaje->suscriptoresEnviados = list_create();
+    unMensaje->idMensaje = unGetPokemon->identificador;
+    unMensaje->idMensajeCorrelacional = unGetPokemon->identificadorCorrelacional;
+    unMensaje->tipoMensaje = tGetPokemon; //GET
+    unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, unGetPokemon->nombrePokemon, tamanioNombrePokemon);
+    desplazamiento += tamanioNombrePokemon;
+
+    list_add(MENSAJES_LISTA, unMensaje);
+}
+
+/*Recibe un LocalizedPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
+void guardarEnMemoriaLocalizedPokemon(void *unPokemon)
+{
+
+    t_localizedPokemon *unLocalizedPokemon = (t_localizedPokemon *)unPokemon;
+
+    //log_info(logger, "El nombre del Pokemón es: %s", unLocalizedPokemon->nombrePokemon);
+
+    int cantidadListaDatosPokemon = list_size(unLocalizedPokemon->listaDatosPokemon);
+
+    int contadorito = 0;
+
+    printf("\n\nLOCALIZED_POKEMON DESERIALIZADO: \n");
+    printf("\nIdentificador: %d", unLocalizedPokemon->identificador);
+    printf("\nIdentificador Correlacional: %d", unLocalizedPokemon->identificadorCorrelacional);
+    printf("\nNombre del Pokemón: %s", unLocalizedPokemon->nombrePokemon);
+
+    datosPokemon *nodoDatosPokemon;
+
+    while (contadorito < cantidadListaDatosPokemon)
+    {
+
+        nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contadorito);
+
+        printf("\nCantidad de pokemón en %d° ubicación: %d", contadorito, nodoDatosPokemon->cantidad);
+        printf("\nUbicacion en 'x': %d", nodoDatosPokemon->posicionEnElMapaX);
+        printf("\nUbicacion en 'y': %d\n", nodoDatosPokemon->posicionEnElMapaY);
+
+        contadorito += 1;
+    }
+
+    //HAsta aca
+
+    uint32_t desplazamiento = 0;
+    uint32_t tamanioNombrePokemon = string_length(unLocalizedPokemon->nombrePokemon);
+    uint32_t tamanioLista = list_size(unLocalizedPokemon->listaDatosPokemon);
+    uint32_t tamanio = sizeof(uint32_t) + tamanioNombrePokemon + sizeof(datosPokemon) * tamanioLista; //??*revisar si esta bien
+    uint32_t contador = 0;
+    tMensaje *unMensaje = malloc(sizeof(tMensaje));
+
+    unMensaje->acknowledgement = list_create();
+    unMensaje->suscriptoresEnviados = list_create();
+    unMensaje->idMensaje = unLocalizedPokemon->identificador;
+    unMensaje->idMensajeCorrelacional = unLocalizedPokemon->identificadorCorrelacional;
+    unMensaje->tipoMensaje = tLocalizedPokemon; //LOCALIZED
+    unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, unLocalizedPokemon->nombrePokemon, tamanioNombrePokemon);
+    desplazamiento += tamanioNombrePokemon;
+
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioLista, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    while (contador < tamanioLista)
+    {
+
+        datosPokemon *nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contador); //??* posible error de casteo revisar (datosPokemon*)
+
+        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &nodoDatosPokemon->cantidad, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &nodoDatosPokemon->posicionEnElMapaX, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        memcpy(unMensaje->posicionEnMemoria + desplazamiento, &nodoDatosPokemon->posicionEnElMapaY, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        contador += 1;
+    }
+
+    //??* falta eliminar unLocalizedPokemon
+
+    list_add(MENSAJES_LISTA, unMensaje);
 }
 
 ////////////////////////////////////////FUNCIONES LISTAS////////////////////////////////////////////////
