@@ -394,3 +394,664 @@
 [ERROR] 17:20:13:737 GAME CARD/(4791:4794): - FALLO AL CONECTAR AL SERVIDOR
 [ERROR] 17:20:13:737 GAME CARD/(4791:4794): No se conectó correctamente al Broker. fallo en funcion conectarseA();
 [ERROR] 17:20:13:737 GAME CARD/(4791:4794): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[INFO] 20:34:37:60 GAME CARD/(4654:4654): LOG INICIALIZADO CON EXITO
+[INFO] 20:34:37:63 GAME CARD/(4654:4654): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 20:34:37:66 GAME CARD/(4654:4654): Cantidad de bloques del FS: 50
+[INFO] 20:34:37:69 GAME CARD/(4654:4654): La carpeta Files no estaba creada, se creó correctamente.
+[INFO] 20:34:37:69 GAME CARD/(4654:4654): - CONEXION EXITOSA
+[TRACE] 20:34:37:69 GAME CARD/(4654:4654): - Conectado a Broker a través del socket 4
+[INFO] 20:34:37:84 GAME CARD/(4654:4654): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 20:34:37:88 GAME CARD/(4654:4654): Pedido de suscripción realizado con éxito
+[DEBUG] 20:34:47:85 GAME CARD/(4654:4656): Variable brokerActivo: 4
+[DEBUG] 20:34:47:86 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:34:47:86 GAME CARD/(4654:4656): El Broker continúa conectado
+[DEBUG] 20:34:57:86 GAME CARD/(4654:4656): Variable brokerActivo: 4
+[DEBUG] 20:34:57:87 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:34:57:87 GAME CARD/(4654:4656): El Broker continúa conectado
+[DEBUG] 20:35:07:87 GAME CARD/(4654:4656): Variable brokerActivo: 4
+[DEBUG] 20:35:07:87 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:35:07:88 GAME CARD/(4654:4656): El Broker continúa conectado
+[DEBUG] 20:35:17:88 GAME CARD/(4654:4656): Variable brokerActivo: 4
+[DEBUG] 20:35:17:88 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:35:17:89 GAME CARD/(4654:4656): El Broker continúa conectado
+[DEBUG] 20:35:27:89 GAME CARD/(4654:4656): Variable brokerActivo: 4
+[DEBUG] 20:35:27:89 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:35:27:90 GAME CARD/(4654:4656): El Broker continúa conectado
+[INFO] 20:35:34:903 GAME CARD/(4654:4658): Cliente conectado!
+[INFO] 20:35:34:903 GAME CARD/(4654:4658): Creando hilo de administracion de conexion con cliente ....
+[INFO] 20:35:34:917 GAME CARD/(4654:4658): Hilo creado correctamente
+[INFO] 20:35:34:924 GAME CARD/(4654:4681): Tipo de mensaje recibido: 1
+[INFO] 20:35:34:924 GAME CARD/(4654:4681): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:35:34:924 GAME CARD/(4654:4681): El ID del mensaje es: 2
+[INFO] 20:35:34:924 GAME CARD/(4654:4681): El ID correlacional del mensaje es: 0.
+[INFO] 20:35:34:924 GAME CARD/(4654:4681): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:35:34:924 GAME CARD/(4654:4681): El nombre del Pokemón es: NONOs.
+[INFO] 20:35:34:924 GAME CARD/(4654:4681): La cantidad del pokemón es: 10.
+[INFO] 20:35:34:924 GAME CARD/(4654:4681): El pokemon solicitado no existia en Game Card. Se procederá a crearlo.
+[DEBUG] 20:35:37:90 GAME CARD/(4654:4656): Variable brokerActivo: 4
+[DEBUG] 20:35:37:90 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:35:37:90 GAME CARD/(4654:4656): El Broker continúa conectado
+[INFO] 20:35:39:925 GAME CARD/(4654:4681): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[INFO] 20:35:44:926 GAME CARD/(4654:4681): Se envió el resultado de la operación al Broker.
+[INFO] 20:35:44:926 GAME CARD/(4654:4681): - SE HAN ENVIADO 33 BYTES CON EXITO
+[ERROR] 20:35:44:927 GAME CARD/(4654:4681): El APPEARED_POKEMON no se envió con éxito al Broker.
+[WARNING] 20:35:45:345 GAME CARD/(4654:4681): CLIENTE DESCONECTADO
+[DEBUG] 20:35:47:96 GAME CARD/(4654:4656): Variable brokerActivo: 4
+[DEBUG] 20:35:47:96 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:35:47:96 GAME CARD/(4654:4656): El Broker continúa conectado
+[DEBUG] 20:35:57:106 GAME CARD/(4654:4656): Variable brokerActivo: 4
+[DEBUG] 20:35:57:106 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:35:57:106 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:35:57:107 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:35:57:107 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:35:57:107 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:36:07:115 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:36:07:115 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:36:07:115 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:36:07:116 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:36:07:116 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:36:07:116 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:36:17:118 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:36:17:119 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:36:17:119 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:36:17:119 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:36:17:119 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:36:17:119 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:36:27:164 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:36:27:165 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:36:27:165 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:36:27:166 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:36:27:166 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:36:27:166 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:36:37:170 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:36:37:170 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:36:37:170 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:36:37:171 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:36:37:171 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:36:37:171 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:36:47:171 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:36:47:171 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:36:47:171 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:36:47:172 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:36:47:172 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:36:47:172 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:36:57:181 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:36:57:181 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:36:57:181 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:36:57:181 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:36:57:181 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:36:57:181 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:37:07:181 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:37:07:182 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:37:07:182 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:37:07:182 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:37:07:182 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:37:07:182 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:37:17:185 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:37:17:185 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:37:17:185 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:37:17:185 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:37:17:186 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:37:17:186 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:37:27:190 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:37:27:190 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:37:27:190 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:37:27:190 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:37:27:190 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:37:27:191 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:37:37:193 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:37:37:194 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:37:37:194 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:37:37:194 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:37:37:194 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:37:37:194 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:37:47:196 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:37:47:196 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:37:47:196 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:37:47:197 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:37:47:197 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:37:47:197 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:37:57:228 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:37:57:228 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:37:57:228 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:37:57:228 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:37:57:229 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:37:57:229 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:38:07:263 GAME CARD/(4654:4656): Variable brokerActivo: -1
+[DEBUG] 20:38:07:263 GAME CARD/(4654:4656): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:38:07:263 GAME CARD/(4654:4656): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:38:07:264 GAME CARD/(4654:4656): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:38:07:264 GAME CARD/(4654:4656): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:38:07:264 GAME CARD/(4654:4656): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[INFO] 20:43:07:253 GAME CARD/(5106:5106): LOG INICIALIZADO CON EXITO
+[INFO] 20:43:07:263 GAME CARD/(5106:5106): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 20:43:07:268 GAME CARD/(5106:5106): - CONEXION EXITOSA
+[TRACE] 20:43:07:268 GAME CARD/(5106:5106): - Conectado a Broker a través del socket 4
+[INFO] 20:43:07:268 GAME CARD/(5106:5106): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 20:43:07:278 GAME CARD/(5106:5106): Pedido de suscripción realizado con éxito
+[DEBUG] 20:43:17:276 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:43:17:276 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:43:17:277 GAME CARD/(5106:5108): El Broker continúa conectado
+[DEBUG] 20:43:27:278 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:43:27:278 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:43:27:278 GAME CARD/(5106:5108): El Broker continúa conectado
+[DEBUG] 20:43:37:278 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:43:37:279 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:43:37:279 GAME CARD/(5106:5108): El Broker continúa conectado
+[INFO] 20:43:41:534 GAME CARD/(5106:5110): Cliente conectado!
+[INFO] 20:43:41:536 GAME CARD/(5106:5110): Creando hilo de administracion de conexion con cliente ....
+[INFO] 20:43:41:537 GAME CARD/(5106:5110): Hilo creado correctamente
+[INFO] 20:43:41:542 GAME CARD/(5106:5121): Tipo de mensaje recibido: 1
+[INFO] 20:43:41:542 GAME CARD/(5106:5121): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:43:41:542 GAME CARD/(5106:5121): El ID del mensaje es: 2
+[INFO] 20:43:41:543 GAME CARD/(5106:5121): El ID correlacional del mensaje es: 0.
+[INFO] 20:43:41:543 GAME CARD/(5106:5121): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:43:41:543 GAME CARD/(5106:5121): El nombre del Pokemón es: NONOs.
+[INFO] 20:43:41:543 GAME CARD/(5106:5121): La cantidad del pokemón es: 10.
+[INFO] 20:43:41:543 GAME CARD/(5106:5121): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:43:41:543 GAME CARD/(5106:5121): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:43:46:544 GAME CARD/(5106:5121): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:43:47:279 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:43:47:280 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:43:47:280 GAME CARD/(5106:5108): El Broker continúa conectado
+[INFO] 20:43:51:545 GAME CARD/(5106:5121): Se envió el resultado de la operación al Broker.
+[INFO] 20:43:51:545 GAME CARD/(5106:5121): - SE HAN ENVIADO 33 BYTES CON EXITO
+[DEBUG] 20:43:57:280 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:43:57:280 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:43:57:281 GAME CARD/(5106:5108): El Broker continúa conectado
+[DEBUG] 20:44:07:281 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:44:07:281 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:44:07:281 GAME CARD/(5106:5108): El Broker continúa conectado
+[DEBUG] 20:44:17:282 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:44:17:282 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:44:17:282 GAME CARD/(5106:5108): El Broker continúa conectado
+[DEBUG] 20:44:27:283 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:44:27:283 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:44:27:283 GAME CARD/(5106:5108): El Broker continúa conectado
+[DEBUG] 20:44:37:283 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:44:37:285 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:44:37:285 GAME CARD/(5106:5108): El Broker continúa conectado
+[DEBUG] 20:44:47:286 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:44:47:287 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:44:47:287 GAME CARD/(5106:5108): El Broker continúa conectado
+[INFO] 20:44:56:246 GAME CARD/(5106:5121): Tipo de mensaje recibido: 1
+[INFO] 20:44:56:247 GAME CARD/(5106:5121): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:44:56:247 GAME CARD/(5106:5121): El ID del mensaje es: 5
+[INFO] 20:44:56:247 GAME CARD/(5106:5121): El ID correlacional del mensaje es: 0.
+[INFO] 20:44:56:247 GAME CARD/(5106:5121): La posición del Pokémon en el mapa es: [11,10].
+[INFO] 20:44:56:248 GAME CARD/(5106:5121): El nombre del Pokemón es: PIKACHU.
+[INFO] 20:44:56:248 GAME CARD/(5106:5121): La cantidad del pokemón es: 5.
+[INFO] 20:44:56:248 GAME CARD/(5106:5121): El pokemon solicitado no existia en Game Card. Se procederá a crearlo.
+[DEBUG] 20:44:57:287 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:44:57:288 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:44:57:288 GAME CARD/(5106:5108): El Broker continúa conectado
+[INFO] 20:45:01:249 GAME CARD/(5106:5121): ARCHIVO METADATA DEL POKEMON PIKACHU CREADO CORRECTAMENTE
+[INFO] 20:45:06:250 GAME CARD/(5106:5121): Se envió el resultado de la operación al Broker.
+[INFO] 20:45:06:251 GAME CARD/(5106:5121): - SE HAN ENVIADO 35 BYTES CON EXITO
+[DEBUG] 20:45:07:288 GAME CARD/(5106:5108): Variable brokerActivo: 4
+[DEBUG] 20:45:07:289 GAME CARD/(5106:5108): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:45:07:289 GAME CARD/(5106:5108): El Broker continúa conectado
+[INFO] 20:45:12:187 GAME CARD/(5146:5146): LOG INICIALIZADO CON EXITO
+[INFO] 20:45:12:189 GAME CARD/(5146:5146): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 20:45:12:197 GAME CARD/(5146:5146): - CONEXION EXITOSA
+[TRACE] 20:45:12:197 GAME CARD/(5146:5146): - Conectado a Broker a través del socket 4
+[INFO] 20:45:12:197 GAME CARD/(5146:5146): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 20:45:12:206 GAME CARD/(5146:5146): Pedido de suscripción realizado con éxito
+[DEBUG] 20:45:22:211 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:45:22:212 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:45:22:212 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:45:32:213 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:45:32:213 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:45:32:213 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:45:42:214 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:45:42:214 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:45:42:215 GAME CARD/(5146:5148): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:45:42:215 GAME CARD/(5146:5148): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:45:42:215 GAME CARD/(5146:5148): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:45:42:215 GAME CARD/(5146:5148): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:45:52:215 GAME CARD/(5146:5148): Variable brokerActivo: -1
+[DEBUG] 20:45:52:215 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:45:52:215 GAME CARD/(5146:5148): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:45:52:216 GAME CARD/(5146:5148): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:45:52:216 GAME CARD/(5146:5148): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:45:52:217 GAME CARD/(5146:5148): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:46:02:217 GAME CARD/(5146:5148): Variable brokerActivo: -1
+[DEBUG] 20:46:02:218 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:46:02:218 GAME CARD/(5146:5148): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[INFO] 20:46:02:218 GAME CARD/(5146:5148): - CONEXION EXITOSA
+[TRACE] 20:46:02:219 GAME CARD/(5146:5148): - Conectado a Broker a través del socket 8
+[INFO] 20:46:02:219 GAME CARD/(5146:5148): El Broker se ha conectado correctamente.
+[INFO] 20:46:02:219 GAME CARD/(5146:5148): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 20:46:02:238 GAME CARD/(5146:5148): Pedido de suscripción realizado con éxito
+[DEBUG] 20:46:12:239 GAME CARD/(5146:5148): Variable brokerActivo: -1
+[DEBUG] 20:46:12:239 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:46:12:239 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:46:22:239 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:46:22:240 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:46:22:240 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:46:32:241 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:46:32:242 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:46:32:242 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:46:42:243 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:46:42:245 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:46:42:246 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:46:52:246 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:46:52:247 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:46:52:247 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:47:02:248 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:47:02:248 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:47:02:248 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:47:12:249 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:47:12:249 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:47:12:250 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:47:22:250 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:47:22:251 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:47:22:251 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:47:32:252 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:47:32:253 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:47:32:253 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:47:42:253 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:47:42:254 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:47:42:254 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:47:52:254 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:47:52:255 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:47:52:255 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:48:02:255 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:48:02:256 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:48:02:256 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:48:12:256 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:48:12:257 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:48:12:257 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:48:22:258 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:48:22:259 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:48:22:259 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:48:32:259 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:48:32:260 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:48:32:260 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:48:42:272 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:48:42:272 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:48:42:272 GAME CARD/(5146:5148): El Broker continúa conectado
+[DEBUG] 20:48:52:275 GAME CARD/(5146:5148): Variable brokerActivo: 4
+[DEBUG] 20:48:52:275 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:48:52:275 GAME CARD/(5146:5148): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:48:52:275 GAME CARD/(5146:5148): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:48:52:275 GAME CARD/(5146:5148): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:48:52:276 GAME CARD/(5146:5148): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:49:02:276 GAME CARD/(5146:5148): Variable brokerActivo: -1
+[DEBUG] 20:49:02:276 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:49:02:276 GAME CARD/(5146:5148): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:49:02:276 GAME CARD/(5146:5148): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:49:02:276 GAME CARD/(5146:5148): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:49:02:276 GAME CARD/(5146:5148): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:49:12:276 GAME CARD/(5146:5148): Variable brokerActivo: -1
+[DEBUG] 20:49:12:277 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:49:12:277 GAME CARD/(5146:5148): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:49:12:277 GAME CARD/(5146:5148): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:49:12:277 GAME CARD/(5146:5148): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:49:12:277 GAME CARD/(5146:5148): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:49:22:277 GAME CARD/(5146:5148): Variable brokerActivo: -1
+[DEBUG] 20:49:22:278 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:49:22:278 GAME CARD/(5146:5148): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:49:22:278 GAME CARD/(5146:5148): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:49:22:278 GAME CARD/(5146:5148): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:49:22:278 GAME CARD/(5146:5148): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:49:32:279 GAME CARD/(5146:5148): Variable brokerActivo: -1
+[DEBUG] 20:49:32:279 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:49:32:279 GAME CARD/(5146:5148): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:49:32:279 GAME CARD/(5146:5148): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:49:32:279 GAME CARD/(5146:5148): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:49:32:279 GAME CARD/(5146:5148): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[DEBUG] 20:49:42:290 GAME CARD/(5146:5148): Variable brokerActivo: -1
+[DEBUG] 20:49:42:291 GAME CARD/(5146:5148): Variable brokerActivo luego de testeo de conexión: -1
+[ERROR] 20:49:42:291 GAME CARD/(5146:5148): El Broker se encuentra desconectado. Se procederá a intentar reconectarse con el mismo.
+[ERROR] 20:49:42:291 GAME CARD/(5146:5148): - FALLO AL CONECTAR AL SERVIDOR
+[ERROR] 20:49:42:291 GAME CARD/(5146:5148): No se conectó correctamente al Broker. fallo en funcion conectarseA();
+[ERROR] 20:49:42:291 GAME CARD/(5146:5148): Fallo en el reintento de conexión con el Broker. Se intentará de nuevo en 10 segundos.
+[INFO] 20:50:08:162 GAME CARD/(5505:5505): LOG INICIALIZADO CON EXITO
+[INFO] 20:50:08:163 GAME CARD/(5505:5505): BITMAP EXISTENTE ENCONTRADO, SE CARGA EN MEMORIA
+[INFO] 20:50:08:169 GAME CARD/(5505:5505): - CONEXION EXITOSA
+[TRACE] 20:50:08:171 GAME CARD/(5505:5505): - Conectado a Broker a través del socket 4
+[INFO] 20:50:08:172 GAME CARD/(5505:5505): - SE HAN ENVIADO 41 BYTES CON EXITO
+[INFO] 20:50:08:181 GAME CARD/(5505:5505): Pedido de suscripción realizado con éxito
+[DEBUG] 20:50:18:176 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:50:18:176 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:50:18:177 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:50:28:177 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:50:28:177 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:50:28:178 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:50:29:111 GAME CARD/(5505:5509): Cliente conectado!
+[INFO] 20:50:29:111 GAME CARD/(5505:5509): Creando hilo de administracion de conexion con cliente ....
+[INFO] 20:50:29:111 GAME CARD/(5505:5509): Hilo creado correctamente
+[INFO] 20:50:29:126 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:50:29:128 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:50:29:129 GAME CARD/(5505:5520): El ID del mensaje es: 2
+[INFO] 20:50:29:130 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:50:29:131 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:50:29:131 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:50:29:131 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:50:29:131 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:50:29:131 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:50:34:136 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:50:38:178 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:50:38:179 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:50:38:179 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:50:39:137 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:50:39:138 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[DEBUG] 20:50:48:179 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:50:48:179 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:50:48:180 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:50:58:180 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:50:58:180 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:50:58:181 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:51:08:181 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:51:08:181 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:51:08:182 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:51:18:182 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:51:18:183 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:51:18:183 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:51:28:185 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:51:28:186 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:51:28:186 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:51:38:187 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:51:38:187 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:51:38:187 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:51:48:188 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:51:48:188 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:51:48:188 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:51:58:188 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:51:58:189 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:51:58:189 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:52:08:189 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:52:08:189 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:52:08:190 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:52:18:190 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:52:18:190 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:52:18:190 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:52:22:848 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:52:22:848 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:52:22:848 GAME CARD/(5505:5520): El ID del mensaje es: 5
+[INFO] 20:52:22:848 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:52:22:848 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:52:22:848 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:52:22:848 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:52:22:848 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:52:22:848 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:52:27:849 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:52:28:191 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:52:28:191 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:52:28:192 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:52:32:851 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:52:32:851 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[DEBUG] 20:52:38:192 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:52:38:193 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:52:38:193 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:52:48:193 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:52:48:194 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:52:48:194 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:52:48:959 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:52:48:959 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:52:48:959 GAME CARD/(5505:5520): El ID del mensaje es: 8
+[INFO] 20:52:48:959 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:52:48:959 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:52:48:959 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:52:48:959 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:52:48:959 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:52:48:959 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:52:53:960 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:52:58:194 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:52:58:195 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:52:58:195 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:52:58:961 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:52:58:961 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:52:58:966 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:52:58:967 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:52:58:967 GAME CARD/(5505:5520): El ID del mensaje es: 10
+[INFO] 20:52:58:967 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:52:58:968 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:52:58:968 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:52:58:968 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:52:58:968 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:52:58:968 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:53:03:970 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:53:08:195 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:53:08:195 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:53:08:195 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:53:08:971 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:53:08:971 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:53:08:973 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:53:08:973 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:53:08:973 GAME CARD/(5505:5520): El ID del mensaje es: 12
+[INFO] 20:53:08:973 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:53:08:973 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:53:08:973 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:53:08:973 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:53:08:973 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:53:08:973 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:53:13:976 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:53:18:196 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:53:18:196 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:53:18:196 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:53:18:977 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:53:18:977 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:53:18:979 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:53:18:979 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:53:18:979 GAME CARD/(5505:5520): El ID del mensaje es: 14
+[INFO] 20:53:18:980 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:53:18:980 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:53:18:980 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:53:18:980 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:53:18:980 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:53:18:980 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:53:23:982 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:53:28:196 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:53:28:196 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:53:28:196 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:53:28:984 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:53:28:986 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:53:28:987 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:53:28:987 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:53:28:987 GAME CARD/(5505:5520): El ID del mensaje es: 16
+[INFO] 20:53:28:987 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:53:28:987 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:53:28:988 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:53:28:988 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:53:28:988 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:53:28:988 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:53:33:990 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:53:38:197 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:53:38:197 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:53:38:197 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:53:38:999 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:53:38:0 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:53:38:0 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:53:38:0 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:53:38:1 GAME CARD/(5505:5520): El ID del mensaje es: 18
+[INFO] 20:53:38:1 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:53:38:1 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:53:38:1 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:53:38:1 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:53:38:1 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:53:38:1 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:53:44:4 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:53:48:198 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:53:48:198 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:53:48:198 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:53:49:6 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:53:49:8 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:53:49:8 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:53:49:8 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:53:49:8 GAME CARD/(5505:5520): El ID del mensaje es: 20
+[INFO] 20:53:49:8 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:53:49:9 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:53:49:9 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:53:49:9 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:53:49:9 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:53:49:9 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:53:54:12 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:53:58:198 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:53:58:198 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:53:58:198 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:53:59:14 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:53:59:15 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:53:59:16 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:53:59:16 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:53:59:16 GAME CARD/(5505:5520): El ID del mensaje es: 22
+[INFO] 20:53:59:16 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:53:59:16 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:53:59:16 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:53:59:17 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:53:59:17 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:53:59:17 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:54:04:20 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:54:08:199 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:54:08:199 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:54:08:199 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:54:09:22 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:54:09:22 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:54:09:23 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:54:09:23 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:54:09:23 GAME CARD/(5505:5520): El ID del mensaje es: 24
+[INFO] 20:54:09:24 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:54:09:24 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:54:09:24 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:54:09:24 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:54:09:24 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:54:09:24 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:54:14:28 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:54:18:199 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:54:18:200 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:54:18:200 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:54:19:30 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:54:19:30 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:54:19:31 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:54:19:32 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:54:19:32 GAME CARD/(5505:5520): El ID del mensaje es: 26
+[INFO] 20:54:19:32 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:54:19:32 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:54:19:32 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:54:19:32 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:54:19:32 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:54:19:34 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:54:24:35 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:54:28:200 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:54:28:200 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:54:28:200 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:54:29:37 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:54:29:37 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:54:29:38 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:54:29:38 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:54:29:38 GAME CARD/(5505:5520): El ID del mensaje es: 28
+[INFO] 20:54:29:38 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:54:29:38 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:54:29:38 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:54:29:38 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:54:29:38 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:54:29:39 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:54:34:42 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:54:38:201 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:54:38:201 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:54:38:201 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:54:39:43 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:54:39:43 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:54:39:46 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:54:39:46 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:54:39:46 GAME CARD/(5505:5520): El ID del mensaje es: 30
+[INFO] 20:54:39:46 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:54:39:46 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:54:39:46 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:54:39:46 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:54:39:46 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:54:39:46 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:54:44:50 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:54:48:202 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:54:48:202 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:54:48:202 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:54:49:51 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:54:49:51 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:54:49:52 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:54:49:52 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:54:49:52 GAME CARD/(5505:5520): El ID del mensaje es: 32
+[INFO] 20:54:49:52 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:54:49:52 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:54:49:53 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOs.
+[INFO] 20:54:49:53 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:54:49:53 GAME CARD/(5505:5520): El pokemon solicitado ya existia en Game Card. Se procederá a modificar sus valores.
+[INFO] 20:54:49:53 GAME CARD/(5505:5520): INGRESANDO A LA METADATA DE PATH /home/utnso/workspace/tp-2020-1c-Los-Recursos/GameCard/TALL_GRASS/Files/NONOs/Metadata.bin
+[INFO] 20:54:54:57 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOs CREADO CORRECTAMENTE
+[DEBUG] 20:54:58:203 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:54:58:203 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:54:58:203 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:54:59:58 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:54:59:58 GAME CARD/(5505:5520): - SE HAN ENVIADO 33 BYTES CON EXITO
+[INFO] 20:54:59:79 GAME CARD/(5505:5520): Tipo de mensaje recibido: 1
+[INFO] 20:54:59:79 GAME CARD/(5505:5520): Se recibió un 'NEW_POKEMON': 
+
+[INFO] 20:54:59:79 GAME CARD/(5505:5520): El ID del mensaje es: 35
+[INFO] 20:54:59:79 GAME CARD/(5505:5520): El ID correlacional del mensaje es: 0.
+[INFO] 20:54:59:79 GAME CARD/(5505:5520): La posición del Pokémon en el mapa es: [5,0].
+[INFO] 20:54:59:79 GAME CARD/(5505:5520): El nombre del Pokemón es: NONOfffs.
+[INFO] 20:54:59:79 GAME CARD/(5505:5520): La cantidad del pokemón es: 10.
+[INFO] 20:54:59:79 GAME CARD/(5505:5520): El pokemon solicitado no existia en Game Card. Se procederá a crearlo.
+[INFO] 20:55:04:81 GAME CARD/(5505:5520): ARCHIVO METADATA DEL POKEMON NONOfffs CREADO CORRECTAMENTE
+[DEBUG] 20:55:08:203 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:55:08:204 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:55:08:204 GAME CARD/(5505:5507): El Broker continúa conectado
+[INFO] 20:55:09:82 GAME CARD/(5505:5520): Se envió el resultado de la operación al Broker.
+[INFO] 20:55:09:82 GAME CARD/(5505:5520): - SE HAN ENVIADO 36 BYTES CON EXITO
+[DEBUG] 20:55:18:204 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:55:18:204 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:55:18:205 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:55:28:205 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:55:28:205 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:55:28:205 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:55:38:205 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:55:38:206 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:55:38:206 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:55:48:206 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:55:48:207 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:55:48:207 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:55:58:207 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:55:58:208 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:55:58:208 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:56:08:208 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:56:08:209 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:56:08:209 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:56:18:209 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:56:18:209 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:56:18:210 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:56:28:210 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:56:28:210 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:56:28:210 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:56:38:210 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:56:38:211 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:56:38:211 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:56:48:211 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:56:48:211 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:56:48:212 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:56:58:212 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:56:58:212 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:56:58:212 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:57:08:213 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:57:08:213 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:57:08:214 GAME CARD/(5505:5507): El Broker continúa conectado
+[DEBUG] 20:57:18:214 GAME CARD/(5505:5507): Variable brokerActivo: 4
+[DEBUG] 20:57:18:214 GAME CARD/(5505:5507): Variable brokerActivo luego de testeo de conexión: 4
+[DEBUG] 20:57:18:214 GAME CARD/(5505:5507): El Broker continúa conectado

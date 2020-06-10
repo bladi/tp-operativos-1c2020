@@ -1196,7 +1196,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         guardarEnMemoriaNewPokemon(unNewPokemon);
 
-        free(unNewPokemon);
+        //free(unNewPokemon); SE LIBERA AL FINAL DEL SWITCH EL BUFFER COMPLETO
 
         enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
@@ -1211,7 +1211,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         guardarEnMemoriaGetPokemon(unGetPokemon);
 
-        free(unGetPokemon);
+        //free(unGetPokemon);
 
         enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
@@ -1226,7 +1226,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         guardarEnMemoriaCatchPokemon(unCatchPokemon);
 
-        free(unCatchPokemon);
+        //free(unCatchPokemon);
 
         enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
@@ -1241,7 +1241,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
 
-        free(unAppeardPokemon);
+        //free(unAppeardPokemon);
 
         enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
 
@@ -1315,7 +1315,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         guardarEnMemoriaCaughtPokemon(unCaughtPokemon);
 
-        free(unCaughtPokemon);
+        //free(unCaughtPokemon);
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
@@ -1336,7 +1336,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         guardarEnMemoriaLocalizedPokemon(unLocalizedPokemon);
 
-        free(unLocalizedPokemon);
+        //free(unLocalizedPokemon);
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
@@ -1360,7 +1360,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
 
-        free(unAppeardPokemon);
+        //free(unAppeardPokemon);
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
@@ -1429,7 +1429,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         guardarEnMemoriaGetPokemon(unGetPokemon);
 
-        free(unGetPokemon);
+        //free(unGetPokemon);
 
         enviarInt(socketCliente, unGetPokemon->identificador);
 
@@ -1452,7 +1452,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         guardarEnMemoriaCatchPokemon(unCatchPokemon);
 
-        free(unCatchPokemon);
+        //free(unCatchPokemon);
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
