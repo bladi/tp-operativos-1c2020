@@ -376,8 +376,8 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
 ///////////////////////// Funciones Auxiliares para Estados ///////////////////////////////////////////////
 
-void cambiarEstado(t_Entrenador *pEntrenador, Estado pEstado)
-{
+void cambiarEstado(t_Entrenador *pEntrenador, Estado pEstado){
+
     pEntrenador->estado = pEstado;
     switch(pEstado)
 	{
@@ -395,7 +395,9 @@ void cambiarEstado(t_Entrenador *pEntrenador, Estado pEstado)
 
         case EXEC:
 		{
+            pthread_mutex_lock(&mutexEntrenadorEjecutando);
 			entrenadorEjecutando = pEntrenador;
+            pthread_mutex_unlock(&mutexEntrenadorEjecutando);
 			break;
 		}
 
@@ -466,6 +468,9 @@ void inicializarHilosYVariablesTeam()
     mapa = list_create();
     
     cargarEntrenadoresYListasGlobales();
+    
+    pthread_create(&hiloCPU,NULL,(void*)ejecutar,NULL);
+    
     pruebasSanty();
 
     socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
@@ -747,9 +752,19 @@ void planificarFIFO()
     cambiarEstado(unEntrenador, EXEC);
     printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
     printf("Posicion de Y a donde tiene que ir: %d\n", unEntrenador->objetivoY);
+    //moverEntrenador
     //Hago lo que tenga que hacer el entrenador
-    printf("Termino de ejecutar\n");
+    
+    /*
+    pthread_mutex_lock(&mutexEntrenadorEjecutando);
     entrenadorEjecutando = NULL;
+    pthread_mutex_unlock(&mutexEntrenadorEjecutando);
+    */
+    while(entrenadorEjecutando != NULL){
+        sleep(10);
+        log_warning(logger, "Hay un entrenador en ejecución");
+    }
+    log_debug(logger,"Termino de ejecutar\n");
     entrenadorFinalizoSuTarea(unEntrenador);
 }
 
@@ -1080,5 +1095,64 @@ bool hayDeadlock()
 
 void intercambiar()
 {
+
+}
+
+void ejecutar(){
+
+    while(1){
+
+        sleep(2);
+
+        pthread_mutex_lock(&mutexEntrenadorEjecutando);
+
+        if(entrenadorEjecutando!=NULL){
+
+            log_trace(logger,"Hay un entrenador ejecutando");
+
+            if(entrenadorEjecutando->objetivo == BuscandoAtrapar || entrenadorEjecutando->objetivo == BuscandoIntercambio){
+
+                log_warning(logger,"Moviendo al entrenador, posición actual: %d | %d", entrenadorEjecutando->posicionX, entrenadorEjecutando->posicionY);
+
+                if(entrenadorEjecutando->objetivoX != entrenadorEjecutando->posicionX){
+                    moverEntrenadorEnX();
+                } else if(entrenadorEjecutando->objetivoY != entrenadorEjecutando->posicionY){
+                    moverEntrenadorEnY();
+                } else {
+                    log_debug(logger,"El entrenador llegó a destino");
+                    entrenadorEjecutando = NULL;
+                }
+            
+            }
+        
+        }
+        pthread_mutex_unlock(&mutexEntrenadorEjecutando);
+
+    }
+}
+
+void moverEntrenadorEnX(){
+
+    int xActual = entrenadorEjecutando->posicionX;
+    int xObjetivo = entrenadorEjecutando->objetivoX;
+
+    if(xActual > xObjetivo){
+        entrenadorEjecutando->posicionX--;
+    } else {
+        entrenadorEjecutando->posicionX++;
+    }
+
+}
+
+void moverEntrenadorEnY(){
+
+    int yActual = entrenadorEjecutando->posicionY;
+    int yObjetivo = entrenadorEjecutando->objetivoY;
+
+    if(yActual > yObjetivo){
+        entrenadorEjecutando->posicionY--;
+    } else {
+        entrenadorEjecutando->posicionY++;
+    }
 
 }

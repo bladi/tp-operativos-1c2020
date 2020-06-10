@@ -145,10 +145,13 @@ uint32_t cantidadDeActualizacionesConfigTeam;
 
 pthread_t hiloServidorTeam;
 pthread_t hiloActualizadorConfigTeam;
+pthread_t hiloCPU;
 
 int socketBroker;
 
 t_Entrenador* entrenadorEjecutando;
+
+pthread_mutex_t mutexEntrenadorEjecutando;
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -193,6 +196,12 @@ bool teamCumplioObjetivos();
 int calcularDistancia(int x1, int y1, int x2, int y2);
 t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon);
 t_entrenadoresEnDeadlock* quienesEstanEnDeadlock();
+
+
+
+void ejecutar();
+void moverEntrenadorEnX();
+void moverEntrenadorEnY();
 
 
 #endif
