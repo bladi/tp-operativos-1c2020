@@ -10,8 +10,6 @@ void inicializarBroker()
 
     configurarLoggerBroker();
 
-    prueba();
-
     inicializarMemoria();
 
     inicializarHilosYVariablesBroker();
@@ -174,9 +172,9 @@ void inicializarHilosYVariablesBroker()
     //string_append(&unaInfoServidorBroker->ip,CONFIG_BROKER->ipBroker); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
     string_append(&unaInfoServidorBroker->ip, "0");
 
-    pthread_create(&hiloActualizadorConfigBroker, NULL, (void *)actualizarConfiguracionBroker, NULL); // ?* creo que no es necesario
+    pthread_create(&hiloActualizadorConfigBroker, NULL, (void*)actualizarConfiguracionBroker, NULL); // ?* creo que no es necesario
 
-    pthread_create(&hiloServidorBroker, NULL, (void *)servidor_inicializar, (void *)unaInfoServidorBroker);
+    pthread_create(&hiloServidorBroker, NULL, (void*)servidor_inicializar, (void *)unaInfoServidorBroker);
 
     pthread_create(&hiloNew, NULL, (void *)ejecutarColaNewPokemon, NULL);
     pthread_create(&hiloAppeared, NULL, (void *)ejecutarColaAppearedPokemon, NULL);
@@ -184,6 +182,8 @@ void inicializarHilosYVariablesBroker()
     pthread_create(&hiloCaught, NULL, (void *)ejecutarColaCaughtPokemon, NULL);
     pthread_create(&hiloGet, NULL, (void *)ejecutarColaGetPokemon, NULL);
     pthread_create(&hiloLocalized, NULL, (void *)ejecutarColaLocalizedPokemon, NULL);
+
+    //pthread_create(&hiloDumpCache,NULL,(void*)dumpCache, NULL);
 
     pthread_join(hiloActualizadorConfigBroker, NULL);
 }
@@ -1259,7 +1259,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
     free(tipoMensaje);
     free(tamanioMensaje);
-    free(buffer);
+    //free(buffer);
 
     return;
 }
@@ -3371,108 +3371,130 @@ bool existePosicionParticion(void *unaParticion)
 
 //////////////////////////////////////////////DUMP CACHE////////////////////////////////////////////////
 
-void dumpCache(t_list *particiones)
+void dumpCache(/*t_list *particiones*/)
 {
+    while(1){
 
-    FILE *f;
-    int cantParticiones = list_size(particiones);
+        sleep(5);
 
-    char *contenidoDump = string_new();
-    char *fecha = string_new();
-    char *horaCompleta = temporal_get_string_time();
-    char *hora = string_substring(horaCompleta, 0, 8);
+        FILE *f;
+        int cantParticiones;
 
-    time_t t;
-    t = time(NULL);
-    struct tm tm = *localtime(&t);
-    //strftime(fecha,11,"%d/%m/%Y", tm);
-    string_append_with_format(&fecha, "%d/%d/%d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
+        char *contenidoDump = string_new();
+        char *fecha = string_new();
+        char *horaCompleta = temporal_get_string_time();
+        char *hora = string_substring(horaCompleta, 0, 8);
 
-    string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
-    string_append_with_format(&contenidoDump, "Dump:                            %s                              %s\n", fecha, hora);
-    tParticion *particion; // = malloc(sizeof(tParticion));
-    char *limiteParticion;
-    char* nombreCola;
-    char libre;
+        time_t t;
+        t = time(NULL);
+        struct tm tm = *localtime(&t);
+        //strftime(fecha,11,"%d/%m/%Y", tm);
+        string_append_with_format(&fecha, "%d/%d/%d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
 
-    for (int i = 0; i < cantParticiones; i++)
-    {
+        string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+        string_append_with_format(&contenidoDump, "Dump:                            %s                              %s\n", fecha, hora);
+        tParticion *particion; // = malloc(sizeof(tParticion));
+        char *limiteParticion;
+        char* nombreCola;
+        char libre;
 
-        particion = list_get(particiones, i);
+        pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+        cantParticiones = list_size(METADATA_MEMORIA);
 
-        if (particion->free)
+       /*if(cantParticiones > 0){*/
+
+       log_debug(logger,"CANTIDAD DE PARTICIONES: %d",cantParticiones);
+
+        for (int i = 0; i < cantParticiones; i++)
         {
-            libre = 'L';
-        }
-        else
-        {
-            libre = 'X';
-        }
-        limiteParticion = particion->posicion + particion->tamanio; //in rodri we trust.
-        string_append_with_format(&contenidoDump, "Particion %d: %p", i, particion->posicion);
-        string_append_with_format(&contenidoDump, " - %p.", limiteParticion);
-        string_append_with_format(&contenidoDump, "    [%c]    Size: %db\n", libre, particion->tamanio);
 
-        nombreCola = buscarColaAPartirDeIdMensaje(particion->idMensaje);
+            particion = list_get(METADATA_MEMORIA, i);
 
-        string_append_with_format(&contenidoDump,"    LRU[%d] Cola:[%s]    ID:[%d]\n",particion->lru, nombreCola, particion->idMensaje);
+            if (particion->free)
+            {
+                libre = 'L';
+                nombreCola = string_new();
+
+            }
+            else
+            {
+                libre = 'X';
+                nombreCola = buscarColaAPartirDeIdMensaje(particion->idMensaje);
+            }
+
+            limiteParticion = particion->posicion + particion->tamanio; //in rodri we trust.
+            string_append_with_format(&contenidoDump, "Particion %d: %p", i, particion->posicion);
+            string_append_with_format(&contenidoDump, " - %p.", limiteParticion);
+            string_append_with_format(&contenidoDump, "    [%c]    Size: %db\n", libre, particion->tamanio);
+            string_append_with_format(&contenidoDump,"    LRU[%d] Cola:[%s]    ID:[%d]\n",particion->lru, nombreCola, particion->idMensaje);
+
+        }
+
+        pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
+
+        string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+
+        f = fopen(CONFIG_BROKER->pathDump, "w+");
+
+        log_debug(logger, "CREANDO ARCHIVO DUMP EN %s", CONFIG_BROKER->pathDump);
+
+        fputs(contenidoDump, f);
+        fseek(f, 0, SEEK_SET);
+        fclose(f);
+
+        free(contenidoDump);
+        free(fecha);
+        free(hora);
+        free(nombreCola);
+
+         /*}else{
+
+             log_info(logger,"No hay mensajes actualmente");
+
+         }*/
 
     }
-
-    string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
-
-    f = fopen(CONFIG_BROKER->pathDump, "w+");
-
-    log_debug(logger, "CREANDO ARCHIVO DUMP EN %s", CONFIG_BROKER->pathDump);
-
-    fputs(contenidoDump, f);
-    fseek(f, 0, SEEK_SET);
-    fclose(f);
-
-    free(contenidoDump);
-    free(fecha);
-    free(hora);
 }
 //////////////////////////////////////////////PRUEBAS////////////////////////////////////////////////
 
-void prueba()
-{
+// void prueba()
+// {
 
-    t_list *particionesReLocas = list_create();
+//     t_list *particionesReLocas = list_create();
 
-    tParticion *particion1 = malloc(sizeof(tParticion));
-    tParticion *particion2 = malloc(sizeof(tParticion));
-    tParticion *particion3 = malloc(sizeof(tParticion));
-    /*
-    char* posicion1 = string_new();
-    char* posicion2 = string_new();
-    char* posicion3 = string_new();
+//     tParticion *particion1 = malloc(sizeof(tParticion));
+//     tParticion *particion2 = malloc(sizeof(tParticion));
+//     tParticion *particion3 = malloc(sizeof(tParticion));
+//     /*
+//     char* posicion1 = string_new();
+//     char* posicion2 = string_new();
+//     char* posicion3 = string_new();
 
-    string_append(&posicion1, "unHexaReLoco");
-    string_append(&posicion2, "Cocholates");
-    string_append(&posicion3, "alvaritoReloca");
-    */
+//     string_append(&posicion1, "unHexaReLoco");
+//     string_append(&posicion2, "Cocholates");
+//     string_append(&posicion3, "alvaritoReloca");
+//     */
 
-    particion1->free = 1;
-    particion1->posicion = (char *)particion1;
-    particion1->tamanio = 11;
+//     particion1->free = 1;
+//     particion1->posicion = (char *)particion1;
+//     particion1->tamanio = 11;
 
-    particion2->free = 0;
-    particion2->posicion = (char *)particion2;
-    particion2->tamanio = 22;
+//     particion2->free = 0;
+//     particion2->posicion = (char *)particion2;
+//     particion2->tamanio = 22;
 
-    particion3->free = 1;
-    particion3->posicion = (char *)particion3;
-    particion3->tamanio = 33;
+//     particion3->free = 1;
+//     particion3->posicion = (char *)particion3;
+//     particion3->tamanio = 33;
 
-    list_add(particionesReLocas, particion1);
-    list_add(particionesReLocas, particion2);
-    list_add(particionesReLocas, particion3);
+//     list_add(particionesReLocas, particion1);
+//     list_add(particionesReLocas, particion2);
+//     list_add(particionesReLocas, particion3);
 
-    dumpCache(particionesReLocas);
+//     dumpCache(particionesReLocas);
 
-    free(particionesReLocas);
-}
+//     free(particionesReLocas);
+// }
 
 /*
 void manejarSeniales(int signum)

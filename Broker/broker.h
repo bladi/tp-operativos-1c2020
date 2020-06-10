@@ -135,6 +135,7 @@ unsigned char nuevoIdConfigBroker;
 uint32_t cantidadDeActualizacionesConfigBroker;  // 1 NEW_POKEMON_LISTA 2 APPEARED_POKEMON_LISTA 3 CATCH_POKEMON_LISTA 4 CAUGHT_POKEMON_LISTA 5 GET_POKEMON_LISTA 6 LOCALIZED_POKEMON_LISTA
 
 pthread_t hiloServidorBroker;
+pthread_t hiloDumpCache;
 pthread_t hiloActualizadorConfigBroker;
 pthread_t hiloNew;
 pthread_t hiloAppeared;
@@ -227,7 +228,7 @@ void ejecutarColaCaughtPokemon();
 void ejecutarColaGetPokemon();
 void ejecutarColaLocalizedPokemon();
 
-void dumpCache(t_list* particiones);
+void dumpCache(/*t_list* particiones*/);
 void prueba();
 
 //////////////////////////////////////////////////FUNCIONES LISTAS//////////////////////////////////////////////////////////////////////////////////////

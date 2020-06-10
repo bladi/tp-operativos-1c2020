@@ -282,3 +282,13 @@
 [INFO] 20:26:17:488 GAME BOY/(5624:5628): La posicion del pokémon en el mapa es: [5,0].
 [INFO] 20:26:17:488 GAME BOY/(5624:5628): Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON
 [WARNING] 20:26:43:167 GAME BOY/(5624:5628): Se desconectó el broker, o bien, terminó el tiempo de suscripcióna la cola de mensajes.
+[INFO] 18:42:37:60 GAME BOY/(6055:6055): LOG INICIALIZADO CON EXITO
+[INFO] 18:42:37:77 GAME BOY/(6055:6055): - CONEXION EXITOSA
+[TRACE] 18:42:37:77 GAME BOY/(6055:6055): - Conectado a Broker a través del socket 4
+[INFO] 18:42:37:77 GAME BOY/(6055:6055): - SE HAN ENVIADO 36 BYTES CON EXITO
+[INFO] 18:44:03:98 GAME BOY/(6055:6055): Pókemon creado con éxito
+[INFO] 18:48:51:503 GAME BOY/(6265:6265): LOG INICIALIZADO CON EXITO
+[INFO] 18:48:51:504 GAME BOY/(6265:6265): - CONEXION EXITOSA
+[TRACE] 18:48:51:505 GAME BOY/(6265:6265): - Conectado a Broker a través del socket 4
+[INFO] 18:48:51:505 GAME BOY/(6265:6265): - SE HAN ENVIADO 36 BYTES CON EXITO
+[INFO] 18:49:03:16 GAME BOY/(6265:6265): Pókemon creado con éxito
