@@ -91,6 +91,12 @@ typedef enum Objetivo{
 	EsperandoIntercambio
 } Objetivo;
 
+typedef struct
+{
+	char* nombre;
+	int cantidad;
+} t_Pokemon;
+
 typedef struct entrenador
 {
 	int id;
@@ -103,13 +109,8 @@ typedef struct entrenador
 	int objetivoX;
 	int objetivoY;
 	Objetivo objetivo;
+	t_Pokemon* objetivoPokemon;
 } t_Entrenador;
-
-typedef struct
-{
-	char* nombre;
-	int cantidad;
-} t_Pokemon;
 
 typedef struct
 {

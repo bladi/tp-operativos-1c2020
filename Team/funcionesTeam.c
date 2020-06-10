@@ -522,6 +522,10 @@ void cargarEntrenadoresYListasGlobales()
         unEntrenador->estado = NEW;
         unEntrenador->cuantosPuedeAtrapar = cantidadTotalDePokemonesEnLista(unEntrenador->objetivos);
         unEntrenador->objetivo = Ninguno;
+        t_Pokemon* unPokemonObjetivo = malloc(sizeof(t_Pokemon));
+        unPokemonObjetivo->nombre = string_new();
+        unEntrenador->objetivoPokemon = unPokemonObjetivo;
+        
         /*
         printf("Entrenador n°: %d \n", unEntrenador->id);
         printf("Posicion X: %d \n", unEntrenador->posicionX);
@@ -624,6 +628,10 @@ void pruebasSanty()
     {
         printf("El primer entrenador esta buscando el intercambio y sabe a donde ir\n");
     }
+
+    t_Pokemon* unPokeObjetivo = primerEntrenador->objetivoPokemon;
+
+    printf("El entrenador quiere un: %s\n", unPokeObjetivo->nombre);
 
     printf("Cantidad de entrenadores bloqueados: %d\n", list_size(BLOQUEADOS));
 
@@ -860,6 +868,18 @@ char* cualEsElPrimerPokemonQuePrecisa(t_Entrenador* pEntrenador)
     }
 }
 
+t_Entrenador* quienEstaEsperandoMiIntercambio(int pPosX, int pPosY)
+{
+    for(int i = 0; i < list_size(BLOQUEADOS); i++)
+    {
+        t_Entrenador* unEntrenador = list_get(BLOQUEADOS, i);
+        if(unEntrenador->objetivo == EsperandoIntercambio && unEntrenador->posicionX == pPosX && unEntrenador->posicionY == pPosY)
+        {
+            return unEntrenador;
+        }
+    }
+}
+
 //////////////////////// Funciones auxiliares de Team /////////////////////////////////////////////////////
 
 bool teamCumplioObjetivos()
@@ -1024,6 +1044,10 @@ t_entrenadoresEnDeadlock* quienesEstanEnDeadlock()
                 primerEntrenador->objetivo = BuscandoIntercambio;
                 primerEntrenador->objetivoX = segundoEntrenador->posicionX;
                 primerEntrenador->objetivoY = segundoEntrenador->posicionY;
+                t_Pokemon* unPokemonObjetivo = primerEntrenador->objetivoPokemon;
+                unPokemonObjetivo->nombre = pokemonQuePrecisa;
+                unPokemonObjetivo->cantidad = 1;
+                primerEntrenador->objetivoPokemon = unPokemonObjetivo;
                 list_remove(BLOQUEADOS, posicionEntrenadorEnLista(BLOQUEADOS, primerEntrenador->id));
                 cambiarEstado(primerEntrenador, READY);
                 free(listaDeadlock);
@@ -1052,4 +1076,9 @@ bool hayDeadlock()
     {
         return true;
     }
+}
+
+void intercambiar()
+{
+
 }
