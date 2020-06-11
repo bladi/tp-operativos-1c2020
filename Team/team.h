@@ -196,8 +196,7 @@ bool teamCumplioObjetivos();
 int calcularDistancia(int x1, int y1, int x2, int y2);
 t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon);
 t_entrenadoresEnDeadlock* quienesEstanEnDeadlock();
-
-
+bool hayDeadlock();
 
 void ejecutar();
 void moverEntrenadorEnX();
