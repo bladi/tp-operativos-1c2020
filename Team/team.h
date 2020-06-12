@@ -110,6 +110,7 @@ typedef struct entrenador
 	int objetivoY;
 	Objetivo objetivo;
 	t_Pokemon* objetivoPokemon;
+	int intercambioEntrenador;
 } t_Entrenador;
 
 typedef struct
@@ -165,10 +166,8 @@ void manejarRespuestaABroker(int socketCliente, int idCliente);
 void manejarRespuestaAGameBoy(int socketCliente, int idCliente);
 
 void cambiarEstado(t_Entrenador *unEntrenador, Estado unEstado);
-void pasarEntrenadorAReady(int posXpokemon,int posYpokemon);
 void bloquearEntrenador(t_Entrenador* pEntrenador);
 void finalizarEntrenador(t_Entrenador* pEntrenador);
-
 
 void inicializarTeam();
 void finalizarTeam();
@@ -177,10 +176,12 @@ void cargarEntrenadoresYListasGlobales();
 
 int posicionPokeEnLista(t_list* pLista, char* pPokemon);
 void agregarPokeALista(t_list* pLista, char* pPokemon);
+void quitarPokeDeLista(t_list* pLista, char* pPokemon);
 int cantidadDeUnPokemonEnLista(t_list* pLista, char* pPokemon);
 int cantidadTotalDePokemonesEnLista(t_list* pLista);
 
-void planificar();
+void planificarReady(int posXpokemon,int posYpokemon, char* pPokemonNombre, int pPokemonCantidad);
+void planificarExec();
 void planificarFIFO();
 void planificarRR();
 void planificarSJF();
@@ -190,11 +191,16 @@ bool puedeAtrapar(t_Entrenador* pEntrenador);
 bool entrenadorCumplioObjetivos(t_Entrenador* pEntrenador);
 bool estaBloqueadoPorRecursos(t_Entrenador* pEntrenador);
 void entrenadorFinalizoSuTarea(t_Entrenador* pEntrenador);
+int posicionEntrenadorEnLista(t_list* pLista, int pId);
+bool puedeDesbloquearse(t_Entrenador* pEntrenador);
+int cuantosLeFaltan(t_Entrenador* pEntrenador, char* pPokemon);
+char* cualEsElPrimerPokemonQuePrecisa(t_Entrenador* pEntrenador);
+char* cualEsElPrimerPokemonQueLeSobra(t_Entrenador* pEntrenador);
 
 bool teamCumplioObjetivos();
 
 int calcularDistancia(int x1, int y1, int x2, int y2);
-t_Entrenador* entrenadorMasCercano(int posXpokemon,int posYpokemon);
+t_Entrenador* entrenadorMasCercano(int posXpokemon, int posYpokemon, char* pPokemonNombre, int pPokemonCantidad);
 t_entrenadoresEnDeadlock* quienesEstanEnDeadlock();
 bool hayDeadlock();
 
