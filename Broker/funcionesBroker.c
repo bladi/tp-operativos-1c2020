@@ -183,7 +183,7 @@ void inicializarHilosYVariablesBroker()
     pthread_create(&hiloGet, NULL, (void *)ejecutarColaGetPokemon, NULL);
     pthread_create(&hiloLocalized, NULL, (void *)ejecutarColaLocalizedPokemon, NULL);
 
-    //pthread_create(&hiloDumpCache,NULL,(void*)dumpCache, NULL);
+    pthread_create(&hiloDumpCache,NULL,(void*)dumpCache, NULL);
 
     pthread_join(hiloActualizadorConfigBroker, NULL);
 }
@@ -271,6 +271,12 @@ uint32_t generarNuevoIdParticion()
 char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
 {
     char *aDevolver = NULL;
+
+    if(tamanio < CONFIG_BROKER->tamanioMinimoParticion){
+
+        tamanio = CONFIG_BROKER->tamanioMinimoParticion;
+    }
+
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoMemoria, "BS"))
     {
         //ingresamos siempre por la primera particion 0
@@ -483,7 +489,7 @@ void splitBuddy(uint32_t index)
 
         tParticion *rightChild = malloc(sizeof(tParticion));
 
-        rightChild->posicion = father->posicion + father->tamanio / 2;
+        rightChild->posicion = father->posicion + father->tamanio / 2;//SE RESTA UNO PORQUE EMPIEZA DESDE LA POSICION 0 ?*realizar prueba si esta bien
         rightChild->free = true;
         rightChild->tamanio = father->tamanio / 2;
         rightChild->idMensaje = -1;
@@ -719,7 +725,7 @@ tParticion *splitParticion(tParticion *unaParticion, uint32_t tamanio)
 
         tParticion *nuevaParti = malloc(sizeof(tParticion));
 
-        nuevaParti->posicion = unaParticion->posicion + tamanio;
+        nuevaParti->posicion = unaParticion->posicion + tamanio;//SE RESTA UNO PORQUE EMPIEZA DESDE LA POSICION 0
         nuevaParti->free = true;
         nuevaParti->tamanio = unaParticion->tamanio - tamanio;
         nuevaParti->idMensaje = -1;
@@ -3039,7 +3045,7 @@ void guardarEnMemoriaGetPokemon(void *unPokemon)
 
     t_getPokemon *unGetPokemon = (t_getPokemon *)unPokemon;
 
-    //log_debug(logger, "\n\t--GAMEBOY PUBLISH -> El nombre del Pokemón es: %s", unGetPokemon->nombrePokemon);
+    //log_debug(logger, "\n\t--GAMEBOY PUBLISH -> El nombre del Pokemón es: .%s.", unGetPokemon->nombrePokemon);
 
     unGetPokemon->identificador = generarNuevoIdMensajeBroker();
 
@@ -3061,6 +3067,7 @@ void guardarEnMemoriaGetPokemon(void *unPokemon)
     unMensaje->idMensajeCorrelacional = unGetPokemon->identificadorCorrelacional;
     unMensaje->tipoMensaje = tGetPokemon; //GET
     unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
+    //log_trace(logger,"TAMANIO tamanioNombrePokemon: %d, uint32: %d",tamanioNombrePokemon,sizeof(uint32_t));
 
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
@@ -3375,8 +3382,7 @@ void dumpCache(/*t_list *particiones*/)
 {
     while(1){
 
-        sleep(5);
-
+        
         FILE *f;
         int cantParticiones;
 
@@ -3423,10 +3429,10 @@ void dumpCache(/*t_list *particiones*/)
             }
 
             limiteParticion = particion->posicion + particion->tamanio; //in rodri we trust.
-            string_append_with_format(&contenidoDump, "Particion %d: %p", i, particion->posicion);
-            string_append_with_format(&contenidoDump, " - %p.", limiteParticion);
+            string_append_with_format(&contenidoDump, "Particion %d: %p (%d)", i,particion->posicion, (particion->posicion - MEMORIA_PRINCIPAL) );
+            string_append_with_format(&contenidoDump, " - %p (%d).", limiteParticion, (limiteParticion - MEMORIA_PRINCIPAL));
             string_append_with_format(&contenidoDump, "    [%c]    Size: %db\n", libre, particion->tamanio);
-            string_append_with_format(&contenidoDump,"    LRU[%d] Cola:[%s]    ID:[%d]\n",particion->lru, nombreCola, particion->idMensaje);
+            string_append_with_format(&contenidoDump,"   LRU[%d] Cola:[%s]    ID:[%d]\n",particion->lru, nombreCola, particion->idMensaje);
 
         }
 
@@ -3446,6 +3452,7 @@ void dumpCache(/*t_list *particiones*/)
         free(fecha);
         free(hora);
         free(nombreCola);
+        sleep(10);
 
          /*}else{
 
@@ -3455,6 +3462,14 @@ void dumpCache(/*t_list *particiones*/)
 
     }
 }
+
+// int getPosicionRelativa(char* posicionAbsoluta)
+// {
+//     char * posicionRelativaHex = string_new();
+
+//     }
+//     return num;
+// }
 //////////////////////////////////////////////PRUEBAS////////////////////////////////////////////////
 
 // void prueba()

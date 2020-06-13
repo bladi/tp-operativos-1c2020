@@ -793,3 +793,20 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
     return;
 
 }
+
+void sacarBarraNFinal(int posicion, char **argv){
+
+    char* elString = argv[posicion];
+
+    int i = 0;
+
+    while(elString[i] != '\0'){
+
+        //printf("valor: %d",elString[i]);
+
+        if(elString[i] == 13)
+            elString[i] = '\0';
+        i++;
+    }
+
+}

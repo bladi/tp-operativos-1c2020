@@ -4,6 +4,8 @@ uint32_t main(int argc, char **argv) {
 
 	printf("\nCantidad de argumentos: %d", argc);
 
+	sacarBarraNFinal(argc-1,argv);
+
 	for(int i=0;i<argc;i++){
 
 		printf("\n\n %d° argumento ingresado: '%s'", i+1, argv[i]);
