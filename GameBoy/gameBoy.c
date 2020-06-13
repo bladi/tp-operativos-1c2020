@@ -133,7 +133,7 @@ uint32_t main(int argc, char **argv) {
 					printf("\n\n No se ingresó un resultado de atrapada en el 5° argumento. Intente nuevamente.\n");
 					return 0;
 
-				}else if(!(strcmp(argv[4], "OK") == 0) || !(strcmp(argv[4], "FAIL") == 0)){
+				}else if((strcmp(argv[4], "OK") != 0) && (strcmp(argv[4], "FAIL") != 0)){
 
 					printf("\n\n No se ingresó un resultado de atrapada válido. Intente nuevamente.\n");
 					return 0;
