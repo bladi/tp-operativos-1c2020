@@ -1438,7 +1438,18 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
         log_info(logger, "Se suscribe a cola: : %d", nuevaSuscripcion->colaDeMensajes);
         log_info(logger, "Tiempo de Suscripcion: %d", nuevaSuscripcion->tiempoDeSuscripcion);
 
+        nuevaSuscripcion->colaDeMensajes = tAppearedPokemon;
+
         ingresarNuevoSuscriber(nuevaSuscripcion);
+
+        nuevaSuscripcion->colaDeMensajes = tLocalizedPokemon;
+
+        ingresarNuevoSuscriber(nuevaSuscripcion);
+
+        nuevaSuscripcion->colaDeMensajes = tCaughtPokemon;
+
+        ingresarNuevoSuscriber(nuevaSuscripcion);
+        
         enviarInt(socketCliente, 1);
 
         break;
