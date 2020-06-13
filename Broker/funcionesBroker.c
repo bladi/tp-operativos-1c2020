@@ -1239,6 +1239,29 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
         break;
     }
 
+     case tCaughtPokemon:
+    {
+        log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE CAUGHT --> DE GAMEBOY");
+
+        t_caughtPokemon *unCaughtPokemon = (t_caughtPokemon *)buffer; //??* LA ESTRUCTURA ESTA MAL SOLO TIENE QUE SER ID + O/1 unCaughtPokemon->RESULTADO TIENE QUE SER UINT32
+
+        // log_info(logger, "El nombre del Pokemón es: %s", unCaughtPokemon->nombrePokemon);
+
+        unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
+
+        guardarEnMemoriaCaughtPokemon(unCaughtPokemon);
+
+        //free(unCaughtPokemon);
+
+        //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
+
+        enviarInt(socketCliente, unCaughtPokemon->identificador);
+
+        enviarInt(socketCliente, 1);
+
+        break;
+    }
+
     case tAppearedPokemon:
     {
         log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE APPEARED --> DE GAMEBOY");
@@ -3031,11 +3054,10 @@ void guardarEnMemoriaCaughtPokemon(void *unPokemon)
     unMensaje->tipoMensaje = tCaughtPokemon; //CAUGHT
     unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
-    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t)); //??* ACORDARSE QUE TIENE Q SER UINT32 Y NO BOOL
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t)); 
     desplazamiento += sizeof(uint32_t);
 
-    //??* falta eliminar unCaughtPokemon
-
+    
     list_add(MENSAJES_LISTA, unMensaje);
 }
 

@@ -1,9 +1,21 @@
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Dump:                            13/6/2020                              12:55:32
-Particion 0: 0x80f67b0 (0) - 0x80f67bb (11).    [X]    Size: 11b
-   LRU[1592063711] Cola:[GET_POKEMON]    ID:[1]
-Particion 1: 0x80f67bb (11) - 0x80f67c9 (25).    [X]    Size: 14b
-   LRU[1592063711] Cola:[GET_POKEMON]    ID:[2]
-Particion 2: 0x80f67c9 (25) - 0x80f77b0 (4096).    [L]    Size: 4071b
-   LRU[1592063711] Cola:[]    ID:[-1]
+Dump:                            13/6/2020                              13:07:03
+Particion 0: 0x8fc97b0 (0) - 0x8fc97bb (11).    [X]    Size: 11b
+   LRU[1592064067] Cola:[GET_POKEMON]    ID:[1]
+Particion 1: 0x8fc97bb (11) - 0x8fc97c9 (25).    [X]    Size: 14b
+   LRU[1592064067] Cola:[GET_POKEMON]    ID:[2]
+Particion 2: 0x8fc97c9 (25) - 0x8fc97dc (44).    [X]    Size: 19b
+   LRU[1592064096] Cola:[CATCH_POKEMON]    ID:[3]
+Particion 3: 0x8fc97dc (44) - 0x8fc97f0 (64).    [X]    Size: 20b
+   LRU[1592064096] Cola:[CATCH_POKEMON]    ID:[4]
+Particion 4: 0x8fc97f0 (64) - 0x8fc9805 (85).    [X]    Size: 21b
+   LRU[1592064096] Cola:[CATCH_POKEMON]    ID:[5]
+Particion 5: 0x8fc9805 (85) - 0x8fc981b (107).    [X]    Size: 22b
+   LRU[1592064096] Cola:[CATCH_POKEMON]    ID:[6]
+Particion 6: 0x8fc981b (107) - 0x8fc9824 (116).    [X]    Size: 9b
+   LRU[1592064096] Cola:[GET_POKEMON]    ID:[7]
+Particion 7: 0x8fc9824 (116) - 0x8fc982e (126).    [X]    Size: 10b
+   LRU[1592064096] Cola:[GET_POKEMON]    ID:[8]
+Particion 8: 0x8fc982e (126) - 0x8fca7b0 (4096).    [L]    Size: 3970b
+   LRU[1592064096] Cola:[]    ID:[-1]
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
