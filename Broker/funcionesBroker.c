@@ -3378,7 +3378,7 @@ bool existePosicionParticion(void *unaParticion)
 
 //////////////////////////////////////////////DUMP CACHE////////////////////////////////////////////////
 
-void dumpCache(/*t_list *particiones*/)
+void dumpCache()
 {
     while(1){
 
@@ -3452,7 +3452,7 @@ void dumpCache(/*t_list *particiones*/)
         free(fecha);
         free(hora);
         free(nombreCola);
-        sleep(10);
+        sleep(5);
 
          /*}else{
 
@@ -3620,37 +3620,37 @@ char* buscarColaAPartirDeIdMensaje(uint32_t idMensaje){
 
     switch (unMensaje->tipoMensaje){
 
-        case 1:
+        case tNewPokemon:
 
             string_append(&nombreCola, "NEW_POKEMON");
 
             break;
 
-        case 2:
+        case tAppearedPokemon:
 
             string_append(&nombreCola, "APPEARED_POKEMON");
 
             break;
 
-        case 3:
+        case tCatchPokemon:
 
             string_append(&nombreCola, "CATCH_POKEMON");
 
             break;
 
-        case 4:
+        case tCaughtPokemon:
 
             string_append(&nombreCola, "CAUGHT_POKEMON_LISTA");
 
             break;
 
-        case 5:
+        case tGetPokemon:
 
             string_append(&nombreCola, "GET_POKEMON");
 
             break;
 
-        case 6:
+        case tLocalizedPokemon:
 
             string_append(&nombreCola, "LOCALIZED_POKEMON");
 
