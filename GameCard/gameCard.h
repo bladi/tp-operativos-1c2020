@@ -36,6 +36,7 @@
 
 #define TIEMPO_DE_REINTENTO_CONEXION "TIEMPO_DE_REINTENTO_CONEXION"
 #define TIEMPO_DE_REINTENTO_OPERACION "TIEMPO_DE_REINTENTO_OPERACION"
+#define TIEMPO_RETARDO_OPERACION "TIEMPO_RETARDO_OPERACION"
 #define PUNTO_MONTAJE_TALLGRASS "PUNTO_MONTAJE_TALLGRASS"
 #define IP_BROKER "IP_BROKER"
 #define PUERTO_BROKER "PUERTO_BROKER"
@@ -61,6 +62,7 @@ typedef struct gameCardConfig_s{
 
 	uint32_t tiempoReintentoConexion;
 	uint32_t tiempoReintentoOperacion;
+	uint32_t tiempoRetardoOperacion;
 	char* puntoMontajeTallGrass;
 	char* ipBroker;
     uint32_t puertoBroker;
@@ -98,10 +100,13 @@ uint32_t busquedaX;
 uint32_t busquedaY;
 
 int socketBroker;
+int brokerActivo;
 
 pthread_t hiloServidorGameCard;
 pthread_t hiloActualizadorConfigGameCard;
 pthread_t hiloActualizadorSocketBrocker;
+
+pthread_mutex_t mutexSocketBroker;
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -109,6 +114,7 @@ void configurarLoggerGameCard();
 
 void cargarConfiguracionGameCard();
 void actualizarConfiguracionGameCard();
+void crearCarpetaFiles();
 
 void inicializarGameCard();
 void inicializarHilosYVariablesGameCard();

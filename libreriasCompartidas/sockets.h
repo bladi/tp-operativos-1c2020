@@ -35,6 +35,7 @@ int32_t recibirPorSocket(int32_t fdCliente, void *buffer, int32_t totalARecibir)
 void selectRead(int32_t descriptor, fd_set *bag, struct timeval *timeout);
 void selectWrite(int32_t descriptor, fd_set *bag, struct timeval *timeout);
 void selectException(int32_t descriptor, fd_set *bag, struct timeval *timeout);
+int probarConexionSocket(int socketDestino);
 
 void servidor_inicializar(void* unaInfoServidor);
 

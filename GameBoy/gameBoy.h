@@ -119,5 +119,6 @@ void enviarNewPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posic
 void enviarCatchPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY, char* idMensaje);
 void enviarGetPokemonAGameCard(char* nombrePokemon);
 void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion);
+void sacarBarraNFinal(int posicion, char **argv);
 
 #endif

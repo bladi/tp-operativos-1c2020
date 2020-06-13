@@ -497,7 +497,7 @@ void inicializarHilosYVariablesTeam()
     unSuscriptor->ip = string_new();
     string_append(&unSuscriptor->ip, unTeamConfig->ipTeam);
 
-    enviarInt(socketBroker, 3);
+    enviarInt(socketBroker, 4);
     enviarPaquete(socketBroker, tSuscriptor, unSuscriptor, tamanioSuscriptor);
 
     if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0){
