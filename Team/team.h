@@ -198,12 +198,12 @@ char* cualEsElPrimerPokemonQuePrecisa(t_Entrenador* pEntrenador);
 char* cualEsElPrimerPokemonQueLeSobra(t_Entrenador* pEntrenador);
 
 bool teamCumplioObjetivos();
-
 int calcularDistancia(int x1, int y1, int x2, int y2);
 t_Entrenador* entrenadorMasCercano(int posXpokemon, int posYpokemon, char* pPokemonNombre, int pPokemonCantidad);
 t_entrenadoresEnDeadlock* quienesEstanEnDeadlock();
 bool hayDeadlock();
-
+void intercambiar();
+void atrapar();
 void ejecutar();
 void moverEntrenadorEnX();
 void moverEntrenadorEnY();
