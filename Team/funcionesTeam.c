@@ -449,6 +449,10 @@ void finalizarTeam() {
 
 void inicializarHilosYVariablesTeam()
 {
+    int resultado;
+    int tipoResultado = 0;
+    int tamanioSuscriptor = 0;
+
     cantidadDeActualizacionesConfigTeam = 0;
     
     listaDeEntrenadores = list_create();
@@ -479,6 +483,40 @@ void inicializarHilosYVariablesTeam()
 
     pthread_create(&hiloActualizadorConfigTeam, NULL, (void*)actualizarConfiguracionTeam, NULL);
     pthread_create(&hiloServidorTeam,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorTeam);
+
+    t_suscriptor *unSuscriptor = malloc(sizeof(t_suscriptor));
+
+    unSuscriptor->identificador = 0;
+    unSuscriptor->identificadorCorrelacional = 0;
+
+    unSuscriptor->colaDeMensajes = tAppearedPokemon;
+
+    unSuscriptor->tiempoDeSuscripcion = 0;
+    unSuscriptor->puerto = unTeamConfig->puertoTeam;
+
+    unSuscriptor->ip = string_new();
+    string_append(&unSuscriptor->ip, unTeamConfig->ipTeam);
+
+    enviarInt(socketBroker, 3);
+    enviarPaquete(socketBroker, tSuscriptor, unSuscriptor, tamanioSuscriptor);
+
+    if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0){
+
+        if (tipoResultado == 1){
+
+            log_info(logger, "Pedido de suscripción realizado con éxito");
+
+        }else if (tipoResultado == 0){
+
+            log_info(logger, "No se pudo realizar el pedido de suscripción");
+
+        }
+
+    }else{
+
+        log_error(logger, "Hubo un error al recibir el resultado de la operación desde el Broker");
+
+    }
 
     pthread_join(hiloActualizadorConfigTeam, NULL);
 

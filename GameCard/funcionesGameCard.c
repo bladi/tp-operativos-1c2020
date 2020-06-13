@@ -250,6 +250,7 @@ void inicializarHilosYVariablesGameCard()
     }
 
     free(unSuscriptor);
+    
     pthread_join(hiloActualizadorConfigGameCard, NULL);
 
 }
