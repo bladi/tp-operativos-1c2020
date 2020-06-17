@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <math.h>
+#include <semaphore.h>
 
 ////////////////////////////////////////////////////////////////////////LIBS COMPARTIDAS/////////////////////////////////////////////////////////////////////////////////
 
@@ -151,8 +152,10 @@ pthread_t hiloCPU;
 int socketBroker;
 
 t_Entrenador* entrenadorEjecutando;
+t_list* semaforosEntrenador;
 
 pthread_mutex_t mutexEntrenadorEjecutando;
+pthread_mutex_t mutexSemaforosEntrenador;
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -204,7 +207,7 @@ t_entrenadoresEnDeadlock* quienesEstanEnDeadlock();
 bool hayDeadlock();
 void intercambiar();
 void atrapar();
-void ejecutar();
+void ejecutar(int pId);
 void moverEntrenadorEnX();
 void moverEntrenadorEnY();
 

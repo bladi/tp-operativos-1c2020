@@ -461,10 +461,11 @@ void inicializarHilosYVariablesTeam()
     pokemonesAtrapados = list_create();
     pokemonesObjetivos = list_create();
     mapa = list_create();
+    semaforosEntrenador = list_create();
     
     cargarEntrenadoresYListasGlobales();
     
-    pthread_create(&hiloCPU,NULL,(void*)ejecutar,NULL);
+    //pthread_create(&hiloCPU,NULL,(void*)ejecutar,NULL);
     
     pruebasSanty();
 
@@ -542,6 +543,19 @@ void cargarEntrenadoresYListasGlobales()
         free(unPokemon);
         free(otroPokemon);
         */
+        sem_t* unSemaforo = malloc(sizeof(sem_t));
+        sem_init(unSemaforo, 0, 0);
+        
+        //pthread_create(&hiloCPU,NULL,(void*)ejecutar,NULL);
+
+        pthread_mutex_lock(&mutexSemaforosEntrenador);
+        list_add(semaforosEntrenador, unSemaforo);
+        pthread_mutex_unlock(&mutexSemaforosEntrenador);
+
+        char *hiloEntrenador = string_new();
+        string_append_with_format(&hiloEntrenador, ",%d", unEntrenador->id);
+        pthread_create(&hiloEntrenador, NULL, (void*)ejecutar, unEntrenador->id);
+
         list_add(listaDeEntrenadores, unEntrenador);
         list_add(NUEVOS, unEntrenador);
     }
@@ -769,17 +783,10 @@ void planificarFIFO()
     cambiarEstado(unEntrenador, EXEC);
     printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
     printf("Posicion de Y a donde tiene que ir: %d\n", unEntrenador->objetivoY);
-    //moverEntrenador
-    //Hago lo que tenga que hacer el entrenador
-    
-    /*
-    pthread_mutex_lock(&mutexEntrenadorEjecutando);
-    entrenadorEjecutando = NULL;
-    pthread_mutex_unlock(&mutexEntrenadorEjecutando);
-    */
     while(entrenadorEjecutando != NULL){
-        sleep(10);
+        sem_post(list_get(semaforosEntrenador, entrenadorEjecutando->id));
         log_warning(logger, "Hay un entrenador en ejecución");
+        sleep(unTeamConfig->retardoCicloCPU);
     }
     log_debug(logger,"Termino de ejecutar\n");
     entrenadorFinalizoSuTarea(unEntrenador);
@@ -1147,9 +1154,13 @@ void atrapar()
     }
 }
 
-void ejecutar(){
+void ejecutar(int pId){
 
-    while(1){
+    while(1)
+    {
+        sem_wait(list_get(semaforosEntrenador, pId));
+
+        printf("Paso el wait el hilo del entrenador: %d", pId);
 
         sleep(unTeamConfig->retardoCicloCPU); //Puede que haya que ponerlo adentro del IF de entrenadorEjecutando
 
