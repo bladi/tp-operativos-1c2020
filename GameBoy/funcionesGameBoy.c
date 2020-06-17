@@ -287,17 +287,17 @@ void enviarCatchPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posic
 
 }
 
-void enviarCaughtPokemonABroker(char* nombrePokemon,char* resultado){
+void enviarCaughtPokemonABroker(char* idMensajeCorrelacional,char* resultado){
 
     socketBroker = cliente(unGameBoyConfig->ipBroker, unGameBoyConfig->puertoBroker, ID_BROKER);
 
     t_caughtPokemon* unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
 
     unCaughtPokemon->identificador = 0;
-	unCaughtPokemon->identificadorCorrelacional = 0;
+	unCaughtPokemon->identificadorCorrelacional = atoi(idMensajeCorrelacional);
 
     unCaughtPokemon->nombrePokemon = string_new();
-	string_append(&unCaughtPokemon->nombrePokemon,nombrePokemon);
+	string_append(&unCaughtPokemon->nombrePokemon,"GAMEBOY");
 
     if(strcmp(resultado, "OK") == 0){
 

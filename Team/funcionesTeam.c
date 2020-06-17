@@ -173,27 +173,27 @@ void administradorDeConexiones(void* infoAdmin)
 
         switch(idCliente){
 
-            case 2: {
+            case 2:{
 
                 manejarRespuestaAGameBoy(unaInfoAdmin->socketCliente,idCliente);
                 break;
 
             }
 
-            case 3: {
+            case 1:{
 
                 manejarRespuestaABroker(unaInfoAdmin->socketCliente,idCliente);
                 break;
             }
 
-            case -1: {
+            case -1:{
 
                 log_info(logger, "RECIBIMOS UNA PRUEBA DE CONEXION");
                 break;
 
             }
 
-            default: {
+            default:{
 
                 log_warning(logger, "RECIBIMOS UN IDENTIFICADOR DE PROCESO NO VALIDO");
                 break;
@@ -470,7 +470,7 @@ void inicializarHilosYVariablesTeam()
     
     pthread_create(&hiloCPU,NULL,(void*)ejecutar,NULL);
     
-    pruebasSanty();
+    //pruebasSanty();
 
     socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 

@@ -112,7 +112,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente);
 void enviarNewPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* cantidad);
 void enviarAppearedPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* idMensaje);
 void enviarCatchPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicionEnY);
-void enviarCaughtPokemonABroker(char* nombrePokemon,char* resultado);
+void enviarCaughtPokemonABroker(char* idMensajeCorrelacional,char* resultado);
 void enviarGetPokemonABroker(char* nombrePokemon);
 void enviarAppearedPokemonATeam(char* nombrePokemon,char* posicionEnX,char* posicionEnY);
 void enviarNewPokemonAGameCard(char* nombrePokemon,char* posicionEnX,char* posicionEnY,char* cantidad, char* idMensaje);
