@@ -20,5 +20,5 @@ all:
 
 # Clean
 clean:
-	rm -f gameCard gameBoy broker team *.o
+	rm -f gamecard gameboy broker team *.o
 	rm logs/gameCardLog.log logs/gameBoyLog.log logs/brokerLog.log logs/teamLog.log
