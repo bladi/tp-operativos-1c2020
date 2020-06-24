@@ -172,9 +172,9 @@ void inicializarHilosYVariablesBroker()
     //string_append(&unaInfoServidorBroker->ip,CONFIG_BROKER->ipBroker); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
     string_append(&unaInfoServidorBroker->ip, "0");
 
-    pthread_create(&hiloActualizadorConfigBroker, NULL, (void*)actualizarConfiguracionBroker, NULL); // ?* creo que no es necesario
+    pthread_create(&hiloActualizadorConfigBroker, NULL, (void *)actualizarConfiguracionBroker, NULL); // ?* creo que no es necesario
 
-    pthread_create(&hiloServidorBroker, NULL, (void*)servidor_inicializar, (void *)unaInfoServidorBroker);
+    pthread_create(&hiloServidorBroker, NULL, (void *)servidor_inicializar, (void *)unaInfoServidorBroker);
 
     pthread_create(&hiloNew, NULL, (void *)ejecutarColaNewPokemon, NULL);
     pthread_create(&hiloAppeared, NULL, (void *)ejecutarColaAppearedPokemon, NULL);
@@ -204,7 +204,7 @@ void inicializarMemoria()
     ID_MENSAJE = 0;
     METADATA_MEMORIA = list_create();
     ID_PARTICION = 0;
-    CANTIDAD_BUSQUEDAS_FALLIDAS = 0;
+    CANTIDAD_PARTICIONES_LIBERADAS = 0;
 
     tParticion *unaParti = malloc(sizeof(tParticion));
 
@@ -272,7 +272,8 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
 {
     char *aDevolver = NULL;
 
-    if(tamanio < CONFIG_BROKER->tamanioMinimoParticion){
+    if (tamanio < CONFIG_BROKER->tamanioMinimoParticion)
+    {
 
         tamanio = CONFIG_BROKER->tamanioMinimoParticion;
     }
@@ -489,7 +490,7 @@ void splitBuddy(uint32_t index)
 
         tParticion *rightChild = malloc(sizeof(tParticion));
 
-        rightChild->posicion = father->posicion + father->tamanio / 2;//SE RESTA UNO PORQUE EMPIEZA DESDE LA POSICION 0 ?*realizar prueba si esta bien
+        rightChild->posicion = father->posicion + father->tamanio / 2; //SE RESTA UNO PORQUE EMPIEZA DESDE LA POSICION 0 ?*realizar prueba si esta bien
         rightChild->free = true;
         rightChild->tamanio = father->tamanio / 2;
         rightChild->idMensaje = -1;
@@ -673,7 +674,7 @@ void killMe(uint32_t index)
     }
 }
 
-/*Se elimina particion dentro de particion dinamica*/
+/*Se elimina particion dentro de particion dinamica y se consolida*/
 void ejecutarEliminarParticion()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
@@ -693,6 +694,8 @@ void ejecutarEliminarParticion()
         pthread_mutex_lock(&mutex_METADATA_MEMORIA);
         unaParticion->free = true;
         unaParticion->idMensaje = -1;
+        consolidarCache(unaParticion);
+        CANTIDAD_PARTICIONES_LIBERADAS++; 
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
     }
     else
@@ -713,6 +716,8 @@ void ejecutarEliminarParticion()
         pthread_mutex_lock(&mutex_METADATA_MEMORIA);
         unaParticion->free = true;
         unaParticion->idMensaje = -1;
+        consolidarCache(unaParticion);
+        CANTIDAD_PARTICIONES_LIBERADAS++; 
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
     }
 }
@@ -725,7 +730,7 @@ tParticion *splitParticion(tParticion *unaParticion, uint32_t tamanio)
 
         tParticion *nuevaParti = malloc(sizeof(tParticion));
 
-        nuevaParti->posicion = unaParticion->posicion + tamanio;//SE RESTA UNO PORQUE EMPIEZA DESDE LA POSICION 0
+        nuevaParti->posicion = unaParticion->posicion + tamanio; //SE RESTA UNO PORQUE EMPIEZA DESDE LA POSICION 0
         nuevaParti->free = true;
         nuevaParti->tamanio = unaParticion->tamanio - tamanio;
         nuevaParti->idMensaje = -1;
@@ -740,25 +745,76 @@ tParticion *splitParticion(tParticion *unaParticion, uint32_t tamanio)
 
     return unaParticion;
 }
+
+/*Consolida la memoria a izquierda y derecha*/
+void consolidarCache(tParticion *unaParticion)
+{
+
+    //CONSOLIDO A DERECHA
+
+    pthread_mutex_lock(&mutex_posicionParticionABuscar);
+
+    posicionParticionABuscar = unaParticion->posicion + unaParticion->tamanio;
+    tParticion *derecha = (tParticion *)list_find(METADATA_MEMORIA, &existePosicionParticion);
+
+    pthread_mutex_unlock(&mutex_posicionParticionABuscar);
+
+    if (derecha && derecha->free == true)
+    {
+
+        pthread_mutex_lock(&mutex_posicionParticionABuscar);
+
+        posicionParticionABuscar = unaParticion->posicion + unaParticion->tamanio;
+
+        tParticion *derecha = (tParticion *)list_remove_by_condition(METADATA_MEMORIA, &existePosicionParticion);
+
+        pthread_mutex_unlock(&mutex_posicionParticionABuscar);
+
+        unaParticion->tamanio += derecha->tamanio;
+        free(derecha);
+    }
+
+    //CONSOLIDO A IZQUIERDA
+
+    pthread_mutex_lock(&mutex_posicionParticionABuscar);
+
+    posicionParticionABuscar = unaParticion->posicion;
+    tParticion *izquierda = (tParticion *)list_find(METADATA_MEMORIA, &existePosicionParticionIzquierda);
+
+    pthread_mutex_unlock(&mutex_posicionParticionABuscar);
+
+    if (izquierda && izquierda->free == true)
+    {
+
+        pthread_mutex_lock(&mutex_posicionParticionABuscar);
+
+        posicionParticionABuscar = unaParticion->posicion;
+        tParticion *izquierda = (tParticion *)list_remove_by_condition(METADATA_MEMORIA, &existePosicionParticionIzquierda);
+
+        pthread_mutex_unlock(&mutex_posicionParticionABuscar);
+
+        unaParticion->posicion = izquierda->posicion;
+        unaParticion->tamanio += izquierda->tamanio;
+        free(izquierda);
+    }
+}
+
 /*Gestiona la compactacion y la manda a ejecutar*/
 void compactarMemoria()
 {
     //?*revisar En el enunciado si esto es asi
-    if (CONFIG_BROKER->frecuenciaCompactacion == -1 && list_all_satisfy(METADATA_MEMORIA, &esParticionLibre))
+    if ((CONFIG_BROKER->frecuenciaCompactacion == -1 || CONFIG_BROKER->frecuenciaCompactacion == 0 || CONFIG_BROKER->frecuenciaCompactacion == 1 ) && CANTIDAD_PARTICIONES_LIBERADAS > 0)
     {
         ejecutarCompactacion();
     }
     else
     {
 
-        if (CONFIG_BROKER->frecuenciaCompactacion == CANTIDAD_BUSQUEDAS_FALLIDAS)
+        if (CONFIG_BROKER->frecuenciaCompactacion == CANTIDAD_PARTICIONES_LIBERADAS)
         {
             ejecutarCompactacion();
         }
-        else
-        {
-            CANTIDAD_BUSQUEDAS_FALLIDAS++; //?*revisar esta mal creo
-        }
+        
     }
 }
 
@@ -794,7 +850,7 @@ void ejecutarCompactacion()
             unaParticion->idParticion = i;
 
             if (unaParticion->free == false)
-            {               
+            {
 
                 pthread_mutex_lock(&mutex_idMensajeABuscar);
 
@@ -805,9 +861,9 @@ void ejecutarCompactacion()
                 pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
                 unMensaje->posicionEnMemoria = unaParticion->posicion;
-
-
-            }else{
+            }
+            else
+            {
                 unaParticion->idMensaje = -1;
             }
         }
@@ -819,7 +875,7 @@ void ejecutarCompactacion()
 
     pthread_mutex_unlock(&mutex_ID_PARTICION);
 
-    CANTIDAD_BUSQUEDAS_FALLIDAS = 0;
+    CANTIDAD_PARTICIONES_LIBERADAS = 0;
 
     pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
@@ -1187,7 +1243,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
         //log_debug(logger, "\n\t--GAMEBOY SUSCRIBE TO : %d", nuevaSuscripcion->colaDeMensajes);
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
-        
+
         enviarInt(socketCliente, 1);
 
         break;
@@ -1240,7 +1296,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
         break;
     }
 
-     case tCaughtPokemon:
+    case tCaughtPokemon:
     {
         log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE CAUGHT --> DE GAMEBOY");
 
@@ -1450,7 +1506,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
         nuevaSuscripcion->colaDeMensajes = tCaughtPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
-        
+
         enviarInt(socketCliente, 1);
 
         break;
@@ -2029,9 +2085,10 @@ void ejecutarColaCaughtPokemon()
 
                 //CHEQUEAR CON RODRI EL FUNCIONAMIENTO: SE AGREGA IF NULL
 
-                if(unPokemon != NULL){
+                if (unPokemon != NULL)
+                {
 
-                    log_debug(logger,"---------------------SE ENCONTRÓ EN CAUGHT EL POKEMON SOLICITADO POR IDMENSAJE------------------------------");
+                    log_debug(logger, "---------------------SE ENCONTRÓ EN CAUGHT EL POKEMON SOLICITADO POR IDMENSAJE------------------------------");
 
                     for (int i = 0; i < suscriptoresCant; i++)
                     {
@@ -2066,15 +2123,14 @@ void ejecutarColaCaughtPokemon()
                     }
 
                     free(unPokemon);
+                }
+                else
+                {
 
-                }else{
-
-                    log_debug(logger,"----------------------------NO SE ENCONTRÓ EL POKEMON BUSCADO EN MEMORIA-----------------------------");
-
+                    log_debug(logger, "----------------------------NO SE ENCONTRÓ EL POKEMON BUSCADO EN MEMORIA-----------------------------");
                 }
 
                 //free(unPokemon);
-
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
@@ -2443,10 +2499,10 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, 
 
     int tamanioPokemon = 0;
 
-    log_debug(logger,"ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON IDMENSAJE: %d", unCaughtPokemon->identificador);
-    log_debug(logger,"ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON IDMENSAJECORRELACIONAL: %d", unCaughtPokemon->identificadorCorrelacional);
-    log_debug(logger,"ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON NOMBRE: %s", unCaughtPokemon->nombrePokemon);
-    log_debug(logger,"ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON RESULTADO: %d", unCaughtPokemon->resultado);
+    log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON IDMENSAJE: %d", unCaughtPokemon->identificador);
+    log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON IDMENSAJECORRELACIONAL: %d", unCaughtPokemon->identificadorCorrelacional);
+    log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON NOMBRE: %s", unCaughtPokemon->nombrePokemon);
+    log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON RESULTADO: %d", unCaughtPokemon->resultado);
 
     enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tCaughtPokemon, unCaughtPokemon, tamanioPokemon);
@@ -3117,9 +3173,9 @@ void guardarEnMemoriaCaughtPokemon(void *unPokemon)
 
     //HASTA ACA LO QUE AGREGAMOS//
 
-    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t)); 
+    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
-   
+
     list_add(MENSAJES_LISTA, unMensaje);
 }
 
@@ -3460,40 +3516,47 @@ bool existePosicionParticion(void *unaParticion)
     return p->posicion == posicionParticionABuscar;
 }
 
+bool existePosicionParticionIzquierda(void *unaParticion)
+{
+
+    tParticion *p = (tParticion *)unaParticion;
+    return (p->posicion + p->tamanio) == posicionParticionABuscar;
+}
+
 //////////////////////////////////////////////DUMP CACHE////////////////////////////////////////////////
 
 void dumpCache()
 {
     //while(1){
 
-        
-        FILE *f;
-        int cantParticiones;
+    FILE *f;
+    int cantParticiones;
 
-        char *contenidoDump = string_new();
-        char *fecha = string_new();
-        char *horaCompleta = temporal_get_string_time();
-        char *hora = string_substring(horaCompleta, 0, 8);
+    char *contenidoDump = string_new();
+    char *fecha = string_new();
+    char *horaCompleta = temporal_get_string_time();
+    char *hora = string_substring(horaCompleta, 0, 8);
 
-        time_t t;
-        t = time(NULL);
-        struct tm tm = *localtime(&t);
-        //strftime(fecha,11,"%d/%m/%Y", tm);
-        string_append_with_format(&fecha, "%d/%d/%d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
+    time_t t;
+    t = time(NULL);
+    struct tm tm = *localtime(&t);
+    //strftime(fecha,11,"%d/%m/%Y", tm);
+    string_append_with_format(&fecha, "%d/%d/%d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
 
-        string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
-        string_append_with_format(&contenidoDump, "Dump:                            %s                              %s\n", fecha, hora);
-        tParticion *particion; // = malloc(sizeof(tParticion));
-        char *limiteParticion;
-        char* nombreCola;
-        char libre;
+    string_append_with_format(&contenidoDump, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+    string_append_with_format(&contenidoDump, "Dump:                            %s                              %s\n", fecha, hora);
+    tParticion *particion; // = malloc(sizeof(tParticion));
+    char *limiteParticion;
+    char *nombreCola;
+    char libre;
 
-        pthread_mutex_lock(&mutex_METADATA_MEMORIA);
-        cantParticiones = list_size(METADATA_MEMORIA);
+    pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+    cantParticiones = list_size(METADATA_MEMORIA);
 
-       if(cantParticiones > 0){
+    if (cantParticiones > 0)
+    {
 
-       log_debug(logger,"CANTIDAD DE PARTICIONES: %d",cantParticiones);
+        log_debug(logger, "CANTIDAD DE PARTICIONES: %d", cantParticiones);
 
         for (int i = 0; i < cantParticiones; i++)
         {
@@ -3504,7 +3567,6 @@ void dumpCache()
             {
                 libre = 'L';
                 nombreCola = string_new();
-
             }
             else
             {
@@ -3513,11 +3575,10 @@ void dumpCache()
             }
 
             limiteParticion = particion->posicion + particion->tamanio; //in rodri we trust.
-            string_append_with_format(&contenidoDump, "Particion %d: %p (%d)", i,particion->posicion, (particion->posicion - MEMORIA_PRINCIPAL) );
+            string_append_with_format(&contenidoDump, "Particion %d: %p (%d)", i, particion->posicion, (particion->posicion - MEMORIA_PRINCIPAL));
             string_append_with_format(&contenidoDump, " - %p (%d).", limiteParticion, (limiteParticion - MEMORIA_PRINCIPAL));
             string_append_with_format(&contenidoDump, "    [%c]    Size: %db\n", libre, particion->tamanio);
-            string_append_with_format(&contenidoDump,"   LRU[%d] Cola:[%s]    ID:[%d]\n",particion->lru, nombreCola, particion->idMensaje);
-
+            string_append_with_format(&contenidoDump, "   LRU[%d] Cola:[%s]    ID:[%d]\n", particion->lru, nombreCola, particion->idMensaje);
         }
 
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
@@ -3537,15 +3598,14 @@ void dumpCache()
         free(hora);
         free(nombreCola);
         //sleep(5);
+    }
+    else
+    {
 
-        }else{
-
-             log_info(logger,"No hay mensajes actualmente");
-
-        }
+        log_info(logger, "No hay mensajes actualmente");
+    }
 
     //}
-
 }
 
 // int getPosicionRelativa(char* posicionAbsoluta)
@@ -3596,20 +3656,21 @@ void dumpCache()
 //     free(particionesReLocas);
 // }
 
-void manejarSeniales(int signum){
+void manejarSeniales(int signum)
+{
 
     printf("LCDTM ALLBOYS");
 
-    if (signum == SIGUSR1){
+    if (signum == SIGUSR1)
+    {
 
         dumpCache();
-
-    }else{
-
-        log_error(logger,"Se recibió una señal que no es conocida y/o no puede ser manejada");
-
     }
+    else
+    {
 
+        log_error(logger, "Se recibió una señal que no es conocida y/o no puede ser manejada");
+    }
 }
 
 /*typedef struct {
@@ -3634,8 +3695,6 @@ typedef struct t_suscriptor{
 
 	
 } __attribute__((packed)) t_suscriptor;*/
-
-
 
 /*
 
@@ -3692,7 +3751,8 @@ void enviarMensajesAnteriores(uint32_t nroCola, tSuscriptorEnCola *unSuscriptorE
 }
 */
 
-char* buscarColaAPartirDeIdMensaje(uint32_t idMensaje){
+char *buscarColaAPartirDeIdMensaje(uint32_t idMensaje)
+{
 
     tMensaje *unMensaje;
 
@@ -3704,56 +3764,55 @@ char* buscarColaAPartirDeIdMensaje(uint32_t idMensaje){
 
     pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-    char* nombreCola = string_new();
+    char *nombreCola = string_new();
 
-    switch (unMensaje->tipoMensaje){
+    switch (unMensaje->tipoMensaje)
+    {
 
-        case tNewPokemon:
+    case tNewPokemon:
 
-            string_append(&nombreCola, "NEW_POKEMON");
+        string_append(&nombreCola, "NEW_POKEMON");
 
-            break;
+        break;
 
-        case tAppearedPokemon:
+    case tAppearedPokemon:
 
-            string_append(&nombreCola, "APPEARED_POKEMON");
+        string_append(&nombreCola, "APPEARED_POKEMON");
 
-            break;
+        break;
 
-        case tCatchPokemon:
+    case tCatchPokemon:
 
-            string_append(&nombreCola, "CATCH_POKEMON");
+        string_append(&nombreCola, "CATCH_POKEMON");
 
-            break;
+        break;
 
-        case tCaughtPokemon:
+    case tCaughtPokemon:
 
-            string_append(&nombreCola, "CAUGHT_POKEMON_LISTA");
+        string_append(&nombreCola, "CAUGHT_POKEMON_LISTA");
 
-            break;
+        break;
 
-        case tGetPokemon:
+    case tGetPokemon:
 
-            string_append(&nombreCola, "GET_POKEMON");
+        string_append(&nombreCola, "GET_POKEMON");
 
-            break;
+        break;
 
-        case tLocalizedPokemon:
+    case tLocalizedPokemon:
 
-            string_append(&nombreCola, "LOCALIZED_POKEMON");
+        string_append(&nombreCola, "LOCALIZED_POKEMON");
 
-            break;
+        break;
 
-        default:
+    default:
 
-            string_append(&nombreCola, "VALOR INVALIDO DE COLA");
+        string_append(&nombreCola, "VALOR INVALIDO DE COLA");
 
-            log_error(logger, "Se encontró un %s a partir del idMensaje %d. Error.", nombreCola, idMensaje);
+        log_error(logger, "Se encontró un %s a partir del idMensaje %d. Error.", nombreCola, idMensaje);
 
-            break;
-
+        break;
     }
 
     return nombreCola;
-
 }

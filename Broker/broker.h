@@ -160,7 +160,7 @@ uint32_t ID_MENSAJE;
 pthread_mutex_t mutex_ID_MENSAJE;//??*preguntar si va
 uint32_t ID_PARTICION;
 pthread_mutex_t mutex_ID_PARTICION;
-uint32_t CANTIDAD_BUSQUEDAS_FALLIDAS;
+uint32_t CANTIDAD_PARTICIONES_LIBERADAS;
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -195,6 +195,7 @@ void splitBuddy(uint32_t index);
 void  ejecutarCompactacion();
 void compactarMemoria();
 void compactacion(char *posicion);
+void consolidarCache(tParticion *unaParticion);
 void ejecutarEliminarParticion();
 void ejecutarEliminarParticionBuddy();
 void eliminarMensaje(uint32_t unIdMensaje);
@@ -277,6 +278,7 @@ uint32_t idParticionABuscar;
 pthread_mutex_t mutex_idParticionABuscar;
 
 bool existePosicionParticion(void *unaParticion);
+bool existePosicionParticionIzquierda(void *unaParticion);
 char* posicionParticionABuscar;
 pthread_mutex_t mutex_posicionParticionABuscar;
 
