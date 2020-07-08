@@ -59,3 +59,9 @@ logs/
 /broker
 /gameboy
 /gamecard
+
+# bloques gameCard
+
+/GameCard/TALL_GRASS/Blocks/*.bin
+/GameCard/TALL_GRASS/Metadata/Bitmap.bin
+
