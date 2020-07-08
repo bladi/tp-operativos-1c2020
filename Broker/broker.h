@@ -122,6 +122,8 @@ t_list* LOCALIZED_POKEMON_LISTA; //tSuscriptorEnCola
 
 t_list* MENSAJES_LISTA; //tMensaje
 
+t_list* IDS_CORRELATIVOS; //uint32_t
+
 
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
 
@@ -292,6 +294,10 @@ bool esParticionOcupadaConMensaje(void *particion);
 
 tParticion *buscarParticionLibreEnMemoria(uint32_t tamanio);
 t_list *buscarListaDeParticionesLibresEnMemoriaOrdenadas(uint32_t tamanio);
+
+bool existeIdCorrelativo(void *numero);
+uint32_t idCorrelativoABuscar;
+pthread_mutex_t mutex_idCorrelativoABuscar;
 
 
  // 1 NEW_POKEMON_LISTA 2 APPEARED_POKEMON_LISTA 3 CATCH_POKEMON_LISTA 4 CAUGHT_POKEMON_LISTA 5 GET_POKEMON_LISTA 6 LOCALIZED_POKEMON_LISTA

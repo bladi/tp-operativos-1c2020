@@ -202,6 +202,7 @@ void inicializarMemoria()
 
     NUM_SUSCRIPTOR = 0;
     ID_MENSAJE = 0;
+    IDS_CORRELATIVOS = list_create();
     METADATA_MEMORIA = list_create();
     ID_PARTICION = 0;
     CANTIDAD_PARTICIONES_LIBERADAS = 0;
@@ -266,6 +267,33 @@ uint32_t generarNuevoIdParticion()
 
     return ID_PARTICION;
 }
+
+     
+// void getDireccionMemoriaLibreMejorado(uint32_t idMensaje, uint32_t idCorrelacional,char** posicionMemoria, uint32_t tamanio){
+
+//     if(idCorrelacional == -1){
+//         *posicionMemoria = getDireccionMemoriaLibre(idMensaje, tamanio);
+//     }else{
+
+//         pthread_mutex_lock(&mutex_idCorrelativoABuscar);
+
+//         idCorrelativoABuscar = idCorrelacional;
+
+//         uint32_t* idCorr = (uint32_t *) list_find(IDS_CORRELATIVOS,&existeIdCorrelativo);
+
+//         pthread_mutex_unlock(&mutex_idCorrelativoABuscar);
+
+//         if(idCorr){
+
+
+//         }else{
+
+//         }
+//     }
+
+    
+
+// }
 
 /*Devuelve una particion libre de la memoria general*/
 char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
@@ -3027,8 +3055,9 @@ void guardarEnMemoriaNewPokemon(void *unPokemon)
     unMensaje->acknowledgement = list_create();
     unMensaje->suscriptoresEnviados = list_create();
     unMensaje->idMensaje = generarNuevoIdMensajeBroker();
-    unMensaje->idMensajeCorrelacional = 0;
+    unMensaje->idMensajeCorrelacional = -1;
     unMensaje->tipoMensaje = tNewPokemon; //NEW
+    //getDireccionMemoriaLibreMejorado(unMensaje->idMensaje,unMensaje->idMensajeCorrelacional,&unMensaje->posicionEnMemoria, tamanio);
     unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
@@ -3521,6 +3550,21 @@ bool existePosicionParticionIzquierda(void *unaParticion)
 
     tParticion *p = (tParticion *)unaParticion;
     return (p->posicion + p->tamanio) == posicionParticionABuscar;
+}
+
+bool existeIdCorrelativo(void *numero)
+{
+
+    uint32_t *p = (uint32_t *)numero;
+
+    bool existe = false;
+
+    if ((*p == idCorrelativoABuscar))
+    {
+        existe = true;
+    }
+
+    return existe;
 }
 
 //////////////////////////////////////////////DUMP CACHE////////////////////////////////////////////////
