@@ -111,11 +111,12 @@ typedef struct entrenador
 	Objetivo objetivo;
 	t_Pokemon* objetivoPokemon;
 	int intercambioEntrenador;
+	uint32_t identificadorCorrelacional;
 } t_Entrenador;
 
 typedef struct
 {
-	char* nombre;
+	t_Pokemon* pokemon;
 	int posicionX;
 	int posicionY;
 } t_posicionPokemon;
@@ -139,6 +140,12 @@ t_list* mapa;
 t_list* pokemonesAtrapados;
 t_list* pokemonesObjetivos;
 
+uint32_t cantidadEntrenadores;
+uint32_t cantidadCiclosCPU;
+uint32_t cantidadCambiosDeContexto;
+uint32_t cantidadDeadlocks;
+uint32_t cantidadDeadlocksResueltos;
+
 unsigned char idConfigTeam;
 unsigned char nuevoIdConfigTeam;
 
@@ -160,6 +167,7 @@ void configurarLoggerTeam();
 
 void cargarConfiguracionTeam();
 void actualizarConfiguracionTeam();
+void mostrarMetricas();
 
 void administradorDeConexiones(void* infoAdmin);
 void manejarRespuestaABroker(int socketCliente, int idCliente);
@@ -175,6 +183,8 @@ void inicializarHilosYVariablesTeam();
 void cargarEntrenadoresYListasGlobales();
 
 int posicionPokeEnLista(t_list* pLista, char* pPokemon);
+int posicionPokeEnListaMapa(char* nombrePokemon, int posicionEnX, int posicionEnY);
+int posicionPokeEnListaMapaSinPosicion(char* nombrePokemon);
 void agregarPokeALista(t_list* pLista, char* pPokemon);
 void quitarPokeDeLista(t_list* pLista, char* pPokemon);
 int cantidadDeUnPokemonEnLista(t_list* pLista, char* pPokemon);
@@ -207,6 +217,5 @@ void atrapar();
 void ejecutar();
 void moverEntrenadorEnX();
 void moverEntrenadorEnY();
-
 
 #endif
