@@ -193,6 +193,10 @@ void inicializarHilosYVariablesBroker()
 /*Reserva memoria principal, e inicializa estructuras administrativas de las colas y la metadata*/
 void inicializarMemoria()
 {
+    if (string_equals_ignore_case(CONFIG_BROKER->algoritmoMemoria, "BS"))
+    {
+        truncarMemoriaBuddySystem();
+    }
 
     if ((MEMORIA_PRINCIPAL = malloc(CONFIG_BROKER->tamanioMemoria)) == NULL)
     {
@@ -212,7 +216,7 @@ void inicializarMemoria()
     unaParti->posicion = MEMORIA_PRINCIPAL;
     unaParti->free = true;
     unaParti->tamanio = CONFIG_BROKER->tamanioMemoria;
-    unaParti->idMensaje = -1;
+    unaParti->idMensaje = 0;
     unaParti->lru = (uint32_t)time(NULL);
     unaParti->timeInit = (uint32_t)time(NULL);
     unaParti->idParticion = ID_PARTICION;
@@ -233,6 +237,27 @@ void inicializarMemoria()
     // log_debug(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
     // log_warning(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
     // log_error(logger, "\n\n\n\t--Nuevo Suscriber a SUSCRIPTORES_LISTA");
+}
+
+/*cambia valor de memoria a una potencia de dos*/
+void truncarMemoriaBuddySystem()
+{
+
+    double tamReal = CONFIG_BROKER->tamanioMemoria;
+    double potencia = 0;
+    double tamFinal = 0;
+    double valorDos = 2;
+    double auxiliar = 0;
+
+    while (auxiliar <= tamReal)
+    {
+
+        potencia++;
+        tamFinal = pow(valorDos, potencia);
+        auxiliar = pow(valorDos, potencia + 1);
+    }
+
+    CONFIG_BROKER->tamanioMemoria = (uint32_t)tamFinal; //?*verificar si este casteo es esta bien
 }
 
 /*Devuelve un nuevo id para un mensaje asociado*/
@@ -267,33 +292,6 @@ uint32_t generarNuevoIdParticion()
 
     return ID_PARTICION;
 }
-
-     
-// void getDireccionMemoriaLibreMejorado(uint32_t idMensaje, uint32_t idCorrelacional,char** posicionMemoria, uint32_t tamanio){
-
-//     if(idCorrelacional == -1){
-//         *posicionMemoria = getDireccionMemoriaLibre(idMensaje, tamanio);
-//     }else{
-
-//         pthread_mutex_lock(&mutex_idCorrelativoABuscar);
-
-//         idCorrelativoABuscar = idCorrelacional;
-
-//         uint32_t* idCorr = (uint32_t *) list_find(IDS_CORRELATIVOS,&existeIdCorrelativo);
-
-//         pthread_mutex_unlock(&mutex_idCorrelativoABuscar);
-
-//         if(idCorr){
-
-
-//         }else{
-
-//         }
-//     }
-
-    
-
-// }
 
 /*Devuelve una particion libre de la memoria general*/
 char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
@@ -511,7 +509,7 @@ void splitBuddy(uint32_t index)
         leftChild->posicion = father->posicion;
         leftChild->free = true;
         leftChild->tamanio = father->tamanio / 2;
-        leftChild->idMensaje = -1;
+        leftChild->idMensaje = 0;
         leftChild->lru = (uint32_t)time(NULL);
         leftChild->timeInit = (uint32_t)time(NULL);
         leftChild->idParticion = 2 * index + 1;
@@ -521,7 +519,7 @@ void splitBuddy(uint32_t index)
         rightChild->posicion = father->posicion + father->tamanio / 2; //SE RESTA UNO PORQUE EMPIEZA DESDE LA POSICION 0 ?*realizar prueba si esta bien
         rightChild->free = true;
         rightChild->tamanio = father->tamanio / 2;
-        rightChild->idMensaje = -1;
+        rightChild->idMensaje = 0;
         rightChild->lru = (uint32_t)time(NULL);
         rightChild->timeInit = (uint32_t)time(NULL);
         rightChild->idParticion = 2 * index + 2;
@@ -549,7 +547,7 @@ void ejecutarEliminarParticionBuddy()
         eliminarMensaje(unaParticion->idMensaje); //SE ELIMINA EL MENSAJE ANTES DE ELIMINAR LA PARTICION PARA QUE NO SE GENERE ERRORES
 
         unaParticion->free = true;
-        unaParticion->idMensaje = -1;
+        unaParticion->idMensaje = 0;
         killMe(unaParticion->idParticion); //?*falta matar a los hijos de ser necesario
     }
     else
@@ -568,7 +566,7 @@ void ejecutarEliminarParticionBuddy()
         eliminarMensaje(unaParticion->idMensaje); //SE ELIMINA EL MENSAJE ANTES DE ELIMINAR LA PARTICION PARA QUE NO SE GENERE ERRORES
 
         unaParticion->free = true;
-        unaParticion->idMensaje = -1;
+        unaParticion->idMensaje = 0;
         killMe(unaParticion->idParticion);
     }
 }
@@ -587,7 +585,7 @@ void killMe(uint32_t index)
         pthread_mutex_unlock(&mutex_idParticionABuscar);
 
         father->free = true;
-        father->idMensaje = -1;
+        father->idMensaje = 0;
         father->timeInit = (uint32_t)time(NULL);
         father->lru = (uint32_t)time(NULL);
     }
@@ -604,7 +602,7 @@ void killMe(uint32_t index)
             pthread_mutex_unlock(&mutex_idParticionABuscar);
 
             right->free = true;
-            right->idMensaje = -1;
+            right->idMensaje = 0;
             right->timeInit = (uint32_t)time(NULL);
             right->lru = (uint32_t)time(NULL);
 
@@ -657,7 +655,7 @@ void killMe(uint32_t index)
             pthread_mutex_unlock(&mutex_idParticionABuscar);
 
             left->free = true;
-            left->idMensaje = -1;
+            left->idMensaje = 0;
             left->timeInit = (uint32_t)time(NULL);
             left->lru = (uint32_t)time(NULL);
 
@@ -721,9 +719,9 @@ void ejecutarEliminarParticion()
 
         pthread_mutex_lock(&mutex_METADATA_MEMORIA);
         unaParticion->free = true;
-        unaParticion->idMensaje = -1;
+        unaParticion->idMensaje = 0;
         consolidarCache(unaParticion);
-        CANTIDAD_PARTICIONES_LIBERADAS++; 
+        CANTIDAD_PARTICIONES_LIBERADAS++;
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
     }
     else
@@ -743,9 +741,9 @@ void ejecutarEliminarParticion()
 
         pthread_mutex_lock(&mutex_METADATA_MEMORIA);
         unaParticion->free = true;
-        unaParticion->idMensaje = -1;
+        unaParticion->idMensaje = 0;
         consolidarCache(unaParticion);
-        CANTIDAD_PARTICIONES_LIBERADAS++; 
+        CANTIDAD_PARTICIONES_LIBERADAS++;
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
     }
 }
@@ -761,7 +759,7 @@ tParticion *splitParticion(tParticion *unaParticion, uint32_t tamanio)
         nuevaParti->posicion = unaParticion->posicion + tamanio; //SE RESTA UNO PORQUE EMPIEZA DESDE LA POSICION 0
         nuevaParti->free = true;
         nuevaParti->tamanio = unaParticion->tamanio - tamanio;
-        nuevaParti->idMensaje = -1;
+        nuevaParti->idMensaje = 0;
         nuevaParti->lru = (uint32_t)time(NULL);
         nuevaParti->timeInit = (uint32_t)time(NULL);
         nuevaParti->idParticion = generarNuevoIdParticion();
@@ -831,7 +829,7 @@ void consolidarCache(tParticion *unaParticion)
 void compactarMemoria()
 {
     //?*revisar En el enunciado si esto es asi
-    if ((CONFIG_BROKER->frecuenciaCompactacion == -1 || CONFIG_BROKER->frecuenciaCompactacion == 0 || CONFIG_BROKER->frecuenciaCompactacion == 1 ) && CANTIDAD_PARTICIONES_LIBERADAS > 0)
+    if ((CONFIG_BROKER->frecuenciaCompactacion == -1 || CONFIG_BROKER->frecuenciaCompactacion == 0 || CONFIG_BROKER->frecuenciaCompactacion == 1) && CANTIDAD_PARTICIONES_LIBERADAS > 0)
     {
         ejecutarCompactacion();
     }
@@ -842,7 +840,6 @@ void compactarMemoria()
         {
             ejecutarCompactacion();
         }
-        
     }
 }
 
@@ -892,7 +889,7 @@ void ejecutarCompactacion()
             }
             else
             {
-                unaParticion->idMensaje = -1;
+                unaParticion->idMensaje = 0;
             }
         }
     }
@@ -1425,9 +1422,24 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         // log_info(logger, "El nombre del Pokemón es: %s", unCaughtPokemon->nombrePokemon);
 
-        unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
+        if (verificarIdCorrelativo(unCaughtPokemon->identificadorCorrelacional))
+        {
+            unCaughtPokemon->identificador = buscaridMensajeDelCorrelativo(unCaughtPokemon->identificadorCorrelacional);
 
-        guardarEnMemoriaCaughtPokemon(unCaughtPokemon);
+            if (unCaughtPokemon->identificador == 0)
+            {
+                unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
+
+                guardarEnMemoriaCaughtPokemon(unCaughtPokemon);
+            }
+        }
+        else
+        {
+
+            unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
+
+            guardarEnMemoriaCaughtPokemon(unCaughtPokemon);
+        }
 
         //free(unCaughtPokemon);
 
@@ -1446,9 +1458,24 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         t_localizedPokemon *unLocalizedPokemon = (t_localizedPokemon *)buffer;
 
-        unLocalizedPokemon->identificador = generarNuevoIdMensajeBroker();
+        if (verificarIdCorrelativo(unLocalizedPokemon->identificadorCorrelacional))
+        {
+            unLocalizedPokemon->identificador = buscaridMensajeDelCorrelativo(unLocalizedPokemon->identificadorCorrelacional);
 
-        guardarEnMemoriaLocalizedPokemon(unLocalizedPokemon);
+            if (unLocalizedPokemon->identificador == 0)
+            {
+                unLocalizedPokemon->identificador = generarNuevoIdMensajeBroker();
+
+                guardarEnMemoriaLocalizedPokemon(unLocalizedPokemon);
+            }
+        }
+        else
+        {
+
+            unLocalizedPokemon->identificador = generarNuevoIdMensajeBroker();
+
+            guardarEnMemoriaLocalizedPokemon(unLocalizedPokemon);
+        }
 
         //free(unLocalizedPokemon);
 
@@ -1470,9 +1497,24 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
         //log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
         //log_info(logger, "La posicion del Pokémon era: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
 
-        unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
+        if (verificarIdCorrelativo(unAppeardPokemon->identificadorCorrelacional))
+        {
+            unAppeardPokemon->identificador = buscaridMensajeDelCorrelativo(unAppeardPokemon->identificadorCorrelacional);
 
-        guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
+            if (unAppeardPokemon->identificador == 0)
+            {
+                unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
+
+                guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
+            }
+        }
+        else
+        {
+
+            unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
+
+            guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
+        }
 
         //free(unAppeardPokemon);
 
@@ -1501,6 +1543,57 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
     return;
 }
 
+/*Se fija si existe idCorr si no Existe lo Agrega*/
+bool verificarIdCorrelativo(uint32_t idCorr)
+{
+
+    //?* SIEMPRE ENVIAR LOS PAQUETES FLUJO INICIAL CON IDCORRELATIVO EN 0
+    if (idCorr != 0)
+    {
+
+        pthread_mutex_lock(&mutex_idCorrelativoABuscar);
+
+        idCorrelativoABuscar = idCorr;
+
+        bool existeId = list_any_satisfy(IDS_CORRELATIVOS, &existeIdCorrelativo);
+
+        if (!existeId)
+        {
+
+            uint32_t *nuevoValor = malloc(sizeof(uint32_t));
+
+            *nuevoValor = idCorr;
+
+            list_add(IDS_CORRELATIVOS, nuevoValor);
+
+            return false;
+        }
+
+        pthread_mutex_unlock(&mutex_idCorrelativoABuscar);
+    }
+    return true;
+}
+
+/*devuelve idMensaje de idCorrelativoAsociado*/
+uint32_t buscaridMensajeDelCorrelativo(uint32_t idCorr)
+{
+
+    pthread_mutex_lock(&mutex_idCorrelativoABuscarEnMensaje);
+
+    idCorrelativoABuscarEnMensaje = idCorr;
+
+    tMensaje *unMensaje = list_find(MENSAJES_LISTA, &existeMensajeConIdCorrelativo);
+
+    pthread_mutex_unlock(&mutex_idCorrelativoABuscarEnMensaje);
+
+    if (unMensaje)
+    {
+        return unMensaje->idMensaje;
+    }
+
+    return 0;
+}
+
 /*Determina que hacer dependiendo el tipo de paquete*/
 void manejarRespuestaATeam(int socketCliente, int idCliente)
 {
@@ -1518,22 +1611,26 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         t_suscriptor *nuevaSuscripcion = (t_suscriptor *)buffer;
 
-        log_debug(logger, "\n\t--TEAM SUSCRIBE TO : %d", nuevaSuscripcion->colaDeMensajes);
-
-        log_info(logger, "Se suscribe a cola: : %d", nuevaSuscripcion->colaDeMensajes);
-        log_info(logger, "Tiempo de Suscripcion: %d", nuevaSuscripcion->tiempoDeSuscripcion);
+        //log_info(logger, "Se suscribe a cola: : %d", nuevaSuscripcion->colaDeMensajes);
+        //log_info(logger, "Tiempo de Suscripcion: %d", nuevaSuscripcion->tiempoDeSuscripcion);
 
         nuevaSuscripcion->colaDeMensajes = tAppearedPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
+        log_debug(logger, "\n\t--TEAM %s SUSCRIBE TO : %d", nuevaSuscripcion->ip, nuevaSuscripcion->colaDeMensajes);
+
         nuevaSuscripcion->colaDeMensajes = tLocalizedPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
+        log_debug(logger, "\n\t--TEAM %s SUSCRIBE TO : %d", nuevaSuscripcion->ip, nuevaSuscripcion->colaDeMensajes);
+
         nuevaSuscripcion->colaDeMensajes = tCaughtPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
+
+        log_debug(logger, "\n\t--TEAM %s SUSCRIBE TO : %d", nuevaSuscripcion->ip, nuevaSuscripcion->colaDeMensajes);
 
         enviarInt(socketCliente, 1);
 
@@ -3055,7 +3152,7 @@ void guardarEnMemoriaNewPokemon(void *unPokemon)
     unMensaje->acknowledgement = list_create();
     unMensaje->suscriptoresEnviados = list_create();
     unMensaje->idMensaje = generarNuevoIdMensajeBroker();
-    unMensaje->idMensajeCorrelacional = -1;
+    unMensaje->idMensajeCorrelacional = 0;
     unMensaje->tipoMensaje = tNewPokemon; //NEW
     //getDireccionMemoriaLibreMejorado(unMensaje->idMensaje,unMensaje->idMensajeCorrelacional,&unMensaje->posicionEnMemoria, tamanio);
     unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
@@ -3387,6 +3484,21 @@ bool existeIdMensaje(void *mensaje)
     return existe;
 }
 
+bool existeMensajeConIdCorrelativo(void *mensaje)
+{
+
+    tMensaje *p = (tMensaje *)mensaje;
+
+    bool existe = false;
+
+    if ((p->idMensajeCorrelacional == idCorrelativoABuscarEnMensaje))
+    {
+        existe = true;
+    }
+
+    return existe;
+}
+
 bool existeIdMensajeEnParticion(void *parti)
 {
 
@@ -3488,7 +3600,7 @@ bool esParticionOcupadaConMensaje(void *particion)
 
     bool existe = false;
 
-    if ((p->free == false) && (p->idMensaje != -1))
+    if ((p->free == false) && (p->idMensaje != 0))
     {
         existe = true;
     }

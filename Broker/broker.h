@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <signal.h>
+#include <math.h>
 
 
 ////////////////////////////////////////////////////////////////////////LIBS COMPARTIDAS/////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +123,7 @@ t_list* LOCALIZED_POKEMON_LISTA; //tSuscriptorEnCola
 
 t_list* MENSAJES_LISTA; //tMensaje
 
-t_list* IDS_CORRELATIVOS; //uint32_t
+t_list* IDS_CORRELATIVOS; //*uint32_t
 
 
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
@@ -191,6 +192,7 @@ uint32_t generarNuevoIdSuscriptor();
 uint32_t generarNuevoIdParticion();
 char* getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio);
 char* getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, uint32_t index);
+void truncarMemoriaBuddySystem();
 
 tParticion * splitParticion(tParticion * unaParticion, uint32_t tamanio);//?* no se si lo va a tomar de ultima pasar a void* y castear
 void splitBuddy(uint32_t index);
@@ -298,6 +300,13 @@ t_list *buscarListaDeParticionesLibresEnMemoriaOrdenadas(uint32_t tamanio);
 bool existeIdCorrelativo(void *numero);
 uint32_t idCorrelativoABuscar;
 pthread_mutex_t mutex_idCorrelativoABuscar;
+
+bool existeMensajeConIdCorrelativo(void *numero);
+uint32_t idCorrelativoABuscarEnMensaje;
+pthread_mutex_t mutex_idCorrelativoABuscarEnMensaje;
+
+bool verificarIdCorrelativo(uint32_t idCorr);
+uint32_t buscaridMensajeDelCorrelativo(uint32_t idCorr);
 
 
  // 1 NEW_POKEMON_LISTA 2 APPEARED_POKEMON_LISTA 3 CATCH_POKEMON_LISTA 4 CAUGHT_POKEMON_LISTA 5 GET_POKEMON_LISTA 6 LOCALIZED_POKEMON_LISTA

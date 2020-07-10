@@ -12,7 +12,7 @@ all:
 	gcc -g -w GameBoy/gameBoy.c GameBoy/funcionesGameBoy.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o gameboy -lcommons -lpthread
 	@printf '$(negrita)$(amarillo)Game Boy$(sin_color) ..... $(verde)ok!$(sin_color)$(sin_negrita)\n'
 
-	gcc -g -w Broker/broker.c Broker/funcionesBroker.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o broker -lcommons -lpthread
+	gcc -g -w Broker/broker.c Broker/funcionesBroker.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -lm -o broker -lcommons -lpthread
 	@printf '$(negrita)$(amarillo)Broker$(sin_color) ..... $(verde)ok!$(sin_color)$(sin_negrita)\n'
 
 	gcc -g -w Team/team.c Team/funcionesTeam.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o team -lcommons -lpthread
