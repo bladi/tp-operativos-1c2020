@@ -50,3 +50,14 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Logs Files
+
+/logs/*.log
+
+# Ejecutables Del Codigo
+/broker
+/gameboy
+/gamecard
+
+
