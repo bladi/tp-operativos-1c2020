@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <math.h>
+#include <semaphore.h>
 
 ////////////////////////////////////////////////////////////////////////LIBS COMPARTIDAS/////////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +42,7 @@
 #define RETARDO_CICLO_CPU "RETARDO_CICLO_CPU"
 #define ALGORITMO_PLANIFICACION "ALGORITMO_PLANIFICACION"
 #define QUANTUM "QUANTUM"
+#define ALPHA "ALPHA"
 #define IP_BROKER "IP_BROKER"
 #define ESTIMACION_INICIAL "ESTIMACION_INICIAL"
 #define PUERTO_BROKER "PUERTO_BROKER"
@@ -63,6 +65,7 @@ typedef struct teamConfig_s{
 	uint32_t retardoCicloCPU;
 	char* algoritmoPlanificacion;
     uint32_t quantum;
+	float alpha;
 	char* ipBroker;
 	uint32_t estimacionInicial;
     uint32_t puertoBroker;
@@ -112,6 +115,10 @@ typedef struct entrenador
 	t_Pokemon* objetivoPokemon;
 	int intercambioEntrenador;
 	uint32_t identificadorCorrelacional;
+	float estimacionAnterior;
+	int rafagaAnterior;
+	float estimacionActual;
+	int rafagaActual;
 } t_Entrenador;
 
 typedef struct
@@ -154,12 +161,18 @@ uint32_t cantidadDeActualizacionesConfigTeam;
 pthread_t hiloServidorTeam;
 pthread_t hiloActualizadorConfigTeam;
 pthread_t hiloCPU;
+pthread_t hiloPlanificador;
 
 int socketBroker;
 
 t_Entrenador* entrenadorEjecutando;
+t_list* semaforosEntrenador;
 
 pthread_mutex_t mutexEntrenadorEjecutando;
+pthread_mutex_t mutexSemaforosEntrenador;
+
+sem_t* semaforoPlanificador;
+sem_t* semaforoTerminoEjecucion;
 
 ///////////////////////////////////////////////////////////////////////////FUNCIONES//////////////////////////////////////////////////////////////////////////////////////
 
@@ -214,7 +227,7 @@ t_entrenadoresEnDeadlock* quienesEstanEnDeadlock();
 bool hayDeadlock();
 void intercambiar();
 void atrapar();
-void ejecutar();
+void ejecutar(int pId);
 void moverEntrenadorEnX();
 void moverEntrenadorEnY();
 
