@@ -163,13 +163,18 @@ pthread_t hiloActualizadorConfigTeam;
 pthread_t hiloCPU;
 pthread_t hiloPlanificador;
 
+pthread_t hiloActualizadorSocketBrocker;
+
 int socketBroker;
+int brokerActivo;
 
 t_Entrenador* entrenadorEjecutando;
 t_list* semaforosEntrenador;
 
 pthread_mutex_t mutexEntrenadorEjecutando;
 pthread_mutex_t mutexSemaforosEntrenador;
+
+pthread_mutex_t mutexSocketBroker;
 
 sem_t* semaforoPlanificador;
 sem_t* semaforoTerminoEjecucion;
@@ -180,6 +185,7 @@ void configurarLoggerTeam();
 
 void cargarConfiguracionTeam();
 void actualizarConfiguracionTeam();
+void actualizarConexionConBroker();
 void mostrarMetricas();
 
 void administradorDeConexiones(void* infoAdmin);

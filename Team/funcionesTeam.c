@@ -217,6 +217,7 @@ void administradorDeConexiones(void* infoAdmin)
         log_info(logger, "ME HICIERON UN PING\n\n\n");
         
     }
+
     else if(resultado == -1 || resultado < -2){
         
         log_warning(logger, "ERROR AL RECIBIR");
@@ -225,6 +226,7 @@ void administradorDeConexiones(void* infoAdmin)
     }
 
     return;
+
 }
 
 void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
@@ -520,6 +522,7 @@ void cambiarEstado(t_Entrenador *pEntrenador, Estado pEstado)
 
         case EXEC:
 		{
+            cantidadCambiosDeContexto ++; //PROBAR
             pthread_mutex_lock(&mutexEntrenadorEjecutando);
 			entrenadorEjecutando = pEntrenador;
             pthread_mutex_unlock(&mutexEntrenadorEjecutando);
@@ -603,8 +606,6 @@ void inicializarHilosYVariablesTeam()
     cantidadCambiosDeContexto = 0;
     cantidadDeadlocks = 0;
     cantidadDeadlocksResueltos = 0;
-    
-    cargarEntrenadoresYListasGlobales();
 
     cantidadEntrenadores = list_size(listaDeEntrenadores);
 
@@ -634,6 +635,7 @@ void inicializarHilosYVariablesTeam()
     //string_append(&unaInfoServidorTeam->ip,unTeamConfig->ipTeam); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
     string_append(&unaInfoServidorTeam->ip,"0");
 
+    pthread_create(&hiloActualizadorSocketBrocker, NULL, (void *)actualizarConexionConBroker, NULL);
     pthread_create(&hiloActualizadorConfigTeam, NULL, (void*)actualizarConfiguracionTeam, NULL);
     pthread_create(&hiloServidorTeam,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorTeam);
 
@@ -734,6 +736,7 @@ void cargarEntrenadoresYListasGlobales()
 
         list_add(listaDeEntrenadores, unEntrenador);
         list_add(NUEVOS, unEntrenador);
+
     }
 }
 
@@ -1466,51 +1469,84 @@ void intercambiar()
 void atrapar()
 {
 
-    t_catchPokemon* unCatchPokemon = malloc(sizeof(unCatchPokemon));
+    pthread_mutex_lock(&mutexSocketBroker);
 
-    unCatchPokemon->identificador = 0;
-    unCatchPokemon->identificadorCorrelacional = 0;
+    brokerActivo = probarConexionSocket(socketBroker);
 
-    unCatchPokemon->nombrePokemon = string_new();
-    string_append(&unCatchPokemon->nombrePokemon,entrenadorEjecutando->objetivoPokemon->nombre);
+    if(brokerActivo > 0){
 
-    unCatchPokemon->posicionEnElMapaX = entrenadorEjecutando->objetivoX;
-    unCatchPokemon->posicionEnElMapaY = entrenadorEjecutando->objetivoY;
+        t_catchPokemon* unCatchPokemon = malloc(sizeof(unCatchPokemon));
 
-    int tamanioCatchPokemon = 0;
+        unCatchPokemon->identificador = 0;
+        unCatchPokemon->identificadorCorrelacional = 0;
 
-    enviarInt(socketBroker, 2);
-    enviarPaquete(socketBroker, tCatchPokemon, unCatchPokemon, tamanioCatchPokemon);
+        unCatchPokemon->nombrePokemon = string_new();
+        string_append(&unCatchPokemon->nombrePokemon,entrenadorEjecutando->objetivoPokemon->nombre);
 
-    int resultado;
-    int tipoResultado = 0;
+        unCatchPokemon->posicionEnElMapaX = entrenadorEjecutando->objetivoX;
+        unCatchPokemon->posicionEnElMapaY = entrenadorEjecutando->objetivoY;
 
-    if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
+        int tamanioCatchPokemon = 0;
 
-          if(tipoResultado > 0){
-            
-            log_info(logger,"Pókemon mandado a atrapar con éxito");
+        enviarInt(socketBroker, 2);
+        enviarPaquete(socketBroker, tCatchPokemon, unCatchPokemon, tamanioCatchPokemon);
 
+        int resultado;
+        int tipoResultado = 0;
+
+        if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
+
+            if(tipoResultado > 0){
+                
+                log_info(logger,"Pókemon mandado a atrapar con éxito");
+
+                //SEMAFORO?
+                entrenadorEjecutando->objetivo = EsperandoMensaje;
+                cambiarEstado(entrenadorEjecutando,BLOCK);
+                entrenadorEjecutando->identificadorCorrelacional = tipoResultado;
+                //FIN SEMAFORO?
+                
+            }else if(tipoResultado == 0){
+
+                log_info(logger,"No se pudo intentar atrapar al pókemon");
+                //SEMAFORO?
+                entrenadorFinalizoSuTarea(entrenadorEjecutando);
+                //FIN SEMAFORO?
+                //ANALIZAR DESCONEXION DEL BROKER Y VER QUÉ SE HACE
+
+            }
+
+        }else{
+
+            log_error(logger,"Hubo un error al recibir el resultado de la operación desde el Broker. Está desconectado.");
             //SEMAFORO?
-            entrenadorEjecutando->objetivo = EsperandoMensaje;
-            cambiarEstado(entrenadorEjecutando,BLOCK);
-            entrenadorEjecutando->identificadorCorrelacional = tipoResultado;
-            //FIN SEMAFORO?
-            
-          }else if(tipoResultado == 0){
+            agregarPokeALista(entrenadorEjecutando->pokemones, entrenadorEjecutando->objetivoPokemon->nombre);
+            agregarPokeALista(pokemonesAtrapados, entrenadorEjecutando->objetivoPokemon->nombre);
+            entrenadorEjecutando->objetivoPokemon->cantidad --;
 
-            log_info(logger,"No se pudo intentar atrapar al pókemon");
-            //SEMAFORO?
-            entrenadorFinalizoSuTarea(entrenadorEjecutando);
+            if(entrenadorEjecutando->objetivoPokemon->cantidad == 0){
+
+                entrenadorFinalizoSuTarea(entrenadorEjecutando);
+
+            }else{
+
+                cambiarEstado(entrenadorEjecutando,READY);
+
+            }
+
+            brokerActivo = probarConexionSocket(socketBroker);
+            
             //FIN SEMAFORO?
             //ANALIZAR DESCONEXION DEL BROKER Y VER QUÉ SE HACE
+        }
 
-          }
+        free(unCatchPokemon->nombrePokemon);
+        free(unCatchPokemon);
 
     }else{
 
-        log_error(logger,"Hubo un error al recibir el resultado de la operación desde el Broker. Está desconectado.");
-        //SEMAFORO?
+        log_error(logger, "FALLÓ ENVÍO DE CATCH_POKEMON AL BROKER");
+
         agregarPokeALista(entrenadorEjecutando->pokemones, entrenadorEjecutando->objetivoPokemon->nombre);
         agregarPokeALista(pokemonesAtrapados, entrenadorEjecutando->objetivoPokemon->nombre);
         entrenadorEjecutando->objetivoPokemon->cantidad --;
@@ -1524,14 +1560,10 @@ void atrapar()
             cambiarEstado(entrenadorEjecutando,READY);
 
         }
-        
-        //FIN SEMAFORO?
-        //ANALIZAR DESCONEXION DEL BROKER Y VER QUÉ SE HACE
+
     }
 
-
-    free(unCatchPokemon->nombrePokemon);
-    free(unCatchPokemon);
+    pthread_mutex_unlock(&mutexSocketBroker);
 
 }
 
@@ -1563,6 +1595,8 @@ void ejecutar(int pId){
                 //Cambiarle su estado interno
                 entrenadorFinalizoSuTarea(entrenadorEjecutando);
                 entrenadorEjecutando = NULL;
+
+                cantidadCambiosDeContexto ++; //PROBAR
             }
             else
             {
@@ -1583,6 +1617,7 @@ void ejecutar(int pId){
                         intercambiar();
                     }
                     entrenadorEjecutando = NULL;
+                    cantidadCambiosDeContexto ++; //PROBAR
                 }
             
             }
@@ -1594,6 +1629,7 @@ void ejecutar(int pId){
     }
 
     cantidadCiclosCPU ++;
+
 }
 
 void moverEntrenadorEnX(){
@@ -1620,4 +1656,88 @@ void moverEntrenadorEnY(){
         entrenadorEjecutando->posicionY++;
     }
 
+}
+
+void actualizarConexionConBroker(){
+
+    int resultado;
+    int tipoResultado = 0;
+    int tamanioSuscriptor = 0;
+
+    while (1)
+    {
+
+        sleep(unTeamConfig->tiempoReconexion);
+
+        //log_debug(logger, "Variable brokerActivo: %d", brokerActivo);
+
+        pthread_mutex_lock(&mutexSocketBroker);
+
+        brokerActivo = probarConexionSocket(socketBroker);
+
+        //log_debug(logger, "Variable brokerActivo luego de testeo de conexión: %d", brokerActivo);
+
+        if (brokerActivo <= 0){
+
+            log_warning(logger, "BROKER DESCONECTADO. INTENTANDO RECONEXIÓN.");
+
+            socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
+
+            if (socketBroker > 0){
+
+                log_trace(logger, "BROKER RECONECTADO");
+
+                t_suscriptor *unSuscriptor = malloc(sizeof(t_suscriptor));
+
+                unSuscriptor->identificador = 0;
+                unSuscriptor->identificadorCorrelacional = 0;
+
+                unSuscriptor->colaDeMensajes = tAppearedPokemon;
+
+                unSuscriptor->tiempoDeSuscripcion = 0;
+                unSuscriptor->puerto = unTeamConfig->puertoTeam;
+
+                unSuscriptor->ip = string_new();
+                string_append(&unSuscriptor->ip, unTeamConfig->ipTeam);
+
+                enviarInt(socketBroker, 4);
+                enviarPaquete(socketBroker, tSuscriptor, unSuscriptor, tamanioSuscriptor);
+
+                if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0){
+
+                    if (tipoResultado == 1){
+
+                        log_trace(logger, "SUSCRIPCIÓN REALIZADA CON ÉXITO");
+
+                    }else if (tipoResultado == 0){
+
+                        log_error(logger, "FALLÓ PEDIDO DE SUSCRIPCIÓN");
+
+                    }
+
+                }else{
+
+                    log_error(logger, "ERROR AL RECIBIR EL RESULTADO DE LA OPERACION");
+
+                    brokerActivo = probarConexionSocket(socketBroker);
+
+                }
+
+            }else{
+
+                log_error(logger, "INTENTO DE RECONEXIÓN FALLIDO. REINTENTO EN %d SEGUNDOS.", unTeamConfig->tiempoReconexion);
+
+            }
+        
+        }/*else{
+
+            log_debug(logger, "El Broker continúa conectado");
+
+        }
+        */
+        pthread_mutex_unlock(&mutexSocketBroker);
+
+    }
+
+    return;
 }

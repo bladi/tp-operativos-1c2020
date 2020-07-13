@@ -2012,12 +2012,14 @@ void ejecutarColaNewPokemon()
                     }
                 }
 
-                free(unNewPokemon);
+                //free(unNewPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
             pthread_mutex_unlock(&mutex_MENSAJES_NEW_POKEMON);
         }
+
+        sleep(2);
     }
 }
 
@@ -2088,12 +2090,14 @@ void ejecutarColaAppearedPokemon()
                     }
                 }
 
-                free(unPokemon);
+                //free(unPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
             pthread_mutex_unlock(&mutex_MENSAJES_APPEARED_POKEMON);
         }
+
+        sleep(2);
     }
 }
 
@@ -2164,12 +2168,15 @@ void ejecutarColaCatchPokemon()
                     }
                 }
 
-                free(unPokemon);
+               // free(unPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
             pthread_mutex_unlock(&mutex_MENSAJES_CATCH_POKEMON);
         }
+
+        sleep(2);
+        
     }
 }
 
@@ -2261,6 +2268,8 @@ void ejecutarColaCaughtPokemon()
             list_destroy(mensajesAEnviar);
             pthread_mutex_unlock(&mutex_MENSAJES_CAUGHT_POKEMON);
         }
+
+        sleep(2);
     }
 }
 
@@ -2337,6 +2346,8 @@ void ejecutarColaGetPokemon()
             list_destroy(mensajesAEnviar);
             pthread_mutex_unlock(&mutex_MENSAJES_GET_POKEMON);
         }
+
+        sleep(2);
     }
 }
 
@@ -2413,6 +2424,8 @@ void ejecutarColaLocalizedPokemon()
             list_destroy(mensajesAEnviar);
             pthread_mutex_unlock(&mutex_MENSAJES_LOCALIZED_POKEMON);
         }
+
+        sleep(2);
     }
 }
 
@@ -2425,6 +2438,9 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, voi
     t_newPokemon *unNewPokemon = (t_newPokemon *)unPokemon;
 
     int tamanioNewPokemon = 0;
+
+    log_warning(logger, "\n\t-->  identificadorCorrelacional valor %d", unSuscriptor->identificadorCorrelacional);
+
 
     enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tNewPokemon, unNewPokemon, tamanioNewPokemon);

@@ -160,6 +160,7 @@ void administradorDeConexiones(void *infoAdmin){
     }
 
     return;
+    
 }
 
 void actualizarConfiguracionGameCard(){
