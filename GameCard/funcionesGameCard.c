@@ -226,7 +226,7 @@ void inicializarHilosYVariablesGameCard(){
     //string_append(&unaInfoServidorGameCard->ip,unGameCardConfig->ipGameCard); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
     string_append(&unaInfoServidorGameCard->ip, "0");
 
-    pthread_create(&hiloActualizadorSocketBrocker, NULL, (void *)actualizarConexionConBroker, NULL);
+    //pthread_create(&hiloActualizadorSocketBrocker, NULL, (void *)actualizarConexionConBroker, NULL);
     pthread_create(&hiloActualizadorConfigGameCard, NULL, (void *)actualizarConfiguracionGameCard, NULL);
     pthread_create(&hiloServidorGameCard, NULL, (void *)servidor_inicializar, (void *)unaInfoServidorGameCard);
 
@@ -681,7 +681,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
         int tamanioAppearedPokemon = 0;
 
-        pthread_mutex_lock(&mutexSocketBroker);
+        //pthread_mutex_lock(&mutexSocketBroker);
 
         brokerActivo = probarConexionSocket(socketBroker);
 
@@ -717,7 +717,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
         }
 
-        pthread_mutex_unlock(&mutexSocketBroker);
+        //pthread_mutex_unlock(&mutexSocketBroker);
 
         break;
 
@@ -1237,6 +1237,10 @@ int crearPokemon(char *pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t
 
 int actualizarPokemon(char *pokemon, char *stringUbicaciones, int sizeUbicaciones){
 
+    log_debug(logger, "-----------------------------");
+    log_debug(logger, "ENTRÉ EN ACTUALIZAR POKEMON");
+    log_debug(logger, "-----------------------------");
+
     FILE *f;
     char *pathMetadata = string_new();
 
@@ -1292,14 +1296,19 @@ int actualizarPokemon(char *pokemon, char *stringUbicaciones, int sizeUbicacione
         fputs(formatoBlocks, f);
         fputs(formatoOpen, f);
         fseek(f, 0, SEEK_SET);
-        
-        sleep(unGameCardConfig->tiempoRetardoOperacion);
+
+        log_debug(logger, "ESCRIBÍ LA METADATA DEL POKEMON, PROCEDO AL TIEMPO DE RETARDO");
+
+        //sleep(unGameCardConfig->tiempoRetardoOperacion);
 
         fclose(f);
 
         log_trace(logger, "ARCHIVO METADATA DEL POKEMON %s ACTUALIZADO CORRECTAMENTE", pokemon);
 
         escribirEnBloques(stringUbicaciones, bloquesAEscribir, cantBloquesAOcupar);
+
+        log_debug(logger, "ESCRIBÍ LOS BLOQUES CON LAS UBICACIONES");
+
 
         free(formatoDirectory);
         free(formatoSize);
@@ -1397,15 +1406,26 @@ t_list *generarListaUbicaciones(char *pokemon){
 
 int actualizarUbicacionPokemon(char *pokemon, uint32_t posX, uint32_t posY, int cant){
 
+    log_debug(logger, "-----------------------------");
+    log_debug(logger, "ENTRÉ EN ACTUALIZAR UBICACION");
+    log_debug(logger, "-----------------------------");
+
+    
     busquedaX = posX;
     busquedaY = posY;
 
     t_list *listaUbicaciones = generarListaUbicaciones(pokemon);
+    
+    log_debug(logger, "Generé lista de ubicaciones del pokemon %s, hay %d ubicaciones", pokemon, list_size(listaUbicaciones));
 
     datosPokemon_t *ubicacionEncontrada = list_find(listaUbicaciones, (void *)mismaUbicacion);
 
+
+
     if (ubicacionEncontrada == NULL)
     {
+        
+        log_debug(logger, "No encontré la ubicación solicitada, la creo.");
 
         list_destroy_and_destroy_elements(listaUbicaciones, eliminarNodoDatosPokemon);
 
@@ -1442,11 +1462,12 @@ int actualizarUbicacionPokemon(char *pokemon, uint32_t posX, uint32_t posY, int 
         }
         else
         {
-
+            log_debug(logger, "ACTUALIZO LA UBICACIÓN ENCONTRADA.");
             ubicacionEncontrada->cantidad = ubicacionEncontrada->cantidad + cant;
         }
 
         char *nuevoStringUbicaciones = generarStringUbicacionesSegunLista(listaUbicaciones);
+        log_debug(logger, "GENERÉ UNA NUEVA LISTA DE UBICACIONES, PROCEDO A ACTUALIZAR LOS BLOQUES.");
         int sizeUbicaciones = string_length(nuevoStringUbicaciones);
         liberarBloquesDelPokemon(pokemon);
         return actualizarPokemon(pokemon, nuevoStringUbicaciones, sizeUbicaciones);
