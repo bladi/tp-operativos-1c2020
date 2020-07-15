@@ -150,6 +150,7 @@ t_list* mapaPendientes;
 t_list* pokemonesAtrapados;
 t_list* pokemonesObjetivos;
 t_list* pokemonesBuscandose;
+t_list* identificadoresGet;
 
 uint32_t cantidadEntrenadores;
 uint32_t cantidadCiclosCPU;
@@ -195,6 +196,7 @@ void mostrarMetricas();
 void administradorDeConexiones(void* infoAdmin);
 void manejarRespuestaABroker(int socketCliente, int idCliente);
 void manejarRespuestaAGameBoy(int socketCliente, int idCliente);
+bool estaIdEnLista(int pIdCorrelacional);
 
 void cambiarEstado(t_Entrenador *unEntrenador, Estado unEstado);
 void bloquearEntrenador(t_Entrenador* pEntrenador);
