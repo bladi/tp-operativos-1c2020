@@ -119,6 +119,7 @@ typedef struct entrenador
 	int rafagaAnterior;
 	float estimacionActual;
 	int rafagaActual;
+	int cpuIntercambio;
 } t_Entrenador;
 
 typedef struct
@@ -146,6 +147,7 @@ t_list* listaDeEntrenadores;
 t_list* mapa;
 t_list* pokemonesAtrapados;
 t_list* pokemonesObjetivos;
+t_list* pokemonesBuscandose;
 
 uint32_t cantidadEntrenadores;
 uint32_t cantidadCiclosCPU;
@@ -210,6 +212,7 @@ int cantidadDeUnPokemonEnLista(t_list* pLista, char* pPokemon);
 int cantidadTotalDePokemonesEnLista(t_list* pLista);
 
 void planificarReady(int posXpokemon,int posYpokemon, char* pPokemonNombre, int pPokemonCantidad);
+bool puedoPlanificarReady();
 void planificarExec();
 void planificarFIFO();
 void planificarRR();

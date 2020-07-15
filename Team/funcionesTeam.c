@@ -397,6 +397,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
                     log_info("El entrenador: %d pudo atrapar correctamente al pokémon que fue a buscar.", unEntrenador->id);
                     agregarPokeALista(unEntrenador->pokemones, unCaughtPokemon->nombrePokemon);
                     agregarPokeALista(pokemonesAtrapados, unEntrenador->objetivoPokemon->nombre);
+                    quitarPokeDeLista(pokemonesBuscandose, unEntrenador->objetivoPokemon->nombre);
                     unEntrenador->objetivoPokemon->cantidad --;
 
                     if(unEntrenador->objetivoPokemon->cantidad == 0){
@@ -608,6 +609,7 @@ void inicializarHilosYVariablesTeam()
     entrenadorEjecutando = NULL;
     pokemonesAtrapados = list_create();
     pokemonesObjetivos = list_create();
+    pokemonesBuscandose = list_create();
     mapa = list_create();
 
     cantidadEntrenadores = 0;
@@ -731,6 +733,7 @@ void cargarEntrenadoresYListasGlobales()
         unEntrenador->rafagaAnterior = 0;
         unEntrenador->estimacionActual = unTeamConfig->estimacionInicial;
         unEntrenador->rafagaActual = 0;
+        unEntrenador->cpuIntercambio = 0;
         
         sem_t* unSemaforo = malloc(sizeof(sem_t));
         sem_init(unSemaforo, 0, 0);
@@ -753,18 +756,6 @@ void cargarEntrenadoresYListasGlobales()
 
 void pruebasSanty()
 {
-    /*
-    t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
-    unPokemon = list_get(pokemonesAtrapados,0);
-    printf("El primer pokemon atrapado global: %s \n", unPokemon->nombre);
-    printf("La cantidad del primer pokemon atrapado global: %d \n", unPokemon->cantidad);
-    free(unPokemon);
-    unPokemon = malloc(sizeof(t_Pokemon));
-    unPokemon = list_get(pokemonesObjetivos,0);
-    printf("El primer pokemon objetivo global: %s \n", unPokemon->nombre);
-    printf("La cantidad del primer pokemon objetivo global: %d \n", unPokemon->cantidad);
-    free(unPokemon);
-    */
 
     for(int i = 0; i < list_size(listaDeEntrenadores); i++)
     {
@@ -966,14 +957,57 @@ int cantidadTotalDePokemonesEnLista(t_list* pLista)
 
 void planificarReady(int posXpokemon,int posYpokemon, char* pPokemonNombre, int pPokemonCantidad)
 {
-    if(list_size(NUEVOS) == 0 && list_size(BLOQUEADOS) == 0)
+    if(puedoPlanificarReady())
+    {
+        int cuantosPrecisa = cuantosPrecisaGlobalmente(pPokemonNombre);
+        if(cuantosPrecisa >= pPokemonCantidad)
+        {
+            t_Entrenador* unEntrenador = entrenadorMasCercano(posXpokemon, posYpokemon, pPokemonNombre, pPokemonCantidad);
+            cambiarEstado(unEntrenador, READY);
+        }
+        else
+        {
+            if(cuantosPrecisa != 0)
+            {
+                t_Entrenador* unEntrenador = entrenadorMasCercano(posXpokemon, posYpokemon, pPokemonNombre, cuantosPrecisa);
+                cambiarEstado(unEntrenador, READY);
+            }
+            else
+            {
+                log_warning(logger, "No preciso ningun pokemon de esa especie");
+            }
+        }
+    }
+    else
     {
         log_error(logger,"No hay entrenadores para planificar");
-        return;
-    }else{
+    }
+}
 
-        t_Entrenador* unEntrenador = entrenadorMasCercano(posXpokemon, posYpokemon, pPokemonNombre, pPokemonCantidad);
-        cambiarEstado(unEntrenador, READY);
+bool puedoPlanificarReady()
+{
+    if(!list_is_empty(NUEVOS))
+    {
+        return true;
+    }
+    else
+    {
+        if(!list_is_empty(BLOQUEADOS))
+        {
+            for(int i = 0; i < list_size(BLOQUEADOS); i++)
+            {
+                t_Entrenador* unEntrenador = list_get(BLOQUEADOS, i);
+                if(unEntrenador->objetivo = Ninguno)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else
+        {
+            return false;
+        }
     }
 }
 
@@ -1267,6 +1301,23 @@ int entrenadorConMenorEstimacion()
     return posicion;
 }
 
+int cuantosPrecisaGlobalmente(char* pPokemon)
+{
+    int objetivos  = cantidadDeUnPokemonEnLista(pokemonesObjetivos, pPokemon);
+    int buscandose = cantidadDeUnPokemonEnLista(pokemonesBuscandose, pPokemon);
+    int atrapados  = cantidadDeUnPokemonEnLista(pokemonesAtrapados, pPokemon);
+    int resultado = objetivos - buscandose - atrapados;
+    if(resultado < 0)
+    {
+        log_error(logger, "El proceso tiene mas pokemones que los que necesita de esa especie");
+        return 0;
+    }
+    else
+    {
+        return resultado;
+    }
+}
+
 t_Entrenador* entrenadorMasCercano(int posXpokemon, int posYpokemon, char* pPokemonNombre, int pPokemonCantidad)
 {
     int idEntrenadorNew;
@@ -1358,7 +1409,7 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon, int posYpokemon, char* pPoke
         }
 	}
 
-    if(distanciaMenorNew == 100000 && distanciaMenorBlock == 100000)
+    if(distanciaMenorNew == 100000 && distanciaMenorBlock == 100000) //Se puede sacar
     {
         log_error(logger, "No hay entrenadores que puedan pasar a ready");
         return NULL;
@@ -1385,6 +1436,10 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon, int posYpokemon, char* pPoke
         //pokemonRetorno->nombre = pPokemonNombre;
         pokemonRetorno->cantidad = pPokemonCantidad;
         entrenadorRetorno->objetivoPokemon = pokemonRetorno;
+        for(int i = 0; i < entrenadorRetorno->objetivoPokemon->cantidad; i++)
+        {
+            agregarPokeALista(pokemonesBuscandose, entrenadorRetorno->objetivoPokemon->nombre);
+        }
         return entrenadorRetorno;
     }
 }
@@ -1463,16 +1518,14 @@ bool hayDeadlock()
 
 void intercambiar()
 {
+    entrenadorEjecutando->cpuIntercambio = 0;
     t_Entrenador* segundoEntrenador = list_remove(BLOQUEADOS, posicionEntrenadorEnLista(BLOQUEADOS, entrenadorEjecutando->intercambioEntrenador));
     t_Pokemon* pokemonNecesitado = entrenadorEjecutando->objetivoPokemon;
     char* pokemonSobra = cualEsElPrimerPokemonQueLeSobra(entrenadorEjecutando);
     printf("El pokemon que le sobra al primer entrenador es: %s\n", pokemonSobra);
     printf("El pokemon que esta buscando el primer entrenador es: %s\n", pokemonNecesitado->nombre);
-    for(int i = 0; i < pokemonNecesitado->cantidad; i++)
-    {
-        agregarPokeALista(entrenadorEjecutando->pokemones, pokemonNecesitado->nombre);
-        quitarPokeDeLista(segundoEntrenador->pokemones, pokemonNecesitado->nombre);
-    }
+    agregarPokeALista(entrenadorEjecutando->pokemones, pokemonNecesitado->nombre);
+    quitarPokeDeLista(segundoEntrenador->pokemones, pokemonNecesitado->nombre);
     agregarPokeALista(segundoEntrenador->pokemones, pokemonSobra);
     quitarPokeDeLista(entrenadorEjecutando->pokemones, pokemonSobra);
     entrenadorFinalizoSuTarea(segundoEntrenador);
@@ -1546,6 +1599,8 @@ void atrapar()
             //SEMAFORO?
             agregarPokeALista(entrenadorEjecutando->pokemones, entrenadorEjecutando->objetivoPokemon->nombre);
             agregarPokeALista(pokemonesAtrapados, entrenadorEjecutando->objetivoPokemon->nombre);
+            quitarPokeDeLista(pokemonesBuscandose, entrenadorEjecutando->objetivoPokemon->nombre);
+
             entrenadorEjecutando->objetivoPokemon->cantidad --;
 
             if(entrenadorEjecutando->objetivoPokemon->cantidad == 0){
@@ -1573,6 +1628,7 @@ void atrapar()
 
         agregarPokeALista(entrenadorEjecutando->pokemones, entrenadorEjecutando->objetivoPokemon->nombre);
         agregarPokeALista(pokemonesAtrapados, entrenadorEjecutando->objetivoPokemon->nombre);
+        quitarPokeDeLista(pokemonesBuscandose, entrenadorEjecutando->objetivoPokemon->nombre);
         entrenadorEjecutando->objetivoPokemon->cantidad --;
 
         if(entrenadorEjecutando->objetivoPokemon->cantidad == 0){
@@ -1635,13 +1691,22 @@ void ejecutar(int pId){
                     if(entrenadorEjecutando->objetivo == BuscandoAtrapar)
                     {
                         atrapar();
+                        entrenadorEjecutando = NULL;
+                        cantidadCambiosDeContexto ++; //PROBAR
                     }
                     else
                     {
-                        intercambiar();
+                        if(entrenadorEjecutando->cpuIntercambio == 4)
+                        {
+                            intercambiar();
+                            entrenadorEjecutando = NULL;
+                            cantidadCambiosDeContexto ++; //PROBAR
+                        }
+                        else
+                        {
+                            entrenadorEjecutando->cpuIntercambio++;
+                        }
                     }
-                    entrenadorEjecutando = NULL;
-                    cantidadCambiosDeContexto ++; //PROBAR
                 }
             
             }
