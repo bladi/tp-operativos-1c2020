@@ -120,6 +120,7 @@ typedef struct entrenador
 	float estimacionActual;
 	int rafagaActual;
 	int cpuIntercambio;
+	int rafagasTotales;
 } t_Entrenador;
 
 typedef struct

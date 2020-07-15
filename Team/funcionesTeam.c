@@ -568,7 +568,7 @@ void finalizarEntrenador(t_Entrenador* pEntrenador)
     {
         printf("Se cumplieron todos los objetivos \n");
         //TO DO
-        //finalizarTeam();
+        finalizarTeam();
     }
     else
     {
@@ -589,10 +589,9 @@ void inicializarTeam() {
 }
 
 void finalizarTeam() {
-    //TO DO
+    mostrarMetricas(); //TO DO chequear que sea lo q hay q hacer
     free(unTeamConfig);
     free(logger);
-
 }
 
 void inicializarHilosYVariablesTeam()
@@ -622,12 +621,12 @@ void inicializarHilosYVariablesTeam()
     cantidadDeadlocks = 0;
     cantidadDeadlocksResueltos = 0;
 
-    cantidadEntrenadores = list_size(listaDeEntrenadores);
-
     pthread_create(&hiloCPU,NULL,(void*)ejecutar,NULL);
     semaforosEntrenador = list_create();
     
     cargarEntrenadoresYListasGlobales();
+
+    envioDeGetsPokemon();
 
     semaforoPlanificador = malloc(sizeof(sem_t));
     sem_init(semaforoPlanificador, 0, 0);
@@ -637,9 +636,7 @@ void inicializarHilosYVariablesTeam()
 
     pthread_create(&hiloPlanificador, NULL, (void*)planificarExec, NULL);
     
-    //pthread_create(&hiloCPU,NULL,(void*)ejecutar,NULL);
-    
-    //pruebasSanty();
+    pruebasSanty();
 
     socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
@@ -738,6 +735,7 @@ void cargarEntrenadoresYListasGlobales()
         unEntrenador->estimacionActual = unTeamConfig->estimacionInicial;
         unEntrenador->rafagaActual = 0;
         unEntrenador->cpuIntercambio = 0;
+        unEntrenador->rafagasTotales = 0;
         
         sem_t* unSemaforo = malloc(sizeof(sem_t));
         sem_init(unSemaforo, 0, 0);
@@ -753,6 +751,16 @@ void cargarEntrenadoresYListasGlobales()
         list_add(listaDeEntrenadores, unEntrenador);
         list_add(NUEVOS, unEntrenador);
 
+    }
+}
+
+void envioDeGetsPokemon()
+{
+    for(int i = 0; i < list_size(pokemonesObjetivos); i++)
+    {
+        t_Pokemon* unPokemon = list_get(pokemonesObjetivos, i);
+        //TO DO
+        //enviar getPokemon() con unPokemon->nombre
     }
 }
 
@@ -833,11 +841,20 @@ void pruebasSanty()
 void mostrarMetricas(){
 
     log_info(logger, "----------------------------------------MÉTRICAS----------------------------------------");
-    log_info(logger, "Cantidad de entrenadores procesados: %d", cantidadEntrenadores);
-    log_info(logger, "Cantidad de ciclos de CPU: %d", cantidadCiclosCPU);
     log_info(logger, "Cantidad de cambios de contexto: %d", cantidadCambiosDeContexto);
     log_info(logger, "Cantidad de cambios de deadlocks: %d",cantidadDeadlocks);
     log_info(logger, "Cantidad de cambios de deadlocks resueltos: %d",cantidadDeadlocksResueltos);
+    for(int i = 0; i < list_size(listaDeEntrenadores); i++)
+    {
+        t_Entrenador* unEntrenador = list_get(listaDeEntrenadores, i);
+        if(unEntrenador->rafagasTotales > 0)
+        {
+            cantidadEntrenadores++;
+        }
+        log_info(logger, "El entrenador con ID %d ejecuto %d rafagas de CPU", unEntrenador->id, unEntrenador->rafagasTotales);
+    }
+    log_info(logger, "Cantidad de entrenadores procesados: %d", cantidadEntrenadores);
+    log_info(logger, "Cantidad de ciclos de CPU: %d", cantidadCiclosCPU);
     log_info(logger, "----------------------------------------------------------------------------------------");
 
 }
@@ -1293,7 +1310,7 @@ bool teamCumplioObjetivos()
     for(int i = 0; i < list_size(listaDeEntrenadores); i++)
     {
         t_Entrenador* unEntrenador = list_get(listaDeEntrenadores, i);
-        if(!entrenadorCumplioObjetivos(unEntrenador))
+        if(unEntrenador->estado != 4)
         {
             return false;
         }
@@ -1508,6 +1525,7 @@ t_entrenadoresEnDeadlock* quienesEstanEnDeadlock()
     if(list_size(listaDeadlock) >= 2)
     {
         printf("Hay deadlock\n");
+        cantidadDeadlocks++;
         t_Entrenador* primerEntrenador = list_remove(listaDeadlock, 0);
         entrenadores->id1 = primerEntrenador->id;
         //char* pokemonQuePrecisa = string_new();
@@ -1575,6 +1593,10 @@ void intercambiar()
     quitarPokeDeLista(segundoEntrenador->pokemones, pokemonNecesitado->nombre);
     agregarPokeALista(segundoEntrenador->pokemones, pokemonSobra);
     quitarPokeDeLista(entrenadorEjecutando->pokemones, pokemonSobra);
+    if(entrenadorCumplioObjetivos(entrenadorEjecutando) && entrenadorCumplioObjetivos(segundoEntrenador))
+    {
+        cantidadDeadlocksResueltos++;
+    }
     entrenadorFinalizoSuTarea(segundoEntrenador);
     entrenadorFinalizoSuTarea(entrenadorEjecutando);
 }
@@ -1707,12 +1729,16 @@ void ejecutar(int pId){
         sleep(unTeamConfig->retardoCicloCPU); //Puede que haya que ponerlo adentro del IF de entrenadorEjecutando
 
         pthread_mutex_lock(&mutexEntrenadorEjecutando);
-        
+
         if(strcmp(unTeamConfig->algoritmoPlanificacion,"SJF-SD") == 0 || strcmp(unTeamConfig->algoritmoPlanificacion,"SJF-CD") == 0)
         {
             entrenadorEjecutando->rafagaActual++;
             entrenadorEjecutando->estimacionActual--;
         }
+
+        entrenadorEjecutando->rafagasTotales++;
+
+        cantidadCiclosCPU ++;
 
         if(entrenadorEjecutando!=NULL){
 
@@ -1762,11 +1788,8 @@ void ejecutar(int pId){
         
         }
         pthread_mutex_unlock(&mutexEntrenadorEjecutando);
-
         sem_post(semaforoTerminoEjecucion);
     }
-
-    cantidadCiclosCPU ++;
 
 }
 
