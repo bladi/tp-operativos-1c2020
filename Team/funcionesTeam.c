@@ -395,7 +395,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
                 if(unEntrenador && (unEntrenador->identificadorCorrelacional == unCaughtPokemon->identificadorCorrelacional)){
 
                     log_info("El entrenador: %d pudo atrapar correctamente al pokémon que fue a buscar.", unEntrenador->id);
-                    agregarPokeALista(unEntrenador->pokemones, unCaughtPokemon->nombrePokemon);
+                    agregarPokeALista(unEntrenador->pokemones, unEntrenador->objetivoPokemon->nombre); //Chequear que funcione bien
                     agregarPokeALista(pokemonesAtrapados, unEntrenador->objetivoPokemon->nombre);
                     quitarPokeDeLista(pokemonesBuscandose, unEntrenador->objetivoPokemon->nombre);
                     unEntrenador->objetivoPokemon->cantidad --;
@@ -527,6 +527,7 @@ void cambiarEstado(t_Entrenador *pEntrenador, Estado pEstado)
 		case BLOCK:
 		{
 			list_add(BLOQUEADOS, pEntrenador);
+            planificarPokemonPendiente(pEntrenador);
 			break;
 		}
 
@@ -566,6 +567,8 @@ void finalizarEntrenador(t_Entrenador* pEntrenador)
     if(teamCumplioObjetivos())
     {
         printf("Se cumplieron todos los objetivos \n");
+        //TO DO
+        //finalizarTeam();
     }
     else
     {
@@ -586,7 +589,7 @@ void inicializarTeam() {
 }
 
 void finalizarTeam() {
-
+    //TO DO
     free(unTeamConfig);
     free(logger);
 
@@ -611,6 +614,7 @@ void inicializarHilosYVariablesTeam()
     pokemonesObjetivos = list_create();
     pokemonesBuscandose = list_create();
     mapa = list_create();
+    mapaPendientes = list_create();
 
     cantidadEntrenadores = 0;
     cantidadCiclosCPU = 0;
@@ -774,11 +778,11 @@ void pruebasSanty()
         }
     }
 
-    planificarReady(2,2,"Charizard",1); //Tendria que cargar el 3er entrenador
+    planificarReady(2,2,"Charizard",1);
     
     printf("SLEEEEEEEEEEEEEEEEEEEP\n");
 
-    sleep(30);
+    //sleep(30);
 
     printf("SLEEEEEEEEEEEEEEEEEEEP\n");
 
@@ -786,11 +790,15 @@ void pruebasSanty()
     
     //planificarExec();
 
-    planificarReady(0,0,"Charizard",1); //Tendria que cargar el 1er entrenador
+    planificarReady(0,0,"Charizard",1);
 
-    sleep(3);
+    //sleep(3);
 
-    planificarReady(1,0,"Charizard",1); //Tendria que cargar el 1er entrenador
+    planificarReady(1,0,"Charizard",1);
+
+    log_warning(logger,"Planificando Caterpie");
+
+    planificarReady(1,0,"Caterpie",1);
 
     planificarReady(1,0,"Charizard",1);
 
@@ -919,12 +927,12 @@ void quitarPokeDeLista(t_list* pLista, char* pPokemon)
         {
             free(unPokemon->nombre);
             free(unPokemon);
-            list_remove(pLista, pPokemon);
+            list_remove(pLista, posicion);
         }
     }
     else
     {
-        log_error(logger, "El entrenador no tiene el pokemon que iba a intercambiar por otro");
+        log_error(logger, "La lista no tiene el pokemon a quitar");
     }
 }
 
@@ -967,7 +975,7 @@ void planificarReady(int posXpokemon,int posYpokemon, char* pPokemonNombre, int 
         }
         else
         {
-            if(cuantosPrecisa != 0)
+            if(cuantosPrecisa > 0)
             {
                 t_Entrenador* unEntrenador = entrenadorMasCercano(posXpokemon, posYpokemon, pPokemonNombre, cuantosPrecisa);
                 cambiarEstado(unEntrenador, READY);
@@ -980,7 +988,39 @@ void planificarReady(int posXpokemon,int posYpokemon, char* pPokemonNombre, int 
     }
     else
     {
-        log_error(logger,"No hay entrenadores para planificar");
+        guardarPokemonABuscar(posXpokemon, posYpokemon, pPokemonNombre, pPokemonCantidad);
+    }
+}
+
+void guardarPokemonABuscar(int posXpokemon,int posYpokemon, char* pPokemonNombre, int pPokemonCantidad)
+{
+    if(cuantosPrecisaGlobalmente(pPokemonNombre) != -1)
+    {
+        t_posicionPokemon* unaPosicionPokemon = malloc(sizeof(t_posicionPokemon));
+        t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
+        unPokemon->nombre = string_new();
+
+        string_append(&unPokemon->nombre,pPokemonNombre);
+        unPokemon->cantidad = pPokemonCantidad;
+
+        unaPosicionPokemon->pokemon = unPokemon;
+        unaPosicionPokemon->posicionX = posXpokemon;
+        unaPosicionPokemon->posicionY = posYpokemon;
+        list_add(mapaPendientes, unaPosicionPokemon);
+    }
+}
+
+void planificarPokemonPendiente(t_Entrenador* pEntrenador)
+{
+    if(!list_is_empty(mapaPendientes) && puedeDesbloquearse(pEntrenador))
+    {
+        t_posicionPokemon* unaPosicionPokemon = list_remove(mapaPendientes, 0);
+        t_Pokemon* unPokemon = unaPosicionPokemon->pokemon;
+        planificarReady(unaPosicionPokemon->posicionX, unaPosicionPokemon->posicionY, unPokemon->nombre, unPokemon->cantidad);
+        //TO DO verificar estos free
+        free(unPokemon->nombre);
+        free(unPokemon);
+        free(unaPosicionPokemon);
     }
 }
 
@@ -997,7 +1037,7 @@ bool puedoPlanificarReady()
             for(int i = 0; i < list_size(BLOQUEADOS); i++)
             {
                 t_Entrenador* unEntrenador = list_get(BLOQUEADOS, i);
-                if(unEntrenador->objetivo = Ninguno)
+                if(puedeDesbloquearse(unEntrenador))
                 {
                     return true;
                 }
@@ -1303,18 +1343,25 @@ int entrenadorConMenorEstimacion()
 
 int cuantosPrecisaGlobalmente(char* pPokemon)
 {
-    int objetivos  = cantidadDeUnPokemonEnLista(pokemonesObjetivos, pPokemon);
-    int buscandose = cantidadDeUnPokemonEnLista(pokemonesBuscandose, pPokemon);
-    int atrapados  = cantidadDeUnPokemonEnLista(pokemonesAtrapados, pPokemon);
-    int resultado = objetivos - buscandose - atrapados;
-    if(resultado < 0)
+    if(posicionPokeEnLista(pokemonesObjetivos, pPokemon) == -1)
     {
-        log_error(logger, "El proceso tiene mas pokemones que los que necesita de esa especie");
-        return 0;
+        return -1;
     }
     else
     {
-        return resultado;
+        int objetivos  = cantidadDeUnPokemonEnLista(pokemonesObjetivos, pPokemon);
+        int buscandose = cantidadDeUnPokemonEnLista(pokemonesBuscandose, pPokemon);
+        int atrapados  = cantidadDeUnPokemonEnLista(pokemonesAtrapados, pPokemon);
+        int resultado = objetivos - buscandose - atrapados;
+        if(resultado < 0)
+        {
+            log_error(logger, "El proceso tiene mas pokemones que los que necesita de esa especie");
+            return 0;
+        }
+        else
+        {
+            return resultado;
+        }
     }
 }
 
@@ -1628,6 +1675,8 @@ void atrapar()
 
         agregarPokeALista(entrenadorEjecutando->pokemones, entrenadorEjecutando->objetivoPokemon->nombre);
         agregarPokeALista(pokemonesAtrapados, entrenadorEjecutando->objetivoPokemon->nombre);
+        log_error(logger, "LIST SIZE DE POKEMONES BUSCANDOSE: %d",list_size(pokemonesBuscandose));
+        log_error(logger, "NOMBRE DEL POKEMON A QUITAR: %s", entrenadorEjecutando->objetivoPokemon->nombre);
         quitarPokeDeLista(pokemonesBuscandose, entrenadorEjecutando->objetivoPokemon->nombre);
         entrenadorEjecutando->objetivoPokemon->cantidad --;
 

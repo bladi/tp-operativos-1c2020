@@ -145,6 +145,7 @@ t_log* logger;
 //t_list* objetivos;
 t_list* listaDeEntrenadores;
 t_list* mapa;
+t_list* mapaPendientes;
 t_list* pokemonesAtrapados;
 t_list* pokemonesObjetivos;
 t_list* pokemonesBuscandose;
@@ -212,6 +213,8 @@ int cantidadDeUnPokemonEnLista(t_list* pLista, char* pPokemon);
 int cantidadTotalDePokemonesEnLista(t_list* pLista);
 
 void planificarReady(int posXpokemon,int posYpokemon, char* pPokemonNombre, int pPokemonCantidad);
+void guardarPokemonABuscar(int posXpokemon,int posYpokemon, char* pPokemonNombre, int pPokemonCantidad);
+void planificarPokemonPendiente(t_Entrenador* pEntrenador);
 bool puedoPlanificarReady();
 void planificarExec();
 void planificarFIFO();
