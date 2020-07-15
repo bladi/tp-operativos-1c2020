@@ -1207,7 +1207,7 @@ void administradorDeConexiones(void *infoAdmin)
         case -1:
         {
 
-            log_info(logger, "RECIBIMOS UNA PRUEBA DE CONEXION");
+            //log_info(logger, "RECIBIMOS UNA PRUEBA DE CONEXION");
             break;
         }
 
@@ -1491,11 +1491,14 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
     case tAppearedPokemon:
     {
         log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE APPEARED --> DE GAMECARD");
+        enviarInt(socketCliente, 1);
 
         t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
 
-        //log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
-        //log_info(logger, "La posicion del Pokémon era: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
+        log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
+        log_info(logger, "La posicion del Pokémon era: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
+        log_warning(logger, "IDENTIFICADOR CORRRE %d", unAppeardPokemon->identificadorCorrelacional);
+
 
         if (verificarIdCorrelativo(unAppeardPokemon->identificadorCorrelacional))
         {
@@ -1506,6 +1509,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
                 unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
 
                 guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
+                //log_error(logger, "Estoy dentro de appeared if");
             }
         }
         else
@@ -1514,15 +1518,15 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
             unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
 
             guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
+            //log_error(logger, "Estoy dentro de appeared else");
         }
 
         //free(unAppeardPokemon);
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
-        enviarInt(socketCliente, unAppeardPokemon->identificador);
+        //enviarInt(socketCliente, unAppeardPokemon->identificador);
 
-        // enviarInt(socketCliente, 1);
 
         break;
     }
@@ -1550,7 +1554,7 @@ bool verificarIdCorrelativo(uint32_t idCorr)
     //?* SIEMPRE ENVIAR LOS PAQUETES FLUJO INICIAL CON IDCORRELATIVO EN 0
     if (idCorr != 0)
     {
-
+        
         pthread_mutex_lock(&mutex_idCorrelativoABuscar);
 
         idCorrelativoABuscar = idCorr;
@@ -1565,6 +1569,8 @@ bool verificarIdCorrelativo(uint32_t idCorr)
             *nuevoValor = idCorr;
 
             list_add(IDS_CORRELATIVOS, nuevoValor);
+
+            pthread_mutex_unlock(&mutex_idCorrelativoABuscar);
 
             return false;
         }
@@ -2217,10 +2223,10 @@ void ejecutarColaCaughtPokemon()
 
                 //CHEQUEAR CON RODRI EL FUNCIONAMIENTO: SE AGREGA IF NULL
 
-                if (unPokemon != NULL)
+                if (unPokemon)
                 {
 
-                    log_debug(logger, "---------------------SE ENCONTRÓ EN CAUGHT EL POKEMON SOLICITADO POR IDMENSAJE------------------------------");
+                   // log_debug(logger, "---------------------SE ENCONTRÓ EN CAUGHT EL POKEMON SOLICITADO POR IDMENSAJE------------------------------");
 
                     for (int i = 0; i < suscriptoresCant; i++)
                     {
@@ -2439,7 +2445,7 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, voi
 
     int tamanioNewPokemon = 0;
 
-    log_warning(logger, "\n\t-->  identificadorCorrelacional valor %d", unSuscriptor->identificadorCorrelacional);
+    log_warning(logger, "\n\t-->  socket Suscriptor valor %d", unSuscriptor->identificadorCorrelacional);
 
 
     enviarInt(unSuscriptor->identificadorCorrelacional, 1);
@@ -2698,7 +2704,7 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, 
         log_error(logger, "ERROR enviarMensaje-CAUGHT no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
     }
 
-    free(unCaughtPokemon);
+   // free(unCaughtPokemon);
 }
 
 /*Se encarga de mandar un GetPokemon a un suscriptor*/
@@ -2764,7 +2770,7 @@ void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, voi
         log_error(logger, "ERROR enviarMensajeGET() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
     }
 
-    free(unGetPokemon);
+    //free(unGetPokemon);
 }
 
 /*Se encarga de mandar un LocalizedPokemon a un suscriptor*/
@@ -2830,7 +2836,7 @@ void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcio
         reconectarSuscriptor(unSuscriptor);
     }
 
-    free(unLocalizedPokemon);
+    //free(unLocalizedPokemon);
 }
 
 ////////////////////////////////////////LEVANTAR POKEMON DE MEMORIA////////////////////////////////////////////////

@@ -273,6 +273,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
                     string_append(&unPokemon->nombre,unAppearedPokemon->nombrePokemon);
                     unPokemon->cantidad = 1;
 
+                    unaPosicionPokemon->pokemon = unPokemon;
                     unaPosicionPokemon->posicionX = unAppearedPokemon->posicionEnElMapaX;
                     unaPosicionPokemon->posicionY = unAppearedPokemon->posicionEnElMapaY;
 
@@ -344,7 +345,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
                 string_append(&unPokemon->nombre,unAppearedPokemon->nombrePokemon);
                 unPokemon->cantidad = 1;
-
+                unaPosicionPokemon->pokemon = unPokemon;
                 unaPosicionPokemon->posicionX = unAppearedPokemon->posicionEnElMapaX;
                 unaPosicionPokemon->posicionY = unAppearedPokemon->posicionEnElMapaY;
 
@@ -372,9 +373,13 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
             t_Entrenador* unEntrenador;
 
+            log_warning(logger,"Antes del if");
+
             if(!list_is_empty(BLOQUEADOS)){
 
-                unEntrenador = list_get(BLOQUEADOS,contador);
+                log_warning(logger,"dentro if");
+
+                unEntrenador = list_get(BLOQUEADOS,*contador);
 
                 while(unEntrenador != NULL && unEntrenador->identificadorCorrelacional != unCaughtPokemon->identificadorCorrelacional){
 
@@ -383,7 +388,11 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
                 }
 
-                if(unEntrenador->identificadorCorrelacional = unCaughtPokemon->identificadorCorrelacional){
+                //log_warning(logger,"valor de entrenador id %d", unEntrenador->id);
+                //log_warning(logger,"valor de entrenador id %d", unEntrenador->identificadorCorrelacional);
+
+
+                if(unEntrenador && (unEntrenador->identificadorCorrelacional == unCaughtPokemon->identificadorCorrelacional)){
 
                     log_info("El entrenador: %d pudo atrapar correctamente al pokémon que fue a buscar.", unEntrenador->id);
                     agregarPokeALista(unEntrenador->pokemones, unCaughtPokemon->nombrePokemon);
@@ -461,7 +470,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
                     string_append(&unPokemon->nombre, unLocalizedPokemon->nombrePokemon);
                     unPokemon->cantidad = nodoDatosPokemon->cantidad;
-
+                    unaPosicionPokemon->pokemon = unPokemon;
                     unaPosicionPokemon->posicionX = nodoDatosPokemon->posicionEnElMapaX;
                     unaPosicionPokemon->posicionY = nodoDatosPokemon->posicionEnElMapaY;
 
@@ -961,9 +970,11 @@ void planificarReady(int posXpokemon,int posYpokemon, char* pPokemonNombre, int 
     {
         log_error(logger,"No hay entrenadores para planificar");
         return;
+    }else{
+
+        t_Entrenador* unEntrenador = entrenadorMasCercano(posXpokemon, posYpokemon, pPokemonNombre, pPokemonCantidad);
+        cambiarEstado(unEntrenador, READY);
     }
-    t_Entrenador* unEntrenador = entrenadorMasCercano(posXpokemon, posYpokemon, pPokemonNombre, pPokemonCantidad);
-    cambiarEstado(unEntrenador, READY);
 }
 
 void planificarExec()
@@ -1369,7 +1380,9 @@ t_Entrenador* entrenadorMasCercano(int posXpokemon, int posYpokemon, char* pPoke
         entrenadorRetorno->objetivoY = posYpokemon;
         entrenadorRetorno->objetivo = BuscandoAtrapar;
         t_Pokemon* pokemonRetorno = entrenadorRetorno->objetivoPokemon;
-        pokemonRetorno->nombre = pPokemonNombre;
+        pokemonRetorno->nombre = string_new();
+        string_append(&pokemonRetorno->nombre,pPokemonNombre);
+        //pokemonRetorno->nombre = pPokemonNombre;
         pokemonRetorno->cantidad = pPokemonCantidad;
         entrenadorRetorno->objetivoPokemon = pokemonRetorno;
         return entrenadorRetorno;
@@ -1411,9 +1424,9 @@ t_entrenadoresEnDeadlock* quienesEstanEnDeadlock()
                 primerEntrenador->objetivoY = segundoEntrenador->posicionY;
                 t_Pokemon* unPokemonObjetivo = primerEntrenador->objetivoPokemon;
                 //
-                //unPokemonObjetivo->nombre = string_new();
-                //string_append(&unPokemonObjetivo->nombre, pokemonQuePrecisa);
-                unPokemonObjetivo->nombre = pokemonQuePrecisa;
+                unPokemonObjetivo->nombre = string_new();
+                string_append(&unPokemonObjetivo->nombre, pokemonQuePrecisa);
+                //unPokemonObjetivo->nombre = pokemonQuePrecisa;
                 unPokemonObjetivo->cantidad = 1;
                 primerEntrenador->objetivoPokemon = unPokemonObjetivo;
                 primerEntrenador->intercambioEntrenador = segundoEntrenador->id;
@@ -1475,7 +1488,7 @@ void atrapar()
 
     if(brokerActivo > 0){
 
-        t_catchPokemon* unCatchPokemon = malloc(sizeof(unCatchPokemon));
+        t_catchPokemon* unCatchPokemon = malloc(sizeof(t_catchPokemon));
 
         unCatchPokemon->identificador = 0;
         unCatchPokemon->identificadorCorrelacional = 0;
@@ -1486,9 +1499,20 @@ void atrapar()
         unCatchPokemon->posicionEnElMapaX = entrenadorEjecutando->objetivoX;
         unCatchPokemon->posicionEnElMapaY = entrenadorEjecutando->objetivoY;
 
+        if(entrenadorEjecutando && entrenadorEjecutando->objetivoPokemon){
+        
+        log_debug(logger,"--EntrenadorEjecutando %d ",entrenadorEjecutando->estado);
+        log_debug(logger,"--objetivoCantidad %d ",entrenadorEjecutando->objetivoPokemon->cantidad);
+
+        log_debug(logger,"--objetivo nombre %s ",entrenadorEjecutando->objetivoPokemon->nombre);
+        log_debug(logger,"--catch pokemon Nombre %s ",unCatchPokemon->nombrePokemon);
+
+        }
+        
+        
         int tamanioCatchPokemon = 0;
 
-        enviarInt(socketBroker, 2);
+        enviarInt(socketBroker, 4);
         enviarPaquete(socketBroker, tCatchPokemon, unCatchPokemon, tamanioCatchPokemon);
 
         int resultado;

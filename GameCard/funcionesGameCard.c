@@ -664,15 +664,16 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
         sleep(unGameCardConfig->tiempoRetardoOperacion);
         cambiarEstadoPokemon(unNewPokemon->nombrePokemon, 0);
-
+        log_warning(logger, "--------Cerre el archivo pokemon");
         enviarInt(socketCliente, 3);//ENVIAR ID PARA ACK DEL MSG
+        log_warning(logger, "--------DESPUES DE INT pokemon");
         log_info(logger, "RESULTADO DE LA OPERACIÓN ENVIADO AL BROKER");
 
         //PREGUNTAR SI HAY QUE MANDAR IGUAL EL APPEARED POKEMON CUANDO EL POKEMON YA EXISTÍA EN UNA POSICIÓN. POR AHORA LO HACEMOS IGUAL.
 
         t_appearedPokemon *unAppearedPokemon = malloc(sizeof(t_appearedPokemon));
 
-        unAppearedPokemon->identificador = unNewPokemon->identificador;              //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+        unAppearedPokemon->identificador = 0;              //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
         unAppearedPokemon->identificadorCorrelacional = unNewPokemon->identificador; //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
         unAppearedPokemon->nombrePokemon = string_new();
         string_append(&unAppearedPokemon->nombrePokemon, unNewPokemon->nombrePokemon);
@@ -681,7 +682,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
         int tamanioAppearedPokemon = 0;
 
-        //pthread_mutex_lock(&mutexSocketBroker);
+        pthread_mutex_lock(&mutexSocketBroker);
 
         brokerActivo = probarConexionSocket(socketBroker);
 
@@ -691,9 +692,10 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
             enviarPaquete(socketBroker, tAppearedPokemon, unAppearedPokemon, tamanioAppearedPokemon); //CAMBIAMOS EL socketCliente POR socketBroker PARA APROVECHAR LA FUNCIONALIDAD DE SERVIDOR DE BROKER. CONSULTAR SI ESTA BIEN.
 
             if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0)
-            {
+            {   
 
-                if (tipoResultado == 1){
+                log_warning(logger, "RECIBO RESULTADO BROKER"); 
+                if (tipoResultado >= 1){
 
                     log_trace(logger, "APPEARED_POKEMON ENVIADO AL BROKER EXITOSAMENTE");
                 }
@@ -717,7 +719,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
         }
 
-        //pthread_mutex_unlock(&mutexSocketBroker);
+        pthread_mutex_unlock(&mutexSocketBroker);
 
         break;
 
@@ -780,9 +782,8 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
                 if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0)
                 {
 
-                    if (tipoResultado == 1)
+                    if (tipoResultado >= 1)
                     {
-
                         log_info(logger, "LOCALIZED_POKEMON ENVIADO AL BROKER EXITOSAMENTE");
                     }
                     else if (tipoResultado == 0)
@@ -871,7 +872,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
                 if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0){
 
-                    if (tipoResultado == 1){
+                    if (tipoResultado >= 1){
 
                         log_trace(logger, "CAUGHT_POKEMON ENVIADO AL BROKER EXITOSAMENTE");
                     }
@@ -1237,9 +1238,9 @@ int crearPokemon(char *pokemon, uint32_t posicionX, uint32_t posicionY, uint32_t
 
 int actualizarPokemon(char *pokemon, char *stringUbicaciones, int sizeUbicaciones){
 
-    log_debug(logger, "-----------------------------");
-    log_debug(logger, "ENTRÉ EN ACTUALIZAR POKEMON");
-    log_debug(logger, "-----------------------------");
+   // log_debug(logger, "-----------------------------");
+   // log_debug(logger, "ENTRÉ EN ACTUALIZAR POKEMON");
+   // log_debug(logger, "-----------------------------");
 
     FILE *f;
     char *pathMetadata = string_new();
@@ -1297,7 +1298,7 @@ int actualizarPokemon(char *pokemon, char *stringUbicaciones, int sizeUbicacione
         fputs(formatoOpen, f);
         fseek(f, 0, SEEK_SET);
 
-        log_debug(logger, "ESCRIBÍ LA METADATA DEL POKEMON, PROCEDO AL TIEMPO DE RETARDO");
+       // log_debug(logger, "ESCRIBÍ LA METADATA DEL POKEMON, PROCEDO AL TIEMPO DE RETARDO");
 
         //sleep(unGameCardConfig->tiempoRetardoOperacion);
 
@@ -1307,7 +1308,7 @@ int actualizarPokemon(char *pokemon, char *stringUbicaciones, int sizeUbicacione
 
         escribirEnBloques(stringUbicaciones, bloquesAEscribir, cantBloquesAOcupar);
 
-        log_debug(logger, "ESCRIBÍ LOS BLOQUES CON LAS UBICACIONES");
+       // log_debug(logger, "ESCRIBÍ LOS BLOQUES CON LAS UBICACIONES");
 
 
         free(formatoDirectory);
@@ -1406,9 +1407,9 @@ t_list *generarListaUbicaciones(char *pokemon){
 
 int actualizarUbicacionPokemon(char *pokemon, uint32_t posX, uint32_t posY, int cant){
 
-    log_debug(logger, "-----------------------------");
-    log_debug(logger, "ENTRÉ EN ACTUALIZAR UBICACION");
-    log_debug(logger, "-----------------------------");
+   // log_debug(logger, "-----------------------------");
+   // log_debug(logger, "ENTRÉ EN ACTUALIZAR UBICACION");
+   // log_debug(logger, "-----------------------------");
 
     
     busquedaX = posX;
@@ -1416,7 +1417,7 @@ int actualizarUbicacionPokemon(char *pokemon, uint32_t posX, uint32_t posY, int 
 
     t_list *listaUbicaciones = generarListaUbicaciones(pokemon);
     
-    log_debug(logger, "Generé lista de ubicaciones del pokemon %s, hay %d ubicaciones", pokemon, list_size(listaUbicaciones));
+    //log_debug(logger, "Generé lista de ubicaciones del pokemon %s, hay %d ubicaciones", pokemon, list_size(listaUbicaciones));
 
     datosPokemon_t *ubicacionEncontrada = list_find(listaUbicaciones, (void *)mismaUbicacion);
 
@@ -1425,7 +1426,7 @@ int actualizarUbicacionPokemon(char *pokemon, uint32_t posX, uint32_t posY, int 
     if (ubicacionEncontrada == NULL)
     {
         
-        log_debug(logger, "No encontré la ubicación solicitada, la creo.");
+       // log_debug(logger, "No encontré la ubicación solicitada, la creo.");
 
         list_destroy_and_destroy_elements(listaUbicaciones, eliminarNodoDatosPokemon);
 
@@ -1467,7 +1468,7 @@ int actualizarUbicacionPokemon(char *pokemon, uint32_t posX, uint32_t posY, int 
         }
 
         char *nuevoStringUbicaciones = generarStringUbicacionesSegunLista(listaUbicaciones);
-        log_debug(logger, "GENERÉ UNA NUEVA LISTA DE UBICACIONES, PROCEDO A ACTUALIZAR LOS BLOQUES.");
+       // log_debug(logger, "GENERÉ UNA NUEVA LISTA DE UBICACIONES, PROCEDO A ACTUALIZAR LOS BLOQUES.");
         int sizeUbicaciones = string_length(nuevoStringUbicaciones);
         liberarBloquesDelPokemon(pokemon);
         return actualizarPokemon(pokemon, nuevoStringUbicaciones, sizeUbicaciones);
