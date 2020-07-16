@@ -1309,7 +1309,7 @@ int actualizarPokemon(char *pokemon, char *stringUbicaciones, int sizeUbicacione
             free(formatoSize);
             free(formatoBlocks);
             free(formatoOpen);
-            free(stringUbicaciones);
+            //free(stringUbicaciones);
 
             return 1;
         
