@@ -538,7 +538,7 @@ void ejecutarEliminarParticionBuddy()
 
         ParticionesOrdenadasPorTimeInit = list_filter(METADATA_MEMORIA, &esParticionOcupadaConMensaje);
 
-        list_sort(ParticionesOrdenadasPorTimeInit, (void *)sortInitMenor);
+        list_sort(ParticionesOrdenadasPorTimeInit, &sortInitMenor);
 
         tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTimeInit, 0);
 
@@ -557,7 +557,7 @@ void ejecutarEliminarParticionBuddy()
 
         ParticionesOrdenadasPorTime = list_filter(METADATA_MEMORIA, &esParticionOcupadaConMensaje);
 
-        list_sort(ParticionesOrdenadasPorTime, (void *)sortTimeMenor);
+        list_sort(ParticionesOrdenadasPorTime, &sortTimeMenor);
 
         tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTime, 0);
 
@@ -705,11 +705,12 @@ void ejecutarEliminarParticion()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
     {
+        log_warning(logger,"---Elimino particion por fifo");
         t_list *ParticionesOrdenadasPorTimeInit;
 
         ParticionesOrdenadasPorTimeInit = list_filter(METADATA_MEMORIA, &esParticionOcupada);
 
-        list_sort(ParticionesOrdenadasPorTimeInit, (void *)sortInitMenor); //?*sortPidMenor quedo en desuso
+        list_sort(ParticionesOrdenadasPorTimeInit, &sortInitMenor); //?*sortPidMenor quedo en desuso
 
         tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTimeInit, 0);
 
@@ -726,14 +727,18 @@ void ejecutarEliminarParticion()
     }
     else
     {
+        log_warning(logger,"---Elimino particion por LRU");
         //LRU
         t_list *ParticionesOrdenadasPorTime;
 
         ParticionesOrdenadasPorTime = list_filter(METADATA_MEMORIA, &esParticionOcupada);
 
-        list_sort(ParticionesOrdenadasPorTime, (void *)sortTimeMenor);
+        list_sort(ParticionesOrdenadasPorTime, &sortTimeMenor);
 
         tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTime, 0);
+
+        log_warning(logger,"---particion a eliminar: ");
+        log_warning(logger,"---unaParti: %d", unaParticion->idMensaje);
 
         list_destroy(ParticionesOrdenadasPorTime);
 
@@ -3189,6 +3194,8 @@ void *buscarEnMemoriaLocalizedPokemon(tMensaje *unMensaje)
 
 void actualizarLru(uint32_t elIdMensaje){
 
+    log_warning(logger,"actualizo lru de %d",elIdMensaje);
+
     pthread_mutex_lock(&mutex_idMensajeABuscar);
 
     idMensajeABuscar = elIdMensaje;
@@ -3200,6 +3207,7 @@ void actualizarLru(uint32_t elIdMensaje){
     if (unaParti)
     {
         unaParti->lru = nuevoTimeStamp();
+        log_warning(logger,"LRU: Existe parti lru de %d",elIdMensaje);
     }
 
 }
@@ -3701,7 +3709,7 @@ t_list *buscarListaDeParticionesLibresEnMemoriaOrdenadas(uint32_t tamanio)
     ParticionesOrdenadas = list_filter(METADATA_MEMORIA, &existeParticionLibre);
 
     pthread_mutex_unlock(&mutex_tamanioParticionABuscar);
-    list_sort(ParticionesOrdenadas, (void *)sortParticionMenor);
+    list_sort(ParticionesOrdenadas, &sortParticionMenor);
     return ParticionesOrdenadas;
 }
 

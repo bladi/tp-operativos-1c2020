@@ -560,6 +560,17 @@ void enviarGetPokemonAGameCard(char* nombrePokemon){
 
 void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion){
 
+    infoServidor_t* unaInfoServidorGameBoy;
+
+    unaInfoServidorGameBoy = malloc(sizeof(infoServidor_t));
+
+    unaInfoServidorGameBoy->puerto = unGameBoyConfig->puertoGameBoy;
+    unaInfoServidorGameBoy->ip = string_new();
+    //string_append(&unaInfoServidorGameBoy->ip,unGameBoyConfig->ipGameBoy); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
+    string_append(&unaInfoServidorGameBoy->ip,"0");
+
+    pthread_create(&hiloServidorGameBoy,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorGameBoy);
+
     socketBroker = cliente(unGameBoyConfig->ipBroker, unGameBoyConfig->puertoBroker, ID_BROKER);
 
     t_suscriptor* unSuscriptor = malloc(sizeof(t_suscriptor));
@@ -599,24 +610,12 @@ void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion){
     unSuscriptor->ip = string_new();
     string_append(&unSuscriptor->ip,unGameBoyConfig->ipGameBoy); 
 
-    infoServidor_t* unaInfoServidorGameBoy;
-
-    unaInfoServidorGameBoy = malloc(sizeof(infoServidor_t));
-
-    unaInfoServidorGameBoy->puerto = unGameBoyConfig->puertoGameBoy;
-    unaInfoServidorGameBoy->ip = string_new();
-    //string_append(&unaInfoServidorGameBoy->ip,unGameBoyConfig->ipGameBoy); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
-    string_append(&unaInfoServidorGameBoy->ip,"0");
-
-    pthread_create(&hiloServidorGameBoy,NULL,(void*)servidor_inicializar,(void*)unaInfoServidorGameBoy);
-    
-
-
     int tamanioSuscriptor = 0;
 
     enviarInt(socketBroker, 2);
     enviarPaquete(socketBroker, tSuscriptor, unSuscriptor, tamanioSuscriptor);
-
+    //pthread_join(hiloServidorGameBoy, NULL);
+    
     int resultado;
     int tipoResultado = 0;
 
@@ -625,6 +624,7 @@ void enviarSuscriptorABroker(char* colaDeMensajes,char* tiempoDeSuscripcion){
           if(tipoResultado == 1){
             
             log_info(logger,"Pedido de suscripción realizado con éxito");
+     
 
           }else if(tipoResultado == 0){
 
