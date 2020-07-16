@@ -430,63 +430,71 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
         case tLocalizedPokemon:
         {
+        
             log_trace(logger, "Llegó un LOCALIZED_POKEMON del Broker.");
 
             t_localizedPokemon *unLocalizedPokemon = (t_localizedPokemon *)buffer;
-
+            
             enviarInt(socketCliente, 4);
 
-            log_info(logger, "El nombre del Pokemón es: %s", unLocalizedPokemon->nombrePokemon);
+            if(estaIdEnLista(unLocalizedPokemon->identificadorCorrelacional))
+            {
 
-            int cantidadListaDatosPokemon = list_size(unLocalizedPokemon->listaDatosPokemon);
+                log_info(logger, "El nombre del Pokemón es: %s", unLocalizedPokemon->nombrePokemon);
 
-            int contador = 0;
+                int cantidadListaDatosPokemon = list_size(unLocalizedPokemon->listaDatosPokemon);
 
-            int posicionEnLista = 0;
+                int contador = 0;
 
-            log_info(logger,"Identificador: %d", unLocalizedPokemon->identificador);
-            log_info(logger,"Identificador Correlacional: %d", unLocalizedPokemon->identificadorCorrelacional);
-            log_info(logger,"Nombre del Pokemón: %s", unLocalizedPokemon->nombrePokemon);
+                int posicionEnLista = 0;
 
-            posicionEnLista = posicionPokeEnListaMapaSinPosicion(unLocalizedPokemon->nombrePokemon);
+                log_info(logger,"Identificador: %d", unLocalizedPokemon->identificador);
+                log_info(logger,"Identificador Correlacional: %d", unLocalizedPokemon->identificadorCorrelacional);
+                log_info(logger,"Nombre del Pokemón: %s", unLocalizedPokemon->nombrePokemon);
 
-            if(posicionEnLista != -1){
+                posicionEnLista = posicionPokeEnListaMapaSinPosicion(unLocalizedPokemon->nombrePokemon);
 
-                log_info(logger, "Ya existe el pokémon: %s en el mapa", unLocalizedPokemon->nombrePokemon);
+                if(posicionEnLista != -1){
 
-            }else{
+                    log_info(logger, "Ya existe el pokémon: %s en el mapa", unLocalizedPokemon->nombrePokemon);
 
-                log_info(logger, "El pokémon no existe en el mapa, se procederá a agregarlo", unLocalizedPokemon->nombrePokemon);
+                }else{
 
-                datosPokemon* nodoDatosPokemon;
+                    log_info(logger, "El pokémon no existe en el mapa, se procederá a agregarlo", unLocalizedPokemon->nombrePokemon);
 
-                while (contador < cantidadListaDatosPokemon){
+                    datosPokemon* nodoDatosPokemon;
 
-                    nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contador);
+                    while (contador < cantidadListaDatosPokemon){
 
-                    t_posicionPokemon* unaPosicionPokemon = malloc(sizeof(t_posicionPokemon));
+                        nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contador);
 
-                    t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
-                    unPokemon->nombre = string_new();
+                        t_posicionPokemon* unaPosicionPokemon = malloc(sizeof(t_posicionPokemon));
 
-                    string_append(&unPokemon->nombre, unLocalizedPokemon->nombrePokemon);
-                    unPokemon->cantidad = nodoDatosPokemon->cantidad;
-                    unaPosicionPokemon->pokemon = unPokemon;
-                    unaPosicionPokemon->posicionX = nodoDatosPokemon->posicionEnElMapaX;
-                    unaPosicionPokemon->posicionY = nodoDatosPokemon->posicionEnElMapaY;
+                        t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
+                        unPokemon->nombre = string_new();
 
-                    list_add(mapa, unaPosicionPokemon);
+                        string_append(&unPokemon->nombre, unLocalizedPokemon->nombrePokemon);
+                        unPokemon->cantidad = nodoDatosPokemon->cantidad;
+                        unaPosicionPokemon->pokemon = unPokemon;
+                        unaPosicionPokemon->posicionX = nodoDatosPokemon->posicionEnElMapaX;
+                        unaPosicionPokemon->posicionY = nodoDatosPokemon->posicionEnElMapaY;
 
-                    planificarReady(nodoDatosPokemon->posicionEnElMapaX,nodoDatosPokemon->posicionEnElMapaY,unLocalizedPokemon->nombrePokemon,nodoDatosPokemon->cantidad);
+                        list_add(mapa, unaPosicionPokemon);
 
-                    contador += 1;
+                        planificarReady(nodoDatosPokemon->posicionEnElMapaX,nodoDatosPokemon->posicionEnElMapaY,unLocalizedPokemon->nombrePokemon,nodoDatosPokemon->cantidad);
 
-                    log_info(logger,"Se agregaron %d %s en la posición: [%d,%d].", nodoDatosPokemon->cantidad, unLocalizedPokemon->nombrePokemon, nodoDatosPokemon->posicionEnElMapaX,nodoDatosPokemon->posicionEnElMapaY);
+                        contador += 1;
+
+                        log_info(logger,"Se agregaron %d %s en la posición: [%d,%d].", nodoDatosPokemon->cantidad, unLocalizedPokemon->nombrePokemon, nodoDatosPokemon->posicionEnElMapaX,nodoDatosPokemon->posicionEnElMapaY);
+
+                    }
 
                 }
-
             }
-
+            else
+            {
+                log_info(logger, "Llego un localized que no corresponde a ningun Get enviado");
+            }
             break;
 
         }
@@ -507,6 +515,22 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
     return;
 
+}
+
+bool estaIdEnLista(int pIdCorrelacional)
+{
+    if(!list_is_empty(identificadoresGet))
+    {
+        for(int i = 0; i < list_size(identificadoresGet); i++)
+        {
+            
+            if(list_get(identificadoresGet, i) == pIdCorrelacional)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 ///////////////////////// Funciones Auxiliares para Estados ///////////////////////////////////////////////
@@ -568,7 +592,7 @@ void finalizarEntrenador(t_Entrenador* pEntrenador)
     {
         printf("Se cumplieron todos los objetivos \n");
         //TO DO
-        //finalizarTeam();
+        finalizarTeam();
     }
     else
     {
@@ -589,10 +613,9 @@ void inicializarTeam() {
 }
 
 void finalizarTeam() {
-    //TO DO
+    mostrarMetricas(); //TO DO chequear que sea lo q hay q hacer
     free(unTeamConfig);
     free(logger);
-
 }
 
 void inicializarHilosYVariablesTeam()
@@ -615,14 +638,13 @@ void inicializarHilosYVariablesTeam()
     pokemonesBuscandose = list_create();
     mapa = list_create();
     mapaPendientes = list_create();
+    identificadoresGet = list_create();
 
     cantidadEntrenadores = 0;
     cantidadCiclosCPU = 0;
     cantidadCambiosDeContexto = 0;
     cantidadDeadlocks = 0;
     cantidadDeadlocksResueltos = 0;
-
-    cantidadEntrenadores = list_size(listaDeEntrenadores);
 
     pthread_create(&hiloCPU,NULL,(void*)ejecutar,NULL);
     semaforosEntrenador = list_create();
@@ -636,8 +658,6 @@ void inicializarHilosYVariablesTeam()
     sem_init(semaforoTerminoEjecucion, 0, 0);
 
     pthread_create(&hiloPlanificador, NULL, (void*)planificarExec, NULL);
-    
-    //pthread_create(&hiloCPU,NULL,(void*)ejecutar,NULL);
     
     //pruebasSanty();
 
@@ -687,6 +707,8 @@ void inicializarHilosYVariablesTeam()
         log_error(logger, "Hubo un error al recibir el resultado de la operación desde el Broker");
 
     }
+
+    envioDeGetsPokemon();
 
     pthread_join(hiloActualizadorConfigTeam, NULL);
 
@@ -738,6 +760,7 @@ void cargarEntrenadoresYListasGlobales()
         unEntrenador->estimacionActual = unTeamConfig->estimacionInicial;
         unEntrenador->rafagaActual = 0;
         unEntrenador->cpuIntercambio = 0;
+        unEntrenador->rafagasTotales = 0;
         
         sem_t* unSemaforo = malloc(sizeof(sem_t));
         sem_init(unSemaforo, 0, 0);
@@ -754,6 +777,73 @@ void cargarEntrenadoresYListasGlobales()
         list_add(NUEVOS, unEntrenador);
 
     }
+}
+
+void envioDeGetsPokemon()
+{
+    t_getPokemon* unGetPokemon = malloc(sizeof(t_getPokemon));
+
+    for(int i = 0; i < list_size(pokemonesObjetivos); i++)
+    {
+        t_Pokemon* unPokemon = list_get(pokemonesObjetivos, i);
+        pthread_mutex_lock(&mutexSocketBroker);
+
+        brokerActivo = probarConexionSocket(socketBroker);
+
+        if(brokerActivo > 0){
+
+            unGetPokemon->identificador = 0;
+            unGetPokemon->identificadorCorrelacional = 0;
+
+            unGetPokemon->nombrePokemon = string_new();
+            string_append(&unGetPokemon->nombrePokemon, unPokemon->nombre);
+            
+            int tamanioGetPokemon = 0;
+
+            enviarInt(socketBroker, 4);
+            enviarPaquete(socketBroker, tGetPokemon, unGetPokemon, tamanioGetPokemon);
+
+            int resultado;
+            int tipoResultado = 0;
+
+            if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
+
+                if(tipoResultado > 0){
+                    
+                    log_info(logger,"Get enviado con éxito");
+
+                    //SEMAFORO?
+                    list_add(identificadoresGet, tipoResultado);
+                    //FIN SEMAFORO?
+                    
+                }else if(tipoResultado == 0){
+
+                    log_info(logger,"No se pudo enviar el get");
+                    
+                }
+
+            }else{
+
+                log_error(logger,"Hubo un error al recibir el resultado de la operación desde el Broker. Está desconectado.");
+                //SEMAFORO?
+               
+                brokerActivo = probarConexionSocket(socketBroker);
+                
+                //FIN SEMAFORO?
+                //ANALIZAR DESCONEXION DEL BROKER Y VER QUÉ SE HACE
+            }
+
+            free(unGetPokemon->nombrePokemon);
+
+        }else{
+
+            log_error(logger, "FALLÓ ENVÍO DE GET_POKEMON AL BROKER");
+
+        }
+
+        pthread_mutex_unlock(&mutexSocketBroker);
+    }
+    free(unGetPokemon);
 }
 
 ////////////////////////////// Pruebas ////////////////////////////////////////////////////////////////////
@@ -833,11 +923,20 @@ void pruebasSanty()
 void mostrarMetricas(){
 
     log_info(logger, "----------------------------------------MÉTRICAS----------------------------------------");
-    log_info(logger, "Cantidad de entrenadores procesados: %d", cantidadEntrenadores);
-    log_info(logger, "Cantidad de ciclos de CPU: %d", cantidadCiclosCPU);
     log_info(logger, "Cantidad de cambios de contexto: %d", cantidadCambiosDeContexto);
     log_info(logger, "Cantidad de cambios de deadlocks: %d",cantidadDeadlocks);
     log_info(logger, "Cantidad de cambios de deadlocks resueltos: %d",cantidadDeadlocksResueltos);
+    for(int i = 0; i < list_size(listaDeEntrenadores); i++)
+    {
+        t_Entrenador* unEntrenador = list_get(listaDeEntrenadores, i);
+        if(unEntrenador->rafagasTotales > 0)
+        {
+            cantidadEntrenadores++;
+        }
+        log_info(logger, "El entrenador con ID %d ejecuto %d rafagas de CPU", unEntrenador->id, unEntrenador->rafagasTotales);
+    }
+    log_info(logger, "Cantidad de entrenadores procesados: %d", cantidadEntrenadores);
+    log_info(logger, "Cantidad de ciclos de CPU: %d", cantidadCiclosCPU);
     log_info(logger, "----------------------------------------------------------------------------------------");
 
 }
@@ -1293,7 +1392,7 @@ bool teamCumplioObjetivos()
     for(int i = 0; i < list_size(listaDeEntrenadores); i++)
     {
         t_Entrenador* unEntrenador = list_get(listaDeEntrenadores, i);
-        if(!entrenadorCumplioObjetivos(unEntrenador))
+        if(unEntrenador->estado != 4)
         {
             return false;
         }
@@ -1508,6 +1607,7 @@ t_entrenadoresEnDeadlock* quienesEstanEnDeadlock()
     if(list_size(listaDeadlock) >= 2)
     {
         printf("Hay deadlock\n");
+        cantidadDeadlocks++;
         t_Entrenador* primerEntrenador = list_remove(listaDeadlock, 0);
         entrenadores->id1 = primerEntrenador->id;
         //char* pokemonQuePrecisa = string_new();
@@ -1575,6 +1675,10 @@ void intercambiar()
     quitarPokeDeLista(segundoEntrenador->pokemones, pokemonNecesitado->nombre);
     agregarPokeALista(segundoEntrenador->pokemones, pokemonSobra);
     quitarPokeDeLista(entrenadorEjecutando->pokemones, pokemonSobra);
+    if(entrenadorCumplioObjetivos(entrenadorEjecutando) && entrenadorCumplioObjetivos(segundoEntrenador))
+    {
+        cantidadDeadlocksResueltos++;
+    }
     entrenadorFinalizoSuTarea(segundoEntrenador);
     entrenadorFinalizoSuTarea(entrenadorEjecutando);
 }
@@ -1707,12 +1811,16 @@ void ejecutar(int pId){
         sleep(unTeamConfig->retardoCicloCPU); //Puede que haya que ponerlo adentro del IF de entrenadorEjecutando
 
         pthread_mutex_lock(&mutexEntrenadorEjecutando);
-        
+
         if(strcmp(unTeamConfig->algoritmoPlanificacion,"SJF-SD") == 0 || strcmp(unTeamConfig->algoritmoPlanificacion,"SJF-CD") == 0)
         {
             entrenadorEjecutando->rafagaActual++;
             entrenadorEjecutando->estimacionActual--;
         }
+
+        entrenadorEjecutando->rafagasTotales++;
+
+        cantidadCiclosCPU ++;
 
         if(entrenadorEjecutando!=NULL){
 
@@ -1762,11 +1870,8 @@ void ejecutar(int pId){
         
         }
         pthread_mutex_unlock(&mutexEntrenadorEjecutando);
-
         sem_post(semaforoTerminoEjecucion);
     }
-
-    cantidadCiclosCPU ++;
 
 }
 
