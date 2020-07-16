@@ -106,24 +106,40 @@ typedef struct {
 } tParticion;
 
 t_list* METADATA_MEMORIA; //tparticion
+pthread_mutex_t mutex_METADATA_MEMORIA;
 
 t_list* SUSCRIPTORES_LISTA; // tSuscriptor
+pthread_mutex_t mutex_SUSCRIPTORES_LISTA;
 
 t_list* NEW_POKEMON_LISTA; //tSuscriptorEnCola
+pthread_mutex_t mutex_NEW_POKEMON_LISTA;
 
 t_list* APPEARED_POKEMON_LISTA; //tSuscriptorEnCola
+pthread_mutex_t mutex_APPEARED_POKEMON_LISTA;
 
 t_list* CATCH_POKEMON_LISTA; //tSuscriptorEnCola
+pthread_mutex_t mutex_CATCH_POKEMON_LISTA;
 
 t_list* CAUGHT_POKEMON_LISTA; //tSuscriptorEnCola
+pthread_mutex_t mutex_CAUGHT_POKEMON_LISTA;
 
 t_list* GET_POKEMON_LISTA; //tSuscriptorEnCola
+pthread_mutex_t mutex_GET_POKEMON_LISTA;
 
 t_list* LOCALIZED_POKEMON_LISTA; //tSuscriptorEnCola
+pthread_mutex_t mutex_LOCALIZED_POKEMON_LISTA;
 
 t_list* MENSAJES_LISTA; //tMensaje
+pthread_mutex_t mutex_MENSAJES_NEW_POKEMON; //TODOS ESTOS SON LOS MUTEX DE LA VARIABLE MENSAJE LISTAS
+pthread_mutex_t mutex_MENSAJES_APPEARED_POKEMON;
+pthread_mutex_t mutex_MENSAJES_CATCH_POKEMON;
+pthread_mutex_t mutex_MENSAJES_CAUGHT_POKEMON;
+pthread_mutex_t mutex_MENSAJES_GET_POKEMON;
+pthread_mutex_t mutex_MENSAJES_LOCALIZED_POKEMON;
+
 
 t_list* IDS_CORRELATIVOS; //*uint32_t
+pthread_mutex_t mutex_IDS_CORRELATIVOS;
 
 
 ///////////////////////////////////////////////////////////////////////VARIABLES GLOBALES/////////////////////////////////////////////////////////////////////////////////
@@ -147,13 +163,7 @@ pthread_t hiloCaught;
 pthread_t hiloGet;
 pthread_t hiloLocalized;
 
-pthread_mutex_t mutex_MENSAJES_NEW_POKEMON;
-pthread_mutex_t mutex_MENSAJES_APPEARED_POKEMON;
-pthread_mutex_t mutex_MENSAJES_CATCH_POKEMON;
-pthread_mutex_t mutex_MENSAJES_CAUGHT_POKEMON;
-pthread_mutex_t mutex_MENSAJES_GET_POKEMON;
-pthread_mutex_t mutex_MENSAJES_LOCALIZED_POKEMON;
-pthread_mutex_t mutex_METADATA_MEMORIA;
+
 
 
 char *MEMORIA_PRINCIPAL;

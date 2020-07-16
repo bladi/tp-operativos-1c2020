@@ -221,7 +221,11 @@ void inicializarMemoria()
     unaParti->timeInit = nuevoTimeStamp();
     unaParti->idParticion = ID_PARTICION;
 
+    pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
     list_add(METADATA_MEMORIA, unaParti);
+    
+    pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
     NEW_POKEMON_LISTA = list_create();
     APPEARED_POKEMON_LISTA = list_create();
@@ -1272,9 +1276,10 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         //log_debug(logger, "\n\t--GAMEBOY SUSCRIBE TO : %d", nuevaSuscripcion->colaDeMensajes);
 
+        enviarInt(socketCliente, 1);
+        sleep(1);
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
-        enviarInt(socketCliente, 1);
 
         break;
     }
@@ -1562,7 +1567,11 @@ bool verificarIdCorrelativo(uint32_t idCorr)
 
         idCorrelativoABuscar = idCorr;
 
+        pthread_mutex_lock(&mutex_IDS_CORRELATIVOS);
+
         bool existeId = list_any_satisfy(IDS_CORRELATIVOS, &existeIdCorrelativo);
+        
+        pthread_mutex_unlock(&mutex_IDS_CORRELATIVOS);
 
         if (!existeId)
         {
@@ -1571,7 +1580,11 @@ bool verificarIdCorrelativo(uint32_t idCorr)
 
             *nuevoValor = idCorr;
 
+            pthread_mutex_lock(&mutex_IDS_CORRELATIVOS);
+
             list_add(IDS_CORRELATIVOS, nuevoValor);
+            
+            pthread_mutex_unlock(&mutex_IDS_CORRELATIVOS);
 
             pthread_mutex_unlock(&mutex_idCorrelativoABuscar);
 
@@ -1721,6 +1734,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
 
     pthread_mutex_lock(&mutex_ipServerABuscar);
     pthread_mutex_lock(&mutex_PuertoEschuchaABuscar);
+    pthread_mutex_lock(&mutex_SUSCRIPTORES_LISTA);
 
     ipServerABuscar = string_new();
     string_append(&ipServerABuscar, nuevaSuscripcion->ip);
@@ -1730,6 +1744,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
 
     pthread_mutex_unlock(&mutex_ipServerABuscar);
     pthread_mutex_unlock(&mutex_PuertoEschuchaABuscar);
+    pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
 
     if (unSuscriptor != NULL)
     {
@@ -1747,8 +1762,11 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
             pthread_mutex_lock(&mutex_idSuscriberABuscar);
 
             idSuscriberABuscar = unSuscriptor->identificador;
+            pthread_mutex_lock(&mutex_NEW_POKEMON_LISTA);
 
             tSuscriptorEnCola *unSuscriptorEnCola = (tSuscriptorEnCola *)list_find(NEW_POKEMON_LISTA, &existeIdSuscriberEnCola);
+            
+            pthread_mutex_unlock(&mutex_NEW_POKEMON_LISTA);
 
             pthread_mutex_unlock(&mutex_idSuscriberABuscar);
 
@@ -1759,7 +1777,11 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
                 unSuscriptorEnCola->identificador = unSuscriptor->identificador;
                 unSuscriptorEnCola->startTime = (uint32_t)time(NULL);
                 unSuscriptorEnCola->timeToLive = nuevaSuscripcion->tiempoDeSuscripcion;
+                pthread_mutex_lock(&mutex_NEW_POKEMON_LISTA);
+                
                 list_add(NEW_POKEMON_LISTA, unSuscriptorEnCola);
+                
+                pthread_mutex_unlock(&mutex_NEW_POKEMON_LISTA);
             }
 
             break;
@@ -1775,7 +1797,11 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
 
             idSuscriberABuscar = unSuscriptor->identificador;
 
+            pthread_mutex_lock(&mutex_APPEARED_POKEMON_LISTA);
+
             tSuscriptorEnCola *unSuscriptorEnCola = (tSuscriptorEnCola *)list_find(APPEARED_POKEMON_LISTA, &existeIdSuscriberEnCola);
+
+            pthread_mutex_unlock(&mutex_APPEARED_POKEMON_LISTA);
 
             pthread_mutex_unlock(&mutex_idSuscriberABuscar);
 
@@ -1785,7 +1811,12 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
                 unSuscriptorEnCola->identificador = unSuscriptor->identificador;
                 unSuscriptorEnCola->startTime = (uint32_t)time(NULL);
                 unSuscriptorEnCola->timeToLive = nuevaSuscripcion->tiempoDeSuscripcion;
+
+                pthread_mutex_lock(&mutex_APPEARED_POKEMON_LISTA);
+
                 list_add(APPEARED_POKEMON_LISTA, unSuscriptorEnCola);
+            
+                pthread_mutex_unlock(&mutex_APPEARED_POKEMON_LISTA);
             }
 
             break;
@@ -1800,7 +1831,11 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
 
             idSuscriberABuscar = unSuscriptor->identificador;
 
+            pthread_mutex_lock(&mutex_CATCH_POKEMON_LISTA);
+
             tSuscriptorEnCola *unSuscriptorEnCola = (tSuscriptorEnCola *)list_find(CATCH_POKEMON_LISTA, &existeIdSuscriberEnCola);
+            
+            pthread_mutex_unlock(&mutex_CATCH_POKEMON_LISTA);
 
             pthread_mutex_unlock(&mutex_idSuscriberABuscar);
 
@@ -1810,7 +1845,13 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
                 unSuscriptorEnCola->identificador = unSuscriptor->identificador;
                 unSuscriptorEnCola->startTime = (uint32_t)time(NULL);
                 unSuscriptorEnCola->timeToLive = nuevaSuscripcion->tiempoDeSuscripcion;
+
+
+                pthread_mutex_lock(&mutex_CATCH_POKEMON_LISTA);
+
                 list_add(CATCH_POKEMON_LISTA, unSuscriptorEnCola);
+            
+                pthread_mutex_unlock(&mutex_CATCH_POKEMON_LISTA);
             }
 
             break;
@@ -1826,7 +1867,11 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
 
             idSuscriberABuscar = unSuscriptor->identificador;
 
+            pthread_mutex_lock(&mutex_CAUGHT_POKEMON_LISTA);
+
             tSuscriptorEnCola *unSuscriptorEnCola = (tSuscriptorEnCola *)list_find(CAUGHT_POKEMON_LISTA, &existeIdSuscriberEnCola);
+            
+            pthread_mutex_unlock(&mutex_CAUGHT_POKEMON_LISTA);
 
             pthread_mutex_unlock(&mutex_idSuscriberABuscar);
 
@@ -1836,7 +1881,13 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
                 unSuscriptorEnCola->identificador = unSuscriptor->identificador;
                 unSuscriptorEnCola->startTime = (uint32_t)time(NULL);
                 unSuscriptorEnCola->timeToLive = nuevaSuscripcion->tiempoDeSuscripcion;
+
+
+                pthread_mutex_lock(&mutex_CAUGHT_POKEMON_LISTA);
+                
                 list_add(CAUGHT_POKEMON_LISTA, unSuscriptorEnCola);
+                
+                pthread_mutex_unlock(&mutex_CAUGHT_POKEMON_LISTA);
             }
 
             break;
@@ -1852,7 +1903,11 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
 
             idSuscriberABuscar = unSuscriptor->identificador;
 
+            pthread_mutex_lock(&mutex_GET_POKEMON_LISTA);
+
             tSuscriptorEnCola *unSuscriptorEnCola = (tSuscriptorEnCola *)list_find(GET_POKEMON_LISTA, &existeIdSuscriberEnCola);
+            
+            pthread_mutex_unlock(&mutex_GET_POKEMON_LISTA);
 
             pthread_mutex_unlock(&mutex_idSuscriberABuscar);
 
@@ -1862,7 +1917,12 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
                 unSuscriptorEnCola->identificador = unSuscriptor->identificador;
                 unSuscriptorEnCola->startTime = (uint32_t)time(NULL);
                 unSuscriptorEnCola->timeToLive = nuevaSuscripcion->tiempoDeSuscripcion;
+
+                pthread_mutex_lock(&mutex_GET_POKEMON_LISTA);
+                
                 list_add(GET_POKEMON_LISTA, unSuscriptorEnCola);
+                
+                pthread_mutex_unlock(&mutex_GET_POKEMON_LISTA);
             }
 
             break;
@@ -1877,7 +1937,11 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
 
             idSuscriberABuscar = unSuscriptor->identificador;
 
+            pthread_mutex_lock(&mutex_LOCALIZED_POKEMON_LISTA);
+
             tSuscriptorEnCola *unSuscriptorEnCola = (tSuscriptorEnCola *)list_find(LOCALIZED_POKEMON_LISTA, &existeIdSuscriberEnCola);
+            
+            pthread_mutex_unlock(&mutex_LOCALIZED_POKEMON_LISTA);
 
             pthread_mutex_unlock(&mutex_idSuscriberABuscar);
 
@@ -1887,7 +1951,12 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
                 unSuscriptorEnCola->identificador = unSuscriptor->identificador;
                 unSuscriptorEnCola->startTime = (uint32_t)time(NULL);
                 unSuscriptorEnCola->timeToLive = nuevaSuscripcion->tiempoDeSuscripcion;
+
+                pthread_mutex_lock(&mutex_LOCALIZED_POKEMON_LISTA);
+                
                 list_add(LOCALIZED_POKEMON_LISTA, unSuscriptorEnCola);
+                
+                pthread_mutex_unlock(&mutex_LOCALIZED_POKEMON_LISTA);
             }
 
             break;
@@ -1921,7 +1990,9 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
         log_warning(logger, "\n\t--NUEVO CLIENTE: %d\n\t--IP: %s\n\t--PUERTO: %d\n\t--SOCKET: %d ", unSuscriptor->identificador, unSuscriptor->ip, unSuscriptor->puerto, unSuscriptor->identificadorCorrelacional);
 
         /* ?* Nota de editor: en la lista de suscriptores solo va a quedar asociada la primer cola suscripta*/
+        pthread_mutex_lock(&mutex_SUSCRIPTORES_LISTA);
         list_add(SUSCRIPTORES_LISTA, unSuscriptor);
+        pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
 
         // log_info(logger, "\n\nSUSCRIPTOR ............................: \n");
         // log_info(logger, "\nip: %s", unSuscriptor->ip);
@@ -1959,12 +2030,14 @@ void eliminarSuscriptor(uint32_t identificador)
 
     t_suscriptor *unSuscriptor;
 
+    pthread_mutex_lock(&mutex_SUSCRIPTORES_LISTA);
     pthread_mutex_lock(&mutex_idSuscriptorABuscar);
 
     idSuscriptorABuscar = identificador;
     unSuscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
 
     pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+    pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
 
     if (unSuscriptor->puerto != 0)
     {
@@ -2018,12 +2091,22 @@ void ejecutarColaNewPokemon()
             {
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
+
+                pthread_mutex_lock(&mutex_NEW_POKEMON_LISTA);
+
                 suscriptoresCant = list_size(NEW_POKEMON_LISTA);
+
+                pthread_mutex_unlock(&mutex_NEW_POKEMON_LISTA);
+
                 unNewPokemon = (t_newPokemon *)buscarEnMemoriaNewPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
+                    pthread_mutex_lock(&mutex_NEW_POKEMON_LISTA);
+
                     unSuscriptorCola = list_get(NEW_POKEMON_LISTA, i);
+                    
+                    pthread_mutex_unlock(&mutex_NEW_POKEMON_LISTA);
 
                     tiempoActual = (uint32_t)time(NULL);
 
@@ -2039,13 +2122,15 @@ void ejecutarColaNewPokemon()
 
                         if (!anyAck)
                         {
-
+                            pthread_mutex_lock(&mutex_SUSCRIPTORES_LISTA);
                             pthread_mutex_lock(&mutex_idSuscriptorABuscar);
 
                             idSuscriptorABuscar = unSuscriptorCola->identificador;
                             unSuscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+                            pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
+
                             enviarMensajeNewPokemon(unMensaje, unSuscriptor, unNewPokemon);
                             actualizarLru(unMensaje->idMensaje);
                         }
@@ -2099,13 +2184,21 @@ void ejecutarColaAppearedPokemon()
             {
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
+                pthread_mutex_lock(&mutex_APPEARED_POKEMON_LISTA);
+
                 suscriptoresCant = list_size(APPEARED_POKEMON_LISTA);
+                
+                pthread_mutex_unlock(&mutex_APPEARED_POKEMON_LISTA);
+
                 unPokemon = (t_appearedPokemon *)buscarEnMemoriaAppearedPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
+                    pthread_mutex_lock(&mutex_APPEARED_POKEMON_LISTA);
 
                     unSuscriptorCola = list_get(APPEARED_POKEMON_LISTA, i);
+                    
+                    pthread_mutex_unlock(&mutex_APPEARED_POKEMON_LISTA);
 
                     tiempoActual = (uint32_t)time(NULL);
 
@@ -2121,6 +2214,7 @@ void ejecutarColaAppearedPokemon()
 
                         if (!anyAck)
                         {
+                            pthread_mutex_lock(&mutex_SUSCRIPTORES_LISTA);
 
                             pthread_mutex_lock(&mutex_idSuscriptorABuscar);
 
@@ -2128,6 +2222,8 @@ void ejecutarColaAppearedPokemon()
                             unSuscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+                            
+                            pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
 
                             enviarMensajeAppearedPokemon(unMensaje, unSuscriptor, unPokemon);
                             actualizarLru(unMensaje->idMensaje);
@@ -2182,13 +2278,23 @@ void ejecutarColaCatchPokemon()
             {
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
+
+                pthread_mutex_lock(&mutex_CATCH_POKEMON_LISTA);
+                
                 suscriptoresCant = list_size(CATCH_POKEMON_LISTA);
+                
+                pthread_mutex_unlock(&mutex_CATCH_POKEMON_LISTA);
+                
                 unPokemon = (t_catchPokemon *)buscarEnMemoriaCatchPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
 
+                    pthread_mutex_lock(&mutex_CATCH_POKEMON_LISTA);
+
                     unSuscriptorCola = list_get(CATCH_POKEMON_LISTA, i); //?* puede llegar a romper en el caso de que se eliminen suscriptores en medio de la ejecucion entre list_size(CATCH_POKEMON_LISTA)y linea actual
+                    
+                    pthread_mutex_unlock(&mutex_CATCH_POKEMON_LISTA);
 
                     tiempoActual = (uint32_t)time(NULL);
 
@@ -2204,6 +2310,7 @@ void ejecutarColaCatchPokemon()
 
                         if (!anyAck)
                         {
+                            pthread_mutex_lock(&mutex_SUSCRIPTORES_LISTA);
 
                             pthread_mutex_lock(&mutex_idSuscriptorABuscar);
 
@@ -2211,6 +2318,8 @@ void ejecutarColaCatchPokemon()
                             unSuscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+                            
+                            pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
 
                             enviarMensajeCatchPokemon(unMensaje, unSuscriptor, unPokemon);
                             actualizarLru(unMensaje->idMensaje);
@@ -2265,7 +2374,13 @@ void ejecutarColaCaughtPokemon()
             {
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
+
+                pthread_mutex_lock(&mutex_CAUGHT_POKEMON_LISTA);
+                
                 suscriptoresCant = list_size(CAUGHT_POKEMON_LISTA);
+                
+                pthread_mutex_unlock(&mutex_CAUGHT_POKEMON_LISTA);
+
                 unPokemon = (t_caughtPokemon *)buscarEnMemoriaCaughtPokemon(unMensaje);
 
                 //CHEQUEAR CON RODRI EL FUNCIONAMIENTO: SE AGREGA IF NULL
@@ -2278,7 +2393,11 @@ void ejecutarColaCaughtPokemon()
                     for (int i = 0; i < suscriptoresCant; i++)
                     {
 
+                        pthread_mutex_lock(&mutex_CAUGHT_POKEMON_LISTA);
+
                         unSuscriptorCola = list_get(CAUGHT_POKEMON_LISTA, i);
+                        
+                        pthread_mutex_unlock(&mutex_CAUGHT_POKEMON_LISTA);
 
                         tiempoActual = (uint32_t)time(NULL);
 
@@ -2294,6 +2413,7 @@ void ejecutarColaCaughtPokemon()
 
                             if (!anyAck)
                             {
+                                pthread_mutex_lock(&mutex_SUSCRIPTORES_LISTA);
 
                                 pthread_mutex_lock(&mutex_idSuscriptorABuscar);
 
@@ -2301,6 +2421,8 @@ void ejecutarColaCaughtPokemon()
                                 unSuscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
 
                                 pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+                                
+                                pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
 
                                 enviarMensajeCaughtPokemon(unMensaje, unSuscriptor, unPokemon);
                                 actualizarLru(unMensaje->idMensaje);
@@ -2363,13 +2485,23 @@ void ejecutarColaGetPokemon()
             {
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
+
+                pthread_mutex_lock(&mutex_GET_POKEMON_LISTA);
+                
                 suscriptoresCant = list_size(GET_POKEMON_LISTA);
+                
+                pthread_mutex_unlock(&mutex_GET_POKEMON_LISTA);
+                
                 unPokemon = (t_getPokemon *)buscarEnMemoriaGetPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
 
+                    pthread_mutex_lock(&mutex_GET_POKEMON_LISTA);
+
                     unSuscriptorCola = list_get(GET_POKEMON_LISTA, i);
+                    
+                    pthread_mutex_unlock(&mutex_GET_POKEMON_LISTA);
 
                     tiempoActual = (uint32_t)time(NULL);
 
@@ -2385,6 +2517,7 @@ void ejecutarColaGetPokemon()
 
                         if (!anyAck)
                         {
+                            pthread_mutex_lock(&mutex_SUSCRIPTORES_LISTA);
 
                             pthread_mutex_lock(&mutex_idSuscriptorABuscar);
 
@@ -2392,6 +2525,8 @@ void ejecutarColaGetPokemon()
                             unSuscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+                            
+                            pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
 
                             enviarMensajeGetPokemon(unMensaje, unSuscriptor, unPokemon);
                             actualizarLru(unMensaje->idMensaje);
@@ -2446,13 +2581,22 @@ void ejecutarColaLocalizedPokemon()
             {
 
                 unMensaje = list_remove(mensajesAEnviar, 0);
+
+                pthread_mutex_lock(&mutex_LOCALIZED_POKEMON_LISTA);
+                
                 suscriptoresCant = list_size(LOCALIZED_POKEMON_LISTA);
+                
+                pthread_mutex_unlock(&mutex_LOCALIZED_POKEMON_LISTA);
+
                 unPokemon = (t_localizedPokemon *)buscarEnMemoriaLocalizedPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
+                    pthread_mutex_lock(&mutex_LOCALIZED_POKEMON_LISTA);
 
                     unSuscriptorCola = list_get(LOCALIZED_POKEMON_LISTA, i);
+                    
+                    pthread_mutex_unlock(&mutex_LOCALIZED_POKEMON_LISTA);
 
                     tiempoActual = (uint32_t)time(NULL);
 
@@ -2468,6 +2612,7 @@ void ejecutarColaLocalizedPokemon()
 
                         if (!anyAck)
                         {
+                            pthread_mutex_lock(&mutex_SUSCRIPTORES_LISTA);
 
                             pthread_mutex_lock(&mutex_idSuscriptorABuscar);
 
@@ -2475,6 +2620,8 @@ void ejecutarColaLocalizedPokemon()
                             unSuscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+                            
+                            pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
 
                             enviarMensajeLocalizedPokemon(unMensaje, unSuscriptor, unPokemon);
                             actualizarLru(unMensaje->idMensaje);
