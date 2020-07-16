@@ -265,7 +265,7 @@ uint32_t generarNuevoIdMensajeBroker()
 {
 
     pthread_mutex_lock(&mutex_ID_MENSAJE);
-    ID_MENSAJE++;
+    ID_MENSAJE = ID_MENSAJE +1;
     pthread_mutex_unlock(&mutex_ID_MENSAJE);
 
     return ID_MENSAJE;
@@ -1286,7 +1286,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         //free(unNewPokemon); SE LIBERA AL FINAL DEL SWITCH EL BUFFER COMPLETO
 
-        enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
+        enviarInt(socketCliente, unNewPokemon->identificador); //ARREGLO PARA QUE RECIBA EL ID MENSAJE
 
         break;
     }
@@ -1301,7 +1301,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         //free(unGetPokemon);
 
-        enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
+        enviarInt(socketCliente, unGetPokemon->identificador); //ARREGLO PARA QUE RECIBA EL ID MENSAJE
 
         break;
     }
@@ -1316,7 +1316,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         //free(unCatchPokemon);
 
-        enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
+        enviarInt(socketCliente, unCatchPokemon->identificador); //ARREGLO PARA QUE RECIBA EL ID MENSAJE
 
         break;
     }
@@ -1329,7 +1329,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         // log_info(logger, "El nombre del Pokemón es: %s", unCaughtPokemon->nombrePokemon);
 
-        unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
+        //unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
 
         guardarEnMemoriaCaughtPokemon(unCaughtPokemon);
 
@@ -1337,9 +1337,9 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
-        enviarInt(socketCliente, unCaughtPokemon->identificador);
+        enviarInt(socketCliente, unCaughtPokemon->identificador); //ARREGLO PARA QUE RECIBA EL ID MENSAJE
 
-        enviarInt(socketCliente, 1);
+        //enviarInt(socketCliente, 1);
 
         break;
     }
@@ -1354,7 +1354,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
         //free(unAppeardPokemon);
 
-        enviarInt(socketCliente, 1); //ESPERA 1 GAMEBOY
+        enviarInt(socketCliente, unAppeardPokemon->identificador); //ARREGLO PARA QUE RECIBA EL ID MENSAJE
 
         break;
     }
@@ -1428,7 +1428,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
             if (unCaughtPokemon->identificador == 0)
             {
-                unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
+                //unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
 
                 guardarEnMemoriaCaughtPokemon(unCaughtPokemon);
             }
@@ -1436,7 +1436,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
         else
         {
 
-            unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
+            //unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
 
             guardarEnMemoriaCaughtPokemon(unCaughtPokemon);
         }
@@ -1447,7 +1447,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         enviarInt(socketCliente, unCaughtPokemon->identificador);
 
-        enviarInt(socketCliente, 1);
+        //enviarInt(socketCliente, 1);
 
         break;
     }
@@ -1464,7 +1464,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
             if (unLocalizedPokemon->identificador == 0)
             {
-                unLocalizedPokemon->identificador = generarNuevoIdMensajeBroker();
+                //unLocalizedPokemon->identificador = generarNuevoIdMensajeBroker();
 
                 guardarEnMemoriaLocalizedPokemon(unLocalizedPokemon);
             }
@@ -1472,7 +1472,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
         else
         {
 
-            unLocalizedPokemon->identificador = generarNuevoIdMensajeBroker();
+            //unLocalizedPokemon->identificador = generarNuevoIdMensajeBroker();
 
             guardarEnMemoriaLocalizedPokemon(unLocalizedPokemon);
         }
@@ -1505,7 +1505,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
             if (unAppeardPokemon->identificador == 0)
             {
-                unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
+                //unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
 
                 guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
                 //log_error(logger, "Estoy dentro de appeared if");
@@ -1514,7 +1514,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
         else
         {
 
-            unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
+            //unAppeardPokemon->identificador = generarNuevoIdMensajeBroker();
 
             guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
             //log_error(logger, "Estoy dentro de appeared else");
@@ -1649,7 +1649,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         log_info(logger, "El nombre del Pokemón es: %s", unGetPokemon->nombrePokemon);
 
-        unGetPokemon->identificador = generarNuevoIdMensajeBroker();
+        //unGetPokemon->identificador = generarNuevoIdMensajeBroker();
 
         //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER
 
@@ -1659,7 +1659,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         enviarInt(socketCliente, unGetPokemon->identificador);
 
-        enviarInt(socketCliente, 1);
+        //enviarInt(socketCliente, 1);
 
         break;
     }
@@ -1674,7 +1674,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
         //log_info(logger, "La posicion del Pokémon era: %d %d", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
         //log_info(logger, "El nombre del entrenador es: %s", unCatchPokemon->nombrePokemon);
 
-        unCatchPokemon->identificador = generarNuevoIdMensajeBroker();
+        //unCatchPokemon->identificador = generarNuevoIdMensajeBroker();
 
         guardarEnMemoriaCatchPokemon(unCatchPokemon);
 
@@ -1684,7 +1684,7 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         enviarInt(socketCliente, unCatchPokemon->identificador);
 
-        enviarInt(socketCliente, 1);
+        //enviarInt(socketCliente, 1);
 
         break;
     }
@@ -3282,7 +3282,7 @@ void guardarEnMemoriaAppearedPokemon(void *unPokemon)
     unMensaje->acknowledgement = list_create();
     unMensaje->suscriptoresEnviados = list_create();
     unMensaje->idMensaje = unAppeardPokemon->identificador;
-    unMensaje->idMensajeCorrelacional = 0;
+    unMensaje->idMensajeCorrelacional = unAppeardPokemon->identificadorCorrelacional;
     unMensaje->tipoMensaje = tAppearedPokemon; //APPEARED
     unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
 
@@ -3385,7 +3385,7 @@ void guardarEnMemoriaGetPokemon(void *unPokemon)
 
     unGetPokemon->identificador = generarNuevoIdMensajeBroker();
 
-    //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN GAMEBOY
+    //SE LE ENVIA EL IDENTIFICADOR AL PUBLISHER -> NO EN GAMEBOY //MODIFICADO SE LE ENVIA A TODOS
 
     // enviarInt(socketCliente, unGetPokemon->identificador);
 
@@ -3903,15 +3903,15 @@ void manejarSeniales(int signum)
 
 uint64_t nuevoTimeStamp(){
 
-struct timeval valor;
+    struct timeval valor;
 
-gettimeofday(&valor, NULL);
+    gettimeofday(&valor, NULL);
 
-unsigned long long result = (((unsigned long long )valor.tv_sec) * 1000 + ((unsigned long) valor.tv_usec));
+    unsigned long long result = (((unsigned long long )valor.tv_sec) * 1000 + ((unsigned long) valor.tv_usec));
 
-uint64_t tiempo = result;
+    uint64_t tiempo = result;
 
-return tiempo;
+    return tiempo;
 }
 
 /*typedef struct {

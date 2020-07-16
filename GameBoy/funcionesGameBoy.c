@@ -179,7 +179,7 @@ void enviarNewPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posicio
 
     if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
 
-          if(tipoResultado == 1){
+          if(tipoResultado >= 1){
             
             log_info(logger,"Pókemon creado con éxito");
 
@@ -224,7 +224,7 @@ void enviarAppearedPokemonABroker(char* nombrePokemon,char* posicionEnX,char* po
 
     if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
 
-          if(tipoResultado == 1){
+          if(tipoResultado >= 1){
             
             log_info(logger,"Pókemon apareció con éxito");
 
@@ -269,7 +269,7 @@ void enviarCatchPokemonABroker(char* nombrePokemon,char* posicionEnX,char* posic
 
     if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
 
-          if(tipoResultado == 1){
+          if(tipoResultado >= 1){
             
             log_info(logger,"Pókemon mandado a atrapar con éxito");
 
@@ -296,7 +296,7 @@ void enviarCaughtPokemonABroker(char* idMensajeCorrelacional,char* resultado){
     t_caughtPokemon* unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
 
     unCaughtPokemon->identificador = 0;
-	unCaughtPokemon->identificadorCorrelacional = atoi(idMensajeCorrelacional);
+	unCaughtPokemon->identificadorCorrelacional = (uint32_t) atoi(idMensajeCorrelacional);
 
     if(strcmp(resultado, "OK") == 0){
 
@@ -318,7 +318,7 @@ void enviarCaughtPokemonABroker(char* idMensajeCorrelacional,char* resultado){
 
     if((resultadoOperacion = recibirInt(socketBroker,&tipoResultado)) > 0){
 
-          if(tipoResultado == 1){
+          if(tipoResultado >= 1){
             
             log_info(logger,"Aviso de resultado de pokemón atrapado realizado con éxito");
 
@@ -360,13 +360,13 @@ void enviarGetPokemonABroker(char* nombrePokemon){
 
     if((resultado = recibirInt(socketBroker,&tipoResultado)) > 0){
 
-          if(tipoResultado == 1){
+          if(tipoResultado >= 1){
             
-            log_info(logger,"Pedido de locación de pokemón realizado con éxito");
+            log_info(logger,"Pedido de get pokemón realizado con éxito");
 
           }else if(tipoResultado == 0){
 
-            log_info(logger,"No se pudo realizar el pedido de locación del pókemon");
+            log_info(logger,"No se pudo realizar el pedido de get pókemon");
 
           }
 

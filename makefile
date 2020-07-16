@@ -24,3 +24,4 @@ clean:
 	rm -f gamecard gameboy broker team *.o
 	rm logs/gameCardLog.log logs/gameBoyLog.log logs/brokerLog.log logs/teamLog.log
 	rm GameCard/TALL_GRASS/Blocks/*.bin GameCard/TALL_GRASS/Metadata/Bitmap.bin
+	rm Broker/DumpCache.bin
