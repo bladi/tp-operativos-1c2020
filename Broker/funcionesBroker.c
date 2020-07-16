@@ -217,8 +217,8 @@ void inicializarMemoria()
     unaParti->free = true;
     unaParti->tamanio = CONFIG_BROKER->tamanioMemoria;
     unaParti->idMensaje = 0;
-    unaParti->lru = (uint32_t)time(NULL);
-    unaParti->timeInit = (uint32_t)time(NULL);
+    unaParti->lru = nuevoTimeStamp();
+    unaParti->timeInit = nuevoTimeStamp();
     unaParti->idParticion = ID_PARTICION;
 
     list_add(METADATA_MEMORIA, unaParti);
@@ -337,8 +337,8 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
 
                 unaParticion->free = false;
                 unaParticion->idMensaje = idMensaje;
-                unaParticion->lru = (uint32_t)time(NULL);
-                unaParticion->timeInit = (uint32_t)time(NULL);
+                unaParticion->lru = nuevoTimeStamp();
+                unaParticion->timeInit = nuevoTimeStamp();
                 aDevolver = unaParticion->posicion;
                 pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
             }
@@ -356,8 +356,8 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
 
                     unaParticion->free = false;
                     unaParticion->idMensaje = idMensaje;
-                    unaParticion->lru = (uint32_t)time(NULL);
-                    unaParticion->timeInit = (uint32_t)time(NULL);
+                    unaParticion->lru = nuevoTimeStamp();
+                    unaParticion->timeInit = nuevoTimeStamp();
                     aDevolver = unaParticion->posicion;
                     pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
                 }
@@ -386,8 +386,8 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
 
                 unaParticion->free = false;
                 unaParticion->idMensaje = idMensaje;
-                unaParticion->lru = (uint32_t)time(NULL);
-                unaParticion->timeInit = (uint32_t)time(NULL);
+                unaParticion->lru = nuevoTimeStamp();
+                unaParticion->timeInit = nuevoTimeStamp();
                 aDevolver = unaParticion->posicion;
                 pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
             }
@@ -411,8 +411,8 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
 
                     unaParticion->free = false;
                     unaParticion->idMensaje = idMensaje;
-                    unaParticion->lru = (uint32_t)time(NULL);
-                    unaParticion->timeInit = (uint32_t)time(NULL);
+                    unaParticion->lru = nuevoTimeStamp();
+                    unaParticion->timeInit = nuevoTimeStamp();
                     aDevolver = unaParticion->posicion;
 
                     pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
@@ -464,8 +464,8 @@ char *getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, 
             {
                 unaParticion->free = false;
                 unaParticion->idMensaje = idMensaje;
-                unaParticion->lru = (uint32_t)time(NULL);
-                unaParticion->timeInit = (uint32_t)time(NULL);
+                unaParticion->lru = nuevoTimeStamp();
+                unaParticion->timeInit = nuevoTimeStamp();
                 aDevolver = unaParticion->posicion;
             }
             else
@@ -510,8 +510,8 @@ void splitBuddy(uint32_t index)
         leftChild->free = true;
         leftChild->tamanio = father->tamanio / 2;
         leftChild->idMensaje = 0;
-        leftChild->lru = (uint32_t)time(NULL);
-        leftChild->timeInit = (uint32_t)time(NULL);
+        leftChild->lru = nuevoTimeStamp();
+        leftChild->timeInit = nuevoTimeStamp();
         leftChild->idParticion = 2 * index + 1;
 
         tParticion *rightChild = malloc(sizeof(tParticion));
@@ -520,8 +520,8 @@ void splitBuddy(uint32_t index)
         rightChild->free = true;
         rightChild->tamanio = father->tamanio / 2;
         rightChild->idMensaje = 0;
-        rightChild->lru = (uint32_t)time(NULL);
-        rightChild->timeInit = (uint32_t)time(NULL);
+        rightChild->lru = nuevoTimeStamp();
+        rightChild->timeInit = nuevoTimeStamp();
         rightChild->idParticion = 2 * index + 2;
 
         list_add(METADATA_MEMORIA, leftChild);
@@ -586,8 +586,8 @@ void killMe(uint32_t index)
 
         father->free = true;
         father->idMensaje = 0;
-        father->timeInit = (uint32_t)time(NULL);
-        father->lru = (uint32_t)time(NULL);
+        father->timeInit = nuevoTimeStamp();
+        father->lru = nuevoTimeStamp();
     }
     else
     {
@@ -603,8 +603,8 @@ void killMe(uint32_t index)
 
             right->free = true;
             right->idMensaje = 0;
-            right->timeInit = (uint32_t)time(NULL);
-            right->lru = (uint32_t)time(NULL);
+            right->timeInit = nuevoTimeStamp();
+            right->lru = nuevoTimeStamp();
 
             uint32_t indexFather = (index - 2) / 2;
 
@@ -656,8 +656,8 @@ void killMe(uint32_t index)
 
             left->free = true;
             left->idMensaje = 0;
-            left->timeInit = (uint32_t)time(NULL);
-            left->lru = (uint32_t)time(NULL);
+            left->timeInit = nuevoTimeStamp();
+            left->lru = nuevoTimeStamp();
 
             uint32_t indexFather = (index - 1) / 2;
 
@@ -760,8 +760,8 @@ tParticion *splitParticion(tParticion *unaParticion, uint32_t tamanio)
         nuevaParti->free = true;
         nuevaParti->tamanio = unaParticion->tamanio - tamanio;
         nuevaParti->idMensaje = 0;
-        nuevaParti->lru = (uint32_t)time(NULL);
-        nuevaParti->timeInit = (uint32_t)time(NULL);
+        nuevaParti->lru = nuevoTimeStamp();
+        nuevaParti->timeInit = nuevoTimeStamp();
         nuevaParti->idParticion = generarNuevoIdParticion();
 
         unaParticion->tamanio = tamanio;
@@ -1499,7 +1499,6 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
         log_info(logger, "La posicion del Pokémon era: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
         log_warning(logger, "IDENTIFICADOR CORRRE %d", unAppeardPokemon->identificadorCorrelacional);
 
-
         if (verificarIdCorrelativo(unAppeardPokemon->identificadorCorrelacional))
         {
             unAppeardPokemon->identificador = buscaridMensajeDelCorrelativo(unAppeardPokemon->identificadorCorrelacional);
@@ -1527,7 +1526,6 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         //enviarInt(socketCliente, unAppeardPokemon->identificador);
 
-
         break;
     }
 
@@ -1554,7 +1552,7 @@ bool verificarIdCorrelativo(uint32_t idCorr)
     //?* SIEMPRE ENVIAR LOS PAQUETES FLUJO INICIAL CON IDCORRELATIVO EN 0
     if (idCorr != 0)
     {
-        
+
         pthread_mutex_lock(&mutex_idCorrelativoABuscar);
 
         idCorrelativoABuscar = idCorr;
@@ -1950,6 +1948,37 @@ void reconectarSuscriptor(void *unaNuevaSuscripcion)
     }
 }
 
+void eliminarSuscriptor(uint32_t identificador)
+{
+    pthread_mutex_lock(&mutex_eliminarSuscriptor);
+
+    t_suscriptor *unSuscriptor;
+
+    pthread_mutex_lock(&mutex_idSuscriptorABuscar);
+
+    idSuscriptorABuscar = identificador;
+    unSuscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
+
+    pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
+
+    if (unSuscriptor->puerto != 0)
+    {
+        unSuscriptor->puerto = 0;
+
+        int resultado = shutdown(unSuscriptor->identificadorCorrelacional, SHUT_RDWR);
+
+        if (resultado >= 0)
+        {
+            log_info(logger, "El suscriptor de socket %d terminó su tiempo de suscripción. Se terminó correctamente la suscripción.", unSuscriptor->identificadorCorrelacional);
+        }
+        else
+        {
+            log_error(logger, "Hubo un error al intentar desconectar al suscriptor de socket %d por término de tiempo de suscripción.", unSuscriptor->identificadorCorrelacional);
+        }
+    }
+
+    pthread_mutex_unlock(&mutex_eliminarSuscriptor);
+}
 ////////////////////////////////////////HILOS DE COLAS DE MENSAJES////////////////////////////////////////////////
 
 /*Se encarga de Gestionar la Cola New*/
@@ -2012,15 +2041,19 @@ void ejecutarColaNewPokemon()
                             unSuscriptor = (t_suscriptor *)list_find(SUSCRIPTORES_LISTA, &existeIdSuscriptor);
 
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
-
                             enviarMensajeNewPokemon(unMensaje, unSuscriptor, unNewPokemon);
+                            actualizarLru(unMensaje->idMensaje);
                         }
+                    }
+                    else
+                    {
+                        eliminarSuscriptor(unSuscriptorCola->identificador);
                     }
                 }
 
                 //free(unNewPokemon);
             }
-            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
+            //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar  
             list_destroy(mensajesAEnviar);
             pthread_mutex_unlock(&mutex_MENSAJES_NEW_POKEMON);
         }
@@ -2092,7 +2125,12 @@ void ejecutarColaAppearedPokemon()
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
                             enviarMensajeAppearedPokemon(unMensaje, unSuscriptor, unPokemon);
+                            actualizarLru(unMensaje->idMensaje);
                         }
+                    }
+                    else
+                    {
+                        eliminarSuscriptor(unSuscriptorCola->identificador);
                     }
                 }
 
@@ -2170,11 +2208,16 @@ void ejecutarColaCatchPokemon()
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
                             enviarMensajeCatchPokemon(unMensaje, unSuscriptor, unPokemon);
+                            actualizarLru(unMensaje->idMensaje);
                         }
+                    }
+                    else
+                    {
+                        eliminarSuscriptor(unSuscriptorCola->identificador);
                     }
                 }
 
-               // free(unPokemon);
+                // free(unPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
@@ -2182,7 +2225,6 @@ void ejecutarColaCatchPokemon()
         }
 
         sleep(2);
-        
     }
 }
 
@@ -2226,7 +2268,7 @@ void ejecutarColaCaughtPokemon()
                 if (unPokemon)
                 {
 
-                   // log_debug(logger, "---------------------SE ENCONTRÓ EN CAUGHT EL POKEMON SOLICITADO POR IDMENSAJE------------------------------");
+                    // log_debug(logger, "---------------------SE ENCONTRÓ EN CAUGHT EL POKEMON SOLICITADO POR IDMENSAJE------------------------------");
 
                     for (int i = 0; i < suscriptoresCant; i++)
                     {
@@ -2256,7 +2298,12 @@ void ejecutarColaCaughtPokemon()
                                 pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
                                 enviarMensajeCaughtPokemon(unMensaje, unSuscriptor, unPokemon);
+                                actualizarLru(unMensaje->idMensaje);
                             }
+                        }
+                        else
+                        {
+                            eliminarSuscriptor(unSuscriptorCola->identificador);
                         }
                     }
 
@@ -2342,7 +2389,12 @@ void ejecutarColaGetPokemon()
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
                             enviarMensajeGetPokemon(unMensaje, unSuscriptor, unPokemon);
+                            actualizarLru(unMensaje->idMensaje);
                         }
+                    }
+                    else
+                    {
+                        eliminarSuscriptor(unSuscriptorCola->identificador);
                     }
                 }
 
@@ -2420,8 +2472,13 @@ void ejecutarColaLocalizedPokemon()
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
 
                             enviarMensajeLocalizedPokemon(unMensaje, unSuscriptor, unPokemon);
+                            actualizarLru(unMensaje->idMensaje);
                         }
-                    } //?* preguntar si cuando se acaba el tiempo el suscriptor hay queeliminarlo???
+                    }
+                    else
+                    {
+                        eliminarSuscriptor(unSuscriptorCola->identificador);
+                    }
                 }
 
                 free(unPokemon);
@@ -2446,7 +2503,6 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, voi
     int tamanioNewPokemon = 0;
 
     log_warning(logger, "\n\t-->  socket Suscriptor valor %d", unSuscriptor->identificadorCorrelacional);
-
 
     enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tNewPokemon, unNewPokemon, tamanioNewPokemon);
@@ -2648,7 +2704,6 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, 
 
     log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON IDMENSAJE: %d", unCaughtPokemon->identificador);
     log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON IDMENSAJECORRELACIONAL: %d", unCaughtPokemon->identificadorCorrelacional);
-    log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON NOMBRE: %s", unCaughtPokemon->nombrePokemon);
     log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON RESULTADO: %d", unCaughtPokemon->resultado);
 
     enviarInt(unSuscriptor->identificadorCorrelacional, 1);
@@ -2704,7 +2759,7 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, 
         log_error(logger, "ERROR enviarMensaje-CAUGHT no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
     }
 
-   // free(unCaughtPokemon);
+    // free(unCaughtPokemon);
 }
 
 /*Se encarga de mandar un GetPokemon a un suscriptor*/
@@ -2875,18 +2930,18 @@ void *buscarEnMemoriaNewPokemon(tMensaje *unMensaje)
 
     free(bufferNombrePokemon);
 
-    pthread_mutex_lock(&mutex_idMensajeABuscar);
+    // pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-    idMensajeABuscar = unMensaje->idMensaje;
+    // idMensajeABuscar = unMensaje->idMensaje;
 
-    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+    // tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
 
-    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+    // pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-    if (unaParti)
-    {
-        unaParti->lru = (uint32_t)time(NULL);
-    }
+    // if (unaParti)
+    // {
+    //     unaParti->lru = nuevoTimeStamp();
+    // }
 
     return unNewPokemon;
 }
@@ -2924,18 +2979,18 @@ void *buscarEnMemoriaAppearedPokemon(tMensaje *unMensaje)
 
     free(bufferNombrePokemon);
 
-    pthread_mutex_lock(&mutex_idMensajeABuscar);
+    // pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-    idMensajeABuscar = unMensaje->idMensaje;
+    // idMensajeABuscar = unMensaje->idMensaje;
 
-    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+    // tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
 
-    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+    // pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-    if (unaParti)
-    {
-        unaParti->lru = (uint32_t)time(NULL);
-    }
+    // if (unaParti)
+    // {
+    //     unaParti->lru = nuevoTimeStamp();
+    // }
 
     return unAppearedPokemon;
 }
@@ -2972,18 +3027,18 @@ void *buscarEnMemoriaCatchPokemon(tMensaje *unMensaje)
 
     free(bufferNombrePokemon);
 
-    pthread_mutex_lock(&mutex_idMensajeABuscar);
+    // pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-    idMensajeABuscar = unMensaje->idMensaje;
+    // idMensajeABuscar = unMensaje->idMensaje;
 
-    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+    // tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
 
-    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+    // pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-    if (unaParti)
-    {
-        unaParti->lru = (uint32_t)time(NULL);
-    }
+    // if (unaParti)
+    // {
+    //     unaParti->lru = nuevoTimeStamp();
+    // }
 
     return unCatchPokemon;
 }
@@ -3000,37 +3055,20 @@ void *buscarEnMemoriaCaughtPokemon(tMensaje *unMensaje)
     unCaughtPokemon->identificador = unMensaje->idMensaje;
     unCaughtPokemon->identificadorCorrelacional = unMensaje->idMensajeCorrelacional;
 
-    //SE AGREGA PARA QUE NO ROMPA EL CAUGHT, CONSULTAR CON RODRI//
-
-    memcpy(&tamanioNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    char *bufferNombrePokemon = malloc(tamanioNombrePokemon + 1);
-    memcpy(bufferNombrePokemon, unMensaje->posicionEnMemoria + desplazamiento, tamanioNombrePokemon);
-    bufferNombrePokemon[tamanioNombrePokemon] = '\0';
-    desplazamiento += tamanioNombrePokemon;
-
-    unCaughtPokemon->nombrePokemon = string_new();
-    string_append(&unCaughtPokemon->nombrePokemon, bufferNombrePokemon);
-
-    free(bufferNombrePokemon);
-
-    //FIN AGREGADO//
-
     memcpy(&unCaughtPokemon->resultado, unMensaje->posicionEnMemoria + desplazamiento, sizeof(uint32_t));
 
-    pthread_mutex_lock(&mutex_idMensajeABuscar);
+    // pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-    idMensajeABuscar = unMensaje->idMensaje;
+    // idMensajeABuscar = unMensaje->idMensaje;
 
-    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+    // tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
 
-    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+    // pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-    if (unaParti)
-    {
-        unaParti->lru = (uint32_t)time(NULL);
-    }
+    // if (unaParti)
+    // {
+    //     unaParti->lru = nuevoTimeStamp();
+    // }
 
     return unCaughtPokemon;
 }
@@ -3061,18 +3099,18 @@ void *buscarEnMemoriaGetPokemon(tMensaje *unMensaje)
 
     free(bufferNombrePokemon);
 
-    pthread_mutex_lock(&mutex_idMensajeABuscar);
+    // pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-    idMensajeABuscar = unMensaje->idMensaje;
+    // idMensajeABuscar = unMensaje->idMensaje;
 
-    tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+    // tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
 
-    pthread_mutex_unlock(&mutex_idMensajeABuscar);
+    // pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
-    if (unaParti)
-    {
-        unaParti->lru = (uint32_t)time(NULL);
-    }
+    // if (unaParti)
+    // {
+    //     unaParti->lru = nuevoTimeStamp();
+    // }
 
     return unGetPokemon;
 }
@@ -3133,9 +3171,27 @@ void *buscarEnMemoriaLocalizedPokemon(tMensaje *unMensaje)
 
     unLocalizedPokemon->listaDatosPokemon = unaListaDatosPokemon;
 
+    // pthread_mutex_lock(&mutex_idMensajeABuscar);
+
+    // idMensajeABuscar = unMensaje->idMensaje;
+
+    // tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
+
+    // pthread_mutex_unlock(&mutex_idMensajeABuscar);
+
+    // if (unaParti)
+    // {
+    //     unaParti->lru = nuevoTimeStamp();
+    // }
+
+    return unLocalizedPokemon;
+}
+
+void actualizarLru(uint32_t elIdMensaje){
+
     pthread_mutex_lock(&mutex_idMensajeABuscar);
 
-    idMensajeABuscar = unMensaje->idMensaje;
+    idMensajeABuscar = elIdMensaje;
 
     tParticion *unaParti = list_find(METADATA_MEMORIA, &existeIdMensajeEnParticion);
 
@@ -3143,11 +3199,11 @@ void *buscarEnMemoriaLocalizedPokemon(tMensaje *unMensaje)
 
     if (unaParti)
     {
-        unaParti->lru = (uint32_t)time(NULL);
+        unaParti->lru = nuevoTimeStamp();
     }
 
-    return unLocalizedPokemon;
 }
+
 ////////////////////////////////////////GUARDAR POKEMON EN MEMORIA////////////////////////////////////////////////
 
 /*Recibe un NewPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
@@ -3296,7 +3352,9 @@ void guardarEnMemoriaCaughtPokemon(void *unPokemon)
 {
 
     t_caughtPokemon *unCaughtPokemon = (t_caughtPokemon *)unPokemon;
-    uint32_t tamanioNombrePokemon = string_length(unCaughtPokemon->nombrePokemon);
+
+    unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
+    //uint32_t tamanioNombrePokemon = string_length(unCaughtPokemon->nombrePokemon);
     uint32_t desplazamiento = 0;
     uint32_t tamanio = 0;
 
@@ -3310,16 +3368,6 @@ void guardarEnMemoriaCaughtPokemon(void *unPokemon)
     unMensaje->idMensajeCorrelacional = unCaughtPokemon->identificadorCorrelacional;
     unMensaje->tipoMensaje = tCaughtPokemon; //CAUGHT
     unMensaje->posicionEnMemoria = getDireccionMemoriaLibre(unMensaje->idMensaje, tamanio);
-
-    //FALTA HACER MEMCPY DEL NOMBRE DEL POKEMON. REVISAR CON RODRI, POR ESTO CREEMOS QUE FALLA.
-
-    memcpy(unMensaje->posicionEnMemoria + desplazamiento, &tamanioNombrePokemon, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    memcpy(unMensaje->posicionEnMemoria + desplazamiento, unCaughtPokemon->nombrePokemon, tamanioNombrePokemon);
-    desplazamiento += tamanioNombrePokemon;
-
-    //HASTA ACA LO QUE AGREGAMOS//
 
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
@@ -3701,6 +3749,8 @@ bool existeIdCorrelativo(void *numero)
     return existe;
 }
 
+
+
 //////////////////////////////////////////////DUMP CACHE////////////////////////////////////////////////
 
 void dumpCache()
@@ -3756,7 +3806,7 @@ void dumpCache()
             string_append_with_format(&contenidoDump, "Particion %d: %p (%d)", i, particion->posicion, (particion->posicion - MEMORIA_PRINCIPAL));
             string_append_with_format(&contenidoDump, " - %p (%d).", limiteParticion, (limiteParticion - MEMORIA_PRINCIPAL));
             string_append_with_format(&contenidoDump, "    [%c]    Size: %db\n", libre, particion->tamanio);
-            string_append_with_format(&contenidoDump, "   LRU[%d] Cola:[%s]    ID:[%d]\n", particion->lru, nombreCola, particion->idMensaje);
+            string_append_with_format(&contenidoDump, "   LRU[%lld] Cola:[%s]    ID:[%d]\n", particion->lru, nombreCola, particion->idMensaje);
         }
 
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
@@ -3849,6 +3899,19 @@ void manejarSeniales(int signum)
 
         log_error(logger, "Se recibió una señal que no es conocida y/o no puede ser manejada");
     }
+}
+
+uint64_t nuevoTimeStamp(){
+
+struct timeval valor;
+
+gettimeofday(&valor, NULL);
+
+unsigned long long result = (((unsigned long long )valor.tv_sec) * 1000 + ((unsigned long) valor.tv_usec));
+
+uint64_t tiempo = result;
+
+return tiempo;
 }
 
 /*typedef struct {

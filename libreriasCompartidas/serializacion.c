@@ -552,9 +552,8 @@ void* serializarCaughtPokemon(t_caughtPokemon* caughtPokemon, int* tamanio){
 	t_caughtPokemon* unCaughtPokemon = (t_caughtPokemon*) caughtPokemon;
 
 	int desplazamiento = 0;
-	int tamanioNombrePokemon = string_length(unCaughtPokemon->nombrePokemon);
-
-	*tamanio = sizeof(int) + tamanioNombrePokemon + 3 * sizeof(uint32_t);
+	
+	*tamanio = 3 * sizeof(uint32_t);
 
 	void* caughtPokemonSerializado = malloc(*tamanio);
 
@@ -563,12 +562,6 @@ void* serializarCaughtPokemon(t_caughtPokemon* caughtPokemon, int* tamanio){
 
 	memcpy(caughtPokemonSerializado + desplazamiento, &unCaughtPokemon->identificadorCorrelacional, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
-
-	memcpy(caughtPokemonSerializado + desplazamiento, &tamanioNombrePokemon, sizeof(int));
-	desplazamiento += sizeof(int);
-
-	memcpy(caughtPokemonSerializado + desplazamiento, unCaughtPokemon->nombrePokemon, tamanioNombrePokemon);
-	desplazamiento += tamanioNombrePokemon;
 
 	memcpy(caughtPokemonSerializado + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
@@ -603,7 +596,6 @@ t_caughtPokemon* deserializarCaughtPokemon(void* buffer){
 	t_caughtPokemon* unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
 
 	int desplazamiento = 0;
-	int tamanioNombrePokemon = 0;
 
 	memcpy(&unCaughtPokemon->identificador, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
@@ -611,22 +603,8 @@ t_caughtPokemon* deserializarCaughtPokemon(void* buffer){
 	memcpy(&unCaughtPokemon->identificadorCorrelacional, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(&tamanioNombrePokemon, buffer + desplazamiento, sizeof(int));
-	desplazamiento += sizeof(int);
-
-	char* bufferNombrePokemon = malloc(tamanioNombrePokemon+1);
-	memcpy(bufferNombrePokemon, buffer + desplazamiento, tamanioNombrePokemon);
-	bufferNombrePokemon[tamanioNombrePokemon] = '\0';
-	desplazamiento += tamanioNombrePokemon;
-
 	memcpy(&unCaughtPokemon->resultado, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
-
-	unCaughtPokemon->nombrePokemon = string_new();
-
-	string_append(&unCaughtPokemon->nombrePokemon, bufferNombrePokemon);
-
-	free(bufferNombrePokemon);
 
 	return unCaughtPokemon;
 

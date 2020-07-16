@@ -100,8 +100,8 @@ typedef struct {
 	uint32_t tamanio;
 	bool free;
 	uint32_t idMensaje;
-	uint32_t lru;
-	uint32_t timeInit;
+	uint64_t lru;
+	uint64_t timeInit;
 				
 } tParticion;
 
@@ -179,6 +179,7 @@ void finalizarBroker();
 //void manejarSeniales(int signum);
 
 void manejarSeniales(int signum);
+uint64_t nuevoTimeStamp();
 //manejarSeniales *signal(int, manejarSeniales*);
 
 void administradorDeConexiones(void* infoAdmin);
@@ -207,6 +208,8 @@ void killMe(uint32_t index);
 
 void ingresarNuevoSuscriber(void* nuevaSuscripcion);
 void reconectarSuscriptor(void *unaNuevaSuscripcion);
+pthread_mutex_t mutex_eliminarSuscriptor;
+void eliminarSuscriptor(uint32_t identificador);
 
 void enviarMensajeNewPokemon(tMensaje* unMensaje,void* unSuscriptor, void *unPokemon);
 void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void* unSuscriptor, void *unPokemon);
@@ -228,6 +231,7 @@ void* buscarEnMemoriaCatchPokemon(tMensaje* unMensaje);
 void* buscarEnMemoriaCaughtPokemon(tMensaje* unMensaje);
 void* buscarEnMemoriaGetPokemon(tMensaje* unMensaje);
 void* buscarEnMemoriaLocalizedPokemon(tMensaje* unMensaje);
+void actualizarLru(uint32_t elIdMensaje);
 
 char* buscarColaAPartirDeIdMensaje(uint32_t idMensaje);
 

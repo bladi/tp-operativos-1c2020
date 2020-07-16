@@ -530,11 +530,9 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
 
             unCaughtPokemon->resultado = (uint32_t)actualizarUbicacionPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
 
-            unCaughtPokemon->identificador = unCatchPokemon->identificador;              //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+            unCaughtPokemon->identificador = 0;              //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
             unCaughtPokemon->identificadorCorrelacional = unCatchPokemon->identificador; //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
-            unCaughtPokemon->nombrePokemon = string_new();
-            string_append(&unCaughtPokemon->nombrePokemon, unCatchPokemon->nombrePokemon);
-
+            
             sleep(unGameCardConfig->tiempoRetardoOperacion);
             cambiarEstadoPokemon(unCatchPokemon->nombrePokemon, 0);
 
@@ -847,11 +845,9 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
             cambiarEstadoPokemon(unCatchPokemon->nombrePokemon,1);
             unCaughtPokemon->resultado = (uint32_t)actualizarUbicacionPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
 
-            unCaughtPokemon->identificador = unCatchPokemon->identificador;              //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+            unCaughtPokemon->identificador = 0;              //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
             unCaughtPokemon->identificadorCorrelacional = unCatchPokemon->identificador; //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
-            unCaughtPokemon->nombrePokemon = string_new();
-            string_append(&unCaughtPokemon->nombrePokemon, unCatchPokemon->nombrePokemon);
-
+            
             sleep(unGameCardConfig->tiempoRetardoOperacion);
             cambiarEstadoPokemon(unCatchPokemon->nombrePokemon,0);
             

@@ -59,7 +59,6 @@ typedef struct t_caughtPokemon{
 
 	uint32_t identificador;
 	uint32_t identificadorCorrelacional;
-	char* nombrePokemon;
 	uint32_t resultado;
 
 } __attribute__((packed)) t_caughtPokemon;

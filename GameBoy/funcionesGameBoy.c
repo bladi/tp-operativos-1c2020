@@ -81,9 +81,10 @@ void administradorDeConexiones(void* infoAdmin){
 
     if(resultado == 0){
 
-        log_warning(logger, "Se desconectó el broker, o bien, terminó el tiempo de suscripcióna la cola de mensajes.");
+        log_warning(logger, "Se desconectó el broker, o bien, terminó el tiempo de suscripción a la cola de mensajes.");
         fflush(stdout);
         close(unaInfoAdmin->socketCliente);
+        kill(getpid(),9);
         
     }else if (resultado == -2){
 
@@ -92,8 +93,9 @@ void administradorDeConexiones(void* infoAdmin){
     }
     else if(resultado == -1 || resultado < -2){
         
-        log_warning(logger, "Se desconectó el broker, o bien, terminó el tiempo de suscripcióna la cola de mensajes.");
+        log_warning(logger, "Se desconectó el broker, o bien, terminó el tiempo de suscripción a la cola de mensajes.");
         close(unaInfoAdmin->socketCliente);
+        kill(getpid(),9);
        
     }
 
@@ -295,9 +297,6 @@ void enviarCaughtPokemonABroker(char* idMensajeCorrelacional,char* resultado){
 
     unCaughtPokemon->identificador = 0;
 	unCaughtPokemon->identificadorCorrelacional = atoi(idMensajeCorrelacional);
-
-    unCaughtPokemon->nombrePokemon = string_new();
-	string_append(&unCaughtPokemon->nombrePokemon,"GAMEBOY");
 
     if(strcmp(resultado, "OK") == 0){
 
@@ -732,9 +731,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
             log_info(logger,"Se recibió un 'CAUGHT_POKEMON' del Broker: \n");
             log_info(logger,"El ID del mensaje es: %d.",unCaughtPokemon->identificador);
             log_info(logger,"El ID correlacional del mensaje es: %d.",unCaughtPokemon->identificadorCorrelacional);
-            log_info(logger,"El nombre del pokemón es: %s.",unCaughtPokemon->nombrePokemon);
-
-
+            
             log_info(logger,"Se le avisará al Broker que se recibió correctamente el CAUGHT_POKEMON");
             enviarInt(socketCliente, 2);
 

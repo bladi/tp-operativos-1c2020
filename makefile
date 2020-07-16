@@ -18,7 +18,9 @@ all:
 	gcc -g -w Team/team.c Team/funcionesTeam.c libreriasCompartidas/sockets.c libreriasCompartidas/serializacion.c -o team -lcommons -lpthread
 	@printf '$(negrita)$(amarillo)Team$(sin_color) ..... $(verde)ok!$(sin_color)$(sin_negrita)\n'
 
+
 # Clean
 clean:
 	rm -f gamecard gameboy broker team *.o
 	rm logs/gameCardLog.log logs/gameBoyLog.log logs/brokerLog.log logs/teamLog.log
+	rm GameCard/TALL_GRASS/Blocks/*.bin GameCard/TALL_GRASS/Metadata/Bitmap.bin
