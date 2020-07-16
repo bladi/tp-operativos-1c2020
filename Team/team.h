@@ -84,7 +84,7 @@ typedef enum {
 } Estado;
 
 typedef t_list *EstadoProceso;
-EstadoProceso NUEVOS, LISTOS, BLOQUEADOS, EJECUTANDO, FINALIZADOS; //Puede que no hagan falta todas las listas
+EstadoProceso NUEVOS, LISTOS, BLOQUEADOS, FINALIZADOS;
 
 typedef enum Objetivo{
 	Ninguno,
@@ -141,9 +141,6 @@ typedef struct
 t_config* unTeamArchivoConfig;
 teamConfig_t* unTeamConfig;
 t_log* logger;
-//t_list* posiciones;
-//t_list* pokemones;
-//t_list* objetivos;
 t_list* listaDeEntrenadores;
 t_list* mapa;
 t_list* mapaPendientes;
@@ -151,6 +148,9 @@ t_list* pokemonesAtrapados;
 t_list* pokemonesObjetivos;
 t_list* pokemonesBuscandose;
 t_list* identificadoresGet;
+t_list* semaforosEntrenador;
+
+t_Entrenador* entrenadorEjecutando;
 
 uint32_t cantidadEntrenadores;
 uint32_t cantidadCiclosCPU;
@@ -173,13 +173,20 @@ pthread_t hiloActualizadorSocketBrocker;
 int socketBroker;
 int brokerActivo;
 
-t_Entrenador* entrenadorEjecutando;
-t_list* semaforosEntrenador;
-
 pthread_mutex_t mutexEntrenadorEjecutando;
 pthread_mutex_t mutexSemaforosEntrenador;
-
+pthread_mutex_t mutexPokemonesBuscandose;
+pthread_mutex_t mutexPokemonesObjetivos;
+pthread_mutex_t mutexPokemonesAtrapados;
+pthread_mutex_t mutexMapaPendientes;
+pthread_mutex_t mutexMapa;
+pthread_mutex_t mutexListaDeEntrenadores;
 pthread_mutex_t mutexSocketBroker;
+pthread_mutex_t mutexIdentificadoresGet;
+pthread_mutex_t mutexNuevos;
+pthread_mutex_t mutexListos;
+pthread_mutex_t mutexBloqueados;
+pthread_mutex_t mutexFinalizados;
 
 sem_t* semaforoPlanificador;
 sem_t* semaforoTerminoEjecucion;
@@ -217,7 +224,7 @@ int cantidadTotalDePokemonesEnLista(t_list* pLista);
 
 void planificarReady(int posXpokemon,int posYpokemon, char* pPokemonNombre, int pPokemonCantidad);
 void guardarPokemonABuscar(int posXpokemon,int posYpokemon, char* pPokemonNombre, int pPokemonCantidad);
-void planificarPokemonPendiente(t_Entrenador* pEntrenador);
+void planificarPokemonPendiente();
 bool puedoPlanificarReady();
 void planificarExec();
 void planificarFIFO();
