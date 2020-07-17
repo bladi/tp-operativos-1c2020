@@ -509,6 +509,7 @@ void splitBuddy(uint32_t index)
     {
 
         father->free = false;
+        father->idMensaje = 0; //?*agrego esto verificar si no rompe
 
         tParticion *leftChild = malloc(sizeof(tParticion));
 
@@ -4217,52 +4218,59 @@ char *buscarColaAPartirDeIdMensaje(uint32_t idMensaje)
 
     char *nombreCola = string_new();
 
-    switch (unMensaje->tipoMensaje)
-    {
+    if( unMensaje){
 
-    case tNewPokemon:
+    
 
-        string_append(&nombreCola, "NEW_POKEMON");
+        switch (unMensaje->tipoMensaje)
+        {
 
-        break;
+        case tNewPokemon:
 
-    case tAppearedPokemon:
+            string_append(&nombreCola, "NEW_POKEMON");
 
-        string_append(&nombreCola, "APPEARED_POKEMON");
+            break;
 
-        break;
+        case tAppearedPokemon:
 
-    case tCatchPokemon:
+            string_append(&nombreCola, "APPEARED_POKEMON");
 
-        string_append(&nombreCola, "CATCH_POKEMON");
+            break;
 
-        break;
+        case tCatchPokemon:
 
-    case tCaughtPokemon:
+            string_append(&nombreCola, "CATCH_POKEMON");
 
-        string_append(&nombreCola, "CAUGHT_POKEMON_LISTA");
+            break;
 
-        break;
+        case tCaughtPokemon:
 
-    case tGetPokemon:
+            string_append(&nombreCola, "CAUGHT_POKEMON_LISTA");
 
-        string_append(&nombreCola, "GET_POKEMON");
+            break;
 
-        break;
+        case tGetPokemon:
 
-    case tLocalizedPokemon:
+            string_append(&nombreCola, "GET_POKEMON");
 
-        string_append(&nombreCola, "LOCALIZED_POKEMON");
+            break;
 
-        break;
+        case tLocalizedPokemon:
 
-    default:
+            string_append(&nombreCola, "LOCALIZED_POKEMON");
 
-        string_append(&nombreCola, "VALOR INVALIDO DE COLA");
+            break;
 
-        log_error(logger, "Se encontró un %s a partir del idMensaje %d. Error.", nombreCola, idMensaje);
+        default:
 
-        break;
+            string_append(&nombreCola, "VALOR INVALIDO DE COLA");
+
+            log_error(logger, "Se encontró un %s a partir del idMensaje %d. Error.", nombreCola, idMensaje);
+
+            break;
+        }
+    }else{
+        string_append(&nombreCola, "N/A");
     }
 
     return nombreCola;
