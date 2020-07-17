@@ -1458,6 +1458,9 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         // EL GAMECARD SE SUSCRIBE A LAS TRES COLAS GLOBALES
 
+        enviarInt(socketCliente, 1);
+        sleep(1);
+
         nuevaSuscripcion->colaDeMensajes = tNewPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
@@ -1470,7 +1473,6 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
-        enviarInt(socketCliente, 1);
         break;
     }
 
@@ -1686,6 +1688,9 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
         //log_info(logger, "Se suscribe a cola: : %d", nuevaSuscripcion->colaDeMensajes);
         //log_info(logger, "Tiempo de Suscripcion: %d", nuevaSuscripcion->tiempoDeSuscripcion);
 
+        enviarInt(socketCliente, 1);
+        sleep(1);
+
         nuevaSuscripcion->colaDeMensajes = tAppearedPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
@@ -1703,8 +1708,6 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
         log_debug(logger, "\n\t--TEAM %s SUSCRIBE TO : %d", nuevaSuscripcion->ip, nuevaSuscripcion->colaDeMensajes);
-
-        enviarInt(socketCliente, 1);
 
         break;
     }
