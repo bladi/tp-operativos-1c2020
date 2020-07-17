@@ -1617,7 +1617,7 @@ void liberarBloquesDelPokemon(char *pokemon){
 
     string_append_with_format(&pathMetadata, "%sFiles/%s/Metadata.bin", unGameCardConfig->puntoMontajeTallGrass, pokemon);
 
-    log_info(logger, "INGRESANDO A LA METADATA DE PATH %s", pathMetadata);
+    //log_info(logger, "INGRESANDO A LA METADATA DE PATH %s", pathMetadata);
     metadata = config_create(pathMetadata);
 
     free(pathMetadata);
@@ -1637,6 +1637,7 @@ void liberarBloquesDelPokemon(char *pokemon){
         for (int i = 0; bloques[i] != NULL; i++)
         {
             int bloqueALiberar = atoi(bloques[i]);
+            log_info(logger,"LIBERANDO BLOQUE [%d]", bloqueALiberar);
             pthread_mutex_lock(&mutexBitmap);
             bitarray_clean_bit(bitarray, bloqueALiberar);
             pthread_mutex_unlock(&mutexBitmap);
@@ -1817,7 +1818,7 @@ char* leerArchivo(char* path){
         string_append(&contenido, linea);
     }
     
-    printf("\nContenido del archivo leído: \n%s",contenido);
+    //printf("\nContenido del archivo leído: \n%s",contenido);
 
     fclose(f);
     free(linea);
