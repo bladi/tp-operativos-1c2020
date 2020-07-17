@@ -1,0 +1,18 @@
+
+=======================================================================================
+
+CONFIGURACION DEL BROKER IMPORTADA CON EXITO
+
+· Tamanio de la Memoria = 64
+· Tamanio Minimo de Particion = 4
+· Algoritmo de Memoria = PARTICIONES
+· Algoritmo de Reemplazo = LRU
+· Algoritmo de Particion Libre = FF
+· IP del Broker = 127.0.0.3
+· Puerto del Broker = 5024
+· Frecuencia de Compactacion = 10
+· Ruta del Archivo Log del Broker = logs/brokerLog.log
+· Ruta del Archivo Dump del Broker = Broker/DumpCache.bin
+
+[INFO] 15:29:17:408 BROKER/(9672:9672): LOG INICIALIZADO CON EXITO
+[0m

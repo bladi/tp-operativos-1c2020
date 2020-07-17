@@ -438,6 +438,7 @@ char *getDireccionMemoriaLibre(uint32_t idMensaje, uint32_t tamanio)
 /*Devuelve una particion libre de la memoria bs*/
 char *getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, uint32_t index)
 {
+    //LOS MUTEX DE TPARTICION METADATA_MEMORIA ESTAN EN getDireccionMemoria que los utiliza
 
     char *aDevolver = NULL;
 
@@ -495,6 +496,7 @@ char *getDireccionMemoriaLibreBuddySystem(uint32_t idMensaje, uint32_t tamanio, 
 /*Divide el segmento de memoria en 2*/
 void splitBuddy(uint32_t index)
 {
+    //LOS MUTEX DE TPARTICION METADATA_MEMORIA ESTAN EN getDireccionMemoriaLibreBuddySystem que los utiliza
 
     pthread_mutex_lock(&mutex_idParticionABuscar);
 
@@ -538,6 +540,7 @@ void ejecutarEliminarParticionBuddy()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
     {
+        pthread_mutex_lock(&mutex_METADATA_MEMORIA);
         t_list *ParticionesOrdenadasPorTimeInit;
 
         ParticionesOrdenadasPorTimeInit = list_filter(METADATA_MEMORIA, &esParticionOcupadaConMensaje);
@@ -547,6 +550,8 @@ void ejecutarEliminarParticionBuddy()
         tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTimeInit, 0);
 
         list_destroy(ParticionesOrdenadasPorTimeInit);
+        
+        pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
         eliminarMensaje(unaParticion->idMensaje); //SE ELIMINA EL MENSAJE ANTES DE ELIMINAR LA PARTICION PARA QUE NO SE GENERE ERRORES
 
@@ -557,6 +562,9 @@ void ejecutarEliminarParticionBuddy()
     else
     {
         //LRU
+
+        pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
         t_list *ParticionesOrdenadasPorTime;
 
         ParticionesOrdenadasPorTime = list_filter(METADATA_MEMORIA, &esParticionOcupadaConMensaje);
@@ -566,6 +574,8 @@ void ejecutarEliminarParticionBuddy()
         tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTime, 0);
 
         list_destroy(ParticionesOrdenadasPorTime);
+
+        pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
         eliminarMensaje(unaParticion->idMensaje); //SE ELIMINA EL MENSAJE ANTES DE ELIMINAR LA PARTICION PARA QUE NO SE GENERE ERRORES
 
@@ -581,12 +591,15 @@ void killMe(uint32_t index)
 
     if (index == 0)
     {
+        pthread_mutex_lock(&mutex_METADATA_MEMORIA);
         pthread_mutex_lock(&mutex_idParticionABuscar);
 
         idParticionABuscar = index;
         tParticion *father = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
 
         pthread_mutex_unlock(&mutex_idParticionABuscar);
+        
+        pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
         father->free = true;
         father->idMensaje = 0;
@@ -598,12 +611,15 @@ void killMe(uint32_t index)
         if (index % 2 == 0)
         {
             //ES HIJO DERECHO
+            pthread_mutex_lock(&mutex_METADATA_MEMORIA);
             pthread_mutex_lock(&mutex_idParticionABuscar);
 
             idParticionABuscar = index;
             tParticion *right = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
 
             pthread_mutex_unlock(&mutex_idParticionABuscar);
+            
+            pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
             right->free = true;
             right->idMensaje = 0;
@@ -612,17 +628,22 @@ void killMe(uint32_t index)
 
             uint32_t indexFather = (index - 2) / 2;
 
+            pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
             pthread_mutex_lock(&mutex_idParticionABuscar);
 
             idParticionABuscar = 2 * indexFather + 1; //Busco al izquierdo
             tParticion *left = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
 
             pthread_mutex_unlock(&mutex_idParticionABuscar);
+            
+            pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
             if (left)
             {
                 if (left->free == true)
                 {
+                    pthread_mutex_lock(&mutex_METADATA_MEMORIA);
 
                     pthread_mutex_lock(&mutex_idParticionABuscar);
 
@@ -630,6 +651,7 @@ void killMe(uint32_t index)
                     left = (tParticion *)list_remove_by_condition(METADATA_MEMORIA, &existeIdParticion);
 
                     pthread_mutex_unlock(&mutex_idParticionABuscar);
+                    
 
                     pthread_mutex_lock(&mutex_idParticionABuscar);
 
@@ -637,6 +659,8 @@ void killMe(uint32_t index)
                     right = (tParticion *)list_remove_by_condition(METADATA_MEMORIA, &existeIdParticion);
 
                     pthread_mutex_unlock(&mutex_idParticionABuscar);
+                    
+                    pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
                     free(left);
                     free(right);
@@ -651,12 +675,17 @@ void killMe(uint32_t index)
         else
         {
             //ES HIJO IZQUIERDO
+            
+            pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
             pthread_mutex_lock(&mutex_idParticionABuscar);
 
             idParticionABuscar = index;
             tParticion *left = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
 
             pthread_mutex_unlock(&mutex_idParticionABuscar);
+            
+            pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
             left->free = true;
             left->idMensaje = 0;
@@ -665,17 +694,22 @@ void killMe(uint32_t index)
 
             uint32_t indexFather = (index - 1) / 2;
 
+            pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
             pthread_mutex_lock(&mutex_idParticionABuscar);
 
             idParticionABuscar = 2 * indexFather + 2; //Busco al derecho
             tParticion *right = (tParticion *)list_find(METADATA_MEMORIA, &existeIdParticion);
 
             pthread_mutex_unlock(&mutex_idParticionABuscar);
+            
+            pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
             if (right)
             {
                 if (right->free == true)
                 {
+                    pthread_mutex_lock(&mutex_METADATA_MEMORIA);
 
                     pthread_mutex_lock(&mutex_idParticionABuscar);
 
@@ -690,6 +724,8 @@ void killMe(uint32_t index)
                     right = (tParticion *)list_remove_by_condition(METADATA_MEMORIA, &existeIdParticion);
 
                     pthread_mutex_unlock(&mutex_idParticionABuscar);
+                    
+                    pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
                     free(left);
                     free(right);
@@ -710,29 +746,38 @@ void ejecutarEliminarParticion()
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
     {
         log_warning(logger,"---Elimino particion por fifo");
+
+        pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
         t_list *ParticionesOrdenadasPorTimeInit;
 
         ParticionesOrdenadasPorTimeInit = list_filter(METADATA_MEMORIA, &esParticionOcupada);
-
-        list_sort(ParticionesOrdenadasPorTimeInit, &sortInitMenor); //?*sortPidMenor quedo en desuso
+        
+        list_sort(ParticionesOrdenadasPorTimeInit, &sortInitMenor); //?*sortPidMenor quedo en desuso        
 
         tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTimeInit, 0);
+        
+        pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
         list_destroy(ParticionesOrdenadasPorTimeInit);
 
         eliminarMensaje(unaParticion->idMensaje); //SE ELIMINA EL MENSAJE ANTES DE ELIMINAR LA PARTICION PARA QUE NO SE GENERE ERRORES
 
         pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
         unaParticion->free = true;
         unaParticion->idMensaje = 0;
         consolidarCache(unaParticion);
         CANTIDAD_PARTICIONES_LIBERADAS++;
+
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
     }
     else
     {
         log_warning(logger,"---Elimino particion por LRU");
         //LRU
+
+        pthread_mutex_lock(&mutex_METADATA_MEMORIA);
         t_list *ParticionesOrdenadasPorTime;
 
         ParticionesOrdenadasPorTime = list_filter(METADATA_MEMORIA, &esParticionOcupada);
@@ -740,6 +785,8 @@ void ejecutarEliminarParticion()
         list_sort(ParticionesOrdenadasPorTime, &sortTimeMenor);
 
         tParticion *unaParticion = (tParticion *)list_get(ParticionesOrdenadasPorTime, 0);
+        
+        pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
         log_warning(logger,"---particion a eliminar: ");
         log_warning(logger,"---unaParti: %d", unaParticion->idMensaje);
@@ -784,6 +831,7 @@ tParticion *splitParticion(tParticion *unaParticion, uint32_t tamanio)
 /*Consolida la memoria a izquierda y derecha*/
 void consolidarCache(tParticion *unaParticion)
 {
+    //MUTEX METADATA HECHO
 
     //CONSOLIDO A DERECHA
 
@@ -929,6 +977,7 @@ void ejecutarCompactacion()
 /*Compacta la memoria dejando una unica particion libre al final de la MEMORIA_PRINCIPAL */
 void compactacion(char *posicion)
 {
+    //MUTEX METADATA ESTA EN FUNCION QUE LA LLAMA
 
     pthread_mutex_lock(&mutex_posicionParticionABuscar);
 
@@ -3342,6 +3391,7 @@ void *buscarEnMemoriaLocalizedPokemon(tMensaje *unMensaje)
 void actualizarLru(uint32_t elIdMensaje){
 
     log_warning(logger,"actualizo lru de %d",elIdMensaje);
+    pthread_mutex_lock(&mutex_METADATA_MEMORIA);
 
     pthread_mutex_lock(&mutex_idMensajeABuscar);
 
@@ -3356,6 +3406,8 @@ void actualizarLru(uint32_t elIdMensaje){
         unaParti->lru = nuevoTimeStamp();
         log_warning(logger,"LRU: Existe parti lru de %d",elIdMensaje);
     }
+    
+    pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
 }
 
@@ -3835,6 +3887,7 @@ bool esParticionOcupadaConMensaje(void *particion)
 
 tParticion *buscarParticionLibreEnMemoria(uint32_t tamanio)
 {
+    //YA ESTA INCLUIDO EL MUTEX META MEMORIA EN LA LLAMADA DE LA FUNCION
 
     pthread_mutex_lock(&mutex_tamanioParticionABuscar);
 
@@ -3848,6 +3901,8 @@ tParticion *buscarParticionLibreEnMemoria(uint32_t tamanio)
 
 t_list *buscarListaDeParticionesLibresEnMemoriaOrdenadas(uint32_t tamanio)
 {
+    //YA ESTA INCLUIDO EL MUTEX META MEMORIA EN LA LLAMADA DE LA FUNCION 
+    
     t_list *ParticionesOrdenadas;
 
     pthread_mutex_lock(&mutex_tamanioParticionABuscar);
