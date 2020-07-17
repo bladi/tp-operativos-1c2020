@@ -149,6 +149,7 @@ t_list* pokemonesObjetivos;
 t_list* pokemonesBuscandose;
 t_list* identificadoresGet;
 t_list* semaforosEntrenador;
+//t_list* pidHilos;
 
 t_Entrenador* entrenadorEjecutando;
 
@@ -187,6 +188,7 @@ pthread_mutex_t mutexNuevos;
 pthread_mutex_t mutexListos;
 pthread_mutex_t mutexBloqueados;
 pthread_mutex_t mutexFinalizados;
+//pthread_mutex_t mutexPIDHilos;
 
 sem_t* semaforoPlanificador;
 sem_t* semaforoTerminoEjecucion;
@@ -211,6 +213,7 @@ void finalizarEntrenador(t_Entrenador* pEntrenador);
 
 void inicializarTeam();
 void finalizarTeam();
+//void eliminarHilos(pthread_t* pHilo);
 void inicializarHilosYVariablesTeam();
 void cargarEntrenadoresYListasGlobales();
 
