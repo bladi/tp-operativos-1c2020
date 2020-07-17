@@ -239,7 +239,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
     switch (*tipoMensaje)
     {
-
+        /*
         case tAppearedPokemon:
         {
 
@@ -284,6 +284,39 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
                 }
 
                 break;
+
+        }*/
+
+        case tAppearedPokemon:
+        {
+
+            log_trace(logger, "Llegó un APPEARD_POKEMON del Game Boy");
+
+            t_appearedPokemon *unAppearedPokemon = (t_appearedPokemon *)buffer;
+
+            enviarInt(socketCliente, 1); //Le avisamos al Broker que recibimos bien la solicitud.
+
+            log_info(logger, "Llego un appeared. Nombre del Pokemón: %s - Posición en X: %d - Posición en Y: %d.", unAppearedPokemon->nombrePokemon, unAppearedPokemon->posicionEnElMapaX, unAppearedPokemon->posicionEnElMapaY);
+            
+            t_posicionPokemon* unaPosicionPokemon = malloc(sizeof(t_posicionPokemon));
+
+            t_Pokemon* unPokemon = malloc(sizeof(t_Pokemon));
+            unPokemon->nombre = string_new();
+
+            string_append(&unPokemon->nombre,unAppearedPokemon->nombrePokemon);
+            unPokemon->cantidad = 1;
+
+            unaPosicionPokemon->pokemon = unPokemon;
+            unaPosicionPokemon->posicionX = unAppearedPokemon->posicionEnElMapaX;
+            unaPosicionPokemon->posicionY = unAppearedPokemon->posicionEnElMapaY;
+
+            pthread_mutex_lock(&mutexMapa);
+            list_add(mapa, unaPosicionPokemon);
+            pthread_mutex_unlock(&mutexMapa);
+
+            planificarReady(unAppearedPokemon->posicionEnElMapaX,unAppearedPokemon->posicionEnElMapaY,unAppearedPokemon->nombrePokemon,1);
+
+            break;
 
         }
 
@@ -560,7 +593,7 @@ void cambiarEstado(t_Entrenador *pEntrenador, Estado pEstado)
             pthread_mutex_lock(&mutexBloqueados);
 			list_add(BLOQUEADOS, pEntrenador);
             pthread_mutex_unlock(&mutexBloqueados);
-            planificarPokemonPendiente(pEntrenador);
+            //planificarPokemonPendiente(pEntrenador);
 			break;
 		}
 
@@ -667,7 +700,7 @@ void inicializarHilosYVariablesTeam()
 
     pthread_create(&hiloPlanificador, NULL, (void*)planificarExec, NULL);
     
-    pruebasSanty();
+    //pruebasSanty();
 
     socketBroker = cliente(unTeamConfig->ipBroker, unTeamConfig->puertoBroker, ID_BROKER);
 
@@ -871,6 +904,7 @@ void pruebasSanty()
     {
         t_Entrenador* aEntrenador = list_get(listaDeEntrenadores, i);
         printf("El entrenador %d tiene los siguientes pokemons:\n", aEntrenador->id);
+        printf("List size de pokemones: %d\n", list_size(aEntrenador->pokemones));
         for(int j = 0; j < list_size(aEntrenador->pokemones); j++)
         {
             t_Pokemon* aPokemon = list_get(aEntrenador->pokemones, j);
@@ -935,8 +969,8 @@ void mostrarMetricas(){
 
     log_info(logger, "----------------------------------------MÉTRICAS----------------------------------------");
     log_info(logger, "Cantidad de cambios de contexto: %d", cantidadCambiosDeContexto);
-    log_info(logger, "Cantidad de cambios de deadlocks: %d",cantidadDeadlocks);
-    log_info(logger, "Cantidad de cambios de deadlocks resueltos: %d",cantidadDeadlocksResueltos);
+    log_info(logger, "Cantidad de deadlocks: %d",cantidadDeadlocks);
+    log_info(logger, "Cantidad de deadlocks resueltos: %d",cantidadDeadlocksResueltos);
     pthread_mutex_lock(&mutexListaDeEntrenadores);
     int tamanioListaEntrenadores = list_size(listaDeEntrenadores);
     for(int i = 0; i < tamanioListaEntrenadores; i++)
@@ -1117,7 +1151,6 @@ void planificarReady(int posXpokemon,int posYpokemon, char* pPokemonNombre, int 
 
 void guardarPokemonABuscar(int posXpokemon,int posYpokemon, char* pPokemonNombre, int pPokemonCantidad)
 {
-    printf("Globalmente preciso %d charizards\n", cuantosPrecisaGlobalmente(pPokemonNombre));
     if(cuantosPrecisaGlobalmente(pPokemonNombre) != -1)
     {
         t_posicionPokemon* unaPosicionPokemon = malloc(sizeof(t_posicionPokemon));
@@ -1155,15 +1188,27 @@ void planificarPokemonPendiente(t_Entrenador* pEntrenador)
 
 void planificarPokemonPendiente()
 {
+    //pthread_mutex_lock(&mutexListos);
+    //bool listaVaciaListos = list_is_empty(LISTOS);
+    //printf("\nLIST SIZE LISTOS: %d\n", list_size(LISTOS));
+    //pthread_mutex_unlock(&mutexListos);
+    printf("\nLIST SIZE PENDIENTES: %d\n", list_size(mapaPendientes));
     pthread_mutex_lock(&mutexMapaPendientes);
-    bool listaVacia = list_is_empty(mapaPendientes);
-    t_posicionPokemon* unaPosicionPokemon = list_remove(mapaPendientes, 0);
-    pthread_mutex_unlock(&mutexMapaPendientes);
-    t_Pokemon* unPokemon = unaPosicionPokemon->pokemon;
-    planificarReady(unaPosicionPokemon->posicionX, unaPosicionPokemon->posicionY, unPokemon->nombre, unPokemon->cantidad);
-    free(unPokemon->nombre);
-    free(unPokemon);
-    free(unaPosicionPokemon);
+    bool listaVaciaMapaPendientes = list_is_empty(mapaPendientes);
+    //printf("\nLIST SIZE PENDIENTES: %d\n", list_size(mapaPendientes));
+    //if(!listaVaciaMapaPendientes && listaVaciaListos)
+    if(!listaVaciaMapaPendientes)
+    {
+        t_posicionPokemon* unaPosicionPokemon = list_remove(mapaPendientes, 0);
+        pthread_mutex_unlock(&mutexMapaPendientes);
+        printf("POOOOOOOSICION X: %d\n", unaPosicionPokemon->posicionX);
+        printf("POOOOOOOSICION Y: %d\n", unaPosicionPokemon->posicionY);
+        t_Pokemon* unPokemon = unaPosicionPokemon->pokemon;
+        planificarReady(unaPosicionPokemon->posicionX, unaPosicionPokemon->posicionY, unPokemon->nombre, unPokemon->cantidad);
+        free(unPokemon->nombre);
+        free(unPokemon);
+        free(unaPosicionPokemon);
+    }
     pthread_mutex_unlock(&mutexMapaPendientes);
 }
 
@@ -1232,13 +1277,33 @@ void planificarExec()
                 log_error(logger, "No existe el algoritmo de planificacion especificado\n");
             }
             printf("Termino planificar\n");
-            if(hayDeadlock())
+            for(int i = 0; i < list_size(listaDeEntrenadores); i++)
             {
-                t_entrenadoresEnDeadlock* entrenadoresEnDeadlock = quienesEstanEnDeadlock();
+                t_Entrenador* aEntrenador = list_get(listaDeEntrenadores, i);
+                printf("El entrenador %d tiene los siguientes pokemons:\n", aEntrenador->id);
+                for(int j = 0; j < list_size(aEntrenador->pokemones); j++)
+                {
+                    t_Pokemon* aPokemon = list_get(aEntrenador->pokemones, j);
+                    printf("Nombre: %s y cantidad: %d\n", aPokemon->nombre, aPokemon->cantidad);
+                }
+                printf("Y los siguientes objetivos:\n");
+                for(int j = 0; j < list_size(aEntrenador->objetivos); j++)
+                {
+                    t_Pokemon* aPokemon = list_get(aEntrenador->objetivos, j);
+                    printf("Nombre: %s y cantidad: %d\n", aPokemon->nombre, aPokemon->cantidad);
+                }
+                printf("Estado del entrenador: %d\n",aEntrenador->estado);
+                printf("Objetivo del entrenador: %d\n\n\n",aEntrenador->objetivo);
             }
+            //if(hayDeadlock())
+            //{
+                //t_entrenadoresEnDeadlock* entrenadoresEnDeadlock = quienesEstanEnDeadlock();
+            //}
+            quienesEstanEnDeadlock();
             if(puedoPlanificarReady())
             {
-                
+                printf("Planificar pokemon pendiente\n");
+                planificarPokemonPendiente();
             }
     }
 }
@@ -1302,8 +1367,9 @@ void planificarRR()
 void planificarSJF()
 {
     printf("Planifique SJF sin desalojo\n");
+    int posicionEntre = entrenadorConMenorEstimacion();
     pthread_mutex_lock(&mutexListos);
-    t_Entrenador* unEntrenador = list_remove(LISTOS, entrenadorConMenorEstimacion());
+    t_Entrenador* unEntrenador = list_remove(LISTOS, posicionEntre);
     pthread_mutex_unlock(&mutexListos);
     cambiarEstado(unEntrenador, EXEC);
     printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
@@ -1705,9 +1771,13 @@ t_entrenadoresEnDeadlock* quienesEstanEnDeadlock()
         //pokemonQuePrecisa = cualEsElPrimerPokemonQuePrecisa(primerEntrenador);
         char* pokemonQuePrecisa = cualEsElPrimerPokemonQuePrecisa(primerEntrenador);
         printf("El pokemon que precisa es: %s\n", pokemonQuePrecisa);
-        for(int i = 0; i < list_size(listaDeadlock); i++)
+        printf("LIST SIZE listaDeadlock %d\n", list_size(listaDeadlock));
+        int tamanioListaDeadlock = list_size(listaDeadlock);
+        for(int i = 0; i < tamanioListaDeadlock; i++)
         {
-            t_Entrenador* segundoEntrenador = list_remove(listaDeadlock, i);
+            t_Entrenador* segundoEntrenador = list_remove(listaDeadlock, 0);
+            printf("ID del primer entrenador %d\n", primerEntrenador->id);
+            printf("ID del segundo entrenador %d\n", segundoEntrenador->id);
             if(cuantosLeFaltan(segundoEntrenador, pokemonQuePrecisa) < 0)
             {
                 entrenadores->id2 = segundoEntrenador->id;
@@ -1769,7 +1839,7 @@ void intercambiar()
     quitarPokeDeLista(segundoEntrenador->pokemones, pokemonNecesitado->nombre);
     agregarPokeALista(segundoEntrenador->pokemones, pokemonSobra);
     quitarPokeDeLista(entrenadorEjecutando->pokemones, pokemonSobra);
-    if(entrenadorCumplioObjetivos(entrenadorEjecutando) && entrenadorCumplioObjetivos(segundoEntrenador))
+    if(entrenadorCumplioObjetivos(entrenadorEjecutando) || entrenadorCumplioObjetivos(segundoEntrenador)) //TO DO AND o OR???
     {
         cantidadDeadlocksResueltos++;
     }
@@ -1836,13 +1906,14 @@ void atrapar()
         }else{
 
             log_error(logger,"Hubo un error al recibir el resultado de la operación desde el Broker. Está desconectado.");
-
+            
             agregarPokeALista(entrenadorEjecutando->pokemones, entrenadorEjecutando->objetivoPokemon->nombre);
             pthread_mutex_lock(&mutexPokemonesAtrapados);
             agregarPokeALista(pokemonesAtrapados, entrenadorEjecutando->objetivoPokemon->nombre);
             pthread_mutex_unlock(&mutexPokemonesAtrapados);
             pthread_mutex_lock(&mutexPokemonesBuscandose);
             quitarPokeDeLista(pokemonesBuscandose, entrenadorEjecutando->objetivoPokemon->nombre);
+            
             pthread_mutex_unlock(&mutexPokemonesBuscandose);
 
             entrenadorEjecutando->objetivoPokemon->cantidad --;
@@ -1868,7 +1939,6 @@ void atrapar()
     }else{
 
         log_error(logger, "FALLÓ ENVÍO DE CATCH_POKEMON AL BROKER");
-
         agregarPokeALista(entrenadorEjecutando->pokemones, entrenadorEjecutando->objetivoPokemon->nombre);
         pthread_mutex_lock(&mutexPokemonesAtrapados);
         agregarPokeALista(pokemonesAtrapados, entrenadorEjecutando->objetivoPokemon->nombre);
