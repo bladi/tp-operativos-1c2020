@@ -419,35 +419,41 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
                 pthread_mutex_unlock(&mutexBloqueados);
 
                 if(unEntrenador && (unEntrenador->identificadorCorrelacional == unCaughtPokemon->identificadorCorrelacional)){
+
+                    pthread_mutex_lock(&mutexBloqueados);
+                    int pos = posicionEntrenadorEnLista(BLOQUEADOS, unEntrenador->id);
+                    t_Entrenador* entrenadorEsperando = list_remove(BLOQUEADOS, pos);
+                    pthread_mutex_unlock(&mutexBloqueados);
+
                     if(unCaughtPokemon->resultado) 
                     {
-                        log_warning("El entrenador: %d pudo atrapar correctamente al pokémon que fue a buscar.", unEntrenador->id);
-                        agregarPokeALista(unEntrenador->pokemones, unEntrenador->objetivoPokemon->nombre); //Chequear que funcione bien
+                        log_warning("El entrenador: %d pudo atrapar correctamente al pokémon que fue a buscar.", entrenadorEsperando->id);
+                        agregarPokeALista(entrenadorEsperando->pokemones, entrenadorEsperando->objetivoPokemon->nombre); //Chequear que funcione bien
                         pthread_mutex_lock(&mutexPokemonesAtrapados);
-                        agregarPokeALista(pokemonesAtrapados, unEntrenador->objetivoPokemon->nombre);
+                        agregarPokeALista(pokemonesAtrapados, entrenadorEsperando->objetivoPokemon->nombre);
                         pthread_mutex_unlock(&mutexPokemonesAtrapados);
                         pthread_mutex_lock(&mutexPokemonesBuscandose);
-                        quitarPokeDeLista(pokemonesBuscandose, unEntrenador->objetivoPokemon->nombre);
+                        quitarPokeDeLista(pokemonesBuscandose, entrenadorEsperando->objetivoPokemon->nombre);
                         pthread_mutex_unlock(&mutexPokemonesBuscandose);
-                        unEntrenador->objetivoPokemon->cantidad --;
+                        entrenadorEsperando->objetivoPokemon->cantidad --;
 
-                        if(unEntrenador->objetivoPokemon->cantidad == 0){
+                        if(entrenadorEsperando->objetivoPokemon->cantidad == 0){
 
-                            entrenadorFinalizoSuTarea(unEntrenador);
+                            entrenadorFinalizoSuTarea(entrenadorEsperando);
 
                         }else{
 
-                            cambiarEstado(unEntrenador,READY);
+                            cambiarEstado(entrenadorEsperando,READY);
                             log_info(logger,"Se agrego al entrenador con ID %d a la cola de listos porque no termino de atrapar todos los pokemones que fue a buscar", unEntrenador->id);
                         }
                     }
                     else
                     {
-                        log_warning("El entrenador: %d no pudo atrapar correctamente al pokémon que fue a buscar.", unEntrenador->id);
+                        log_warning("El entrenador: %d no pudo atrapar correctamente al pokémon que fue a buscar.", entrenadorEsperando->id);
                         pthread_mutex_lock(&mutexPokemonesBuscandose);
-                        quitarPokeDeLista(pokemonesBuscandose, unEntrenador->objetivoPokemon->nombre);
+                        quitarPokeDeLista(pokemonesBuscandose, entrenadorEsperando->objetivoPokemon->nombre);
                         pthread_mutex_unlock(&mutexPokemonesBuscandose);
-                        entrenadorFinalizoSuTarea(unEntrenador);
+                        entrenadorFinalizoSuTarea(entrenadorEsperando);
                     }
 
                 }else{
@@ -977,8 +983,6 @@ void pruebasSanty()
 
     planificarReady(6,5,"Charizard",1); //2
 
-    //sleep(3);
-
     planificarReady(2,2,"Charizard",1); //0
 
     planificarReady(2,2,"Charizard",1); //0
@@ -986,8 +990,6 @@ void pruebasSanty()
     //planificarExec();
 
     //planificarExec();
-
-    sleep(60);
 
     for(int i = 0; i < list_size(listaDeEntrenadores); i++)
     {
@@ -2053,7 +2055,7 @@ void ejecutar(int pId){
 
         log_warning(logger,"Paso el wait el hilo del entrenador: %d", pId);
 
-        sleep(unTeamConfig->retardoCicloCPU); //Puede que haya que ponerlo adentro del IF de entrenadorEjecutando
+        //sleep(unTeamConfig->retardoCicloCPU); //Puede que haya que ponerlo adentro del IF de entrenadorEjecutando
 
         pthread_mutex_lock(&mutexEntrenadorEjecutando);
 
