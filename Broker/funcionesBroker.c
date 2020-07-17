@@ -1390,6 +1390,10 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
         // log_info(logger, "El nombre del Pokemón es: %s", unCaughtPokemon->nombrePokemon);
 
         //unCaughtPokemon->identificador = generarNuevoIdMensajeBroker();
+        
+        if(unCaughtPokemon->identificadorCorrelacional == 0){
+            unCaughtPokemon->identificadorCorrelacional = generarNuevoIdMensajeBroker();
+        }        
 
         guardarEnMemoriaCaughtPokemon(unCaughtPokemon);
 
@@ -1409,6 +1413,8 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
         log_trace(logger, "\n\t--LLEGO UN NUEVO MENSAJE A LA COLA DE APPEARED --> DE GAMEBOY");
 
         t_appearedPokemon *unAppeardPokemon = (t_appearedPokemon *)buffer;
+
+        unAppeardPokemon->identificadorCorrelacional = generarNuevoIdMensajeBroker();
 
         guardarEnMemoriaAppearedPokemon(unAppeardPokemon);
 
