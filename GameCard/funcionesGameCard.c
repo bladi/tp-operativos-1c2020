@@ -635,6 +635,11 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
         int resultadoOperacionPokemon;
         //int existiaPokemon = 0;
+        if(unNewPokemon->cantidadDePokemon == 0){
+            enviarInt(socketCliente, 3);//ENVIAR ID PARA ACK DEL MSG
+            log_warning(logger, "NO SE CREÓ/MODIFICÓ EL POKEMON %s YA QUE LA CANTIDAD INDICADA ERA 0",unNewPokemon->nombrePokemon);
+            return;
+        }
 
         if (existePokemon(unNewPokemon->nombrePokemon))
         {
@@ -662,9 +667,9 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
         sleep(unGameCardConfig->tiempoRetardoOperacion);
         cambiarEstadoPokemon(unNewPokemon->nombrePokemon, 0);
-        log_warning(logger, "--------Cerre el archivo pokemon");
+        //log_warning(logger, "--------Cerre el archivo pokemon");
         enviarInt(socketCliente, 3);//ENVIAR ID PARA ACK DEL MSG
-        log_warning(logger, "--------DESPUES DE INT pokemon");
+        //log_warning(logger, "--------DESPUES DE INT pokemon");
         log_info(logger, "RESULTADO DE LA OPERACIÓN ENVIADO AL BROKER");
 
         //PREGUNTAR SI HAY QUE MANDAR IGUAL EL APPEARED POKEMON CUANDO EL POKEMON YA EXISTÍA EN UNA POSICIÓN. POR AHORA LO HACEMOS IGUAL.
@@ -853,7 +858,6 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
             cambiarEstadoPokemon(unCatchPokemon->nombrePokemon,1);
             unCaughtPokemon->resultado = (uint32_t)actualizarUbicacionPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
-
             unCaughtPokemon->identificador = 0;              //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
             unCaughtPokemon->identificadorCorrelacional = unCatchPokemon->identificador; //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
             
@@ -1250,6 +1254,8 @@ int actualizarPokemon(char *pokemon, char *stringUbicaciones, int sizeUbicacione
 
     f = fopen(pathMetadata, "w+");
 
+    int fd = fileno(f);
+
     if (f == NULL){
 
         log_error(logger, "NO SE PUDO ACTUALIZAR EL ARCHIVO METADATA PARA EL POKEMON %s", pokemon);
@@ -1260,6 +1266,9 @@ int actualizarPokemon(char *pokemon, char *stringUbicaciones, int sizeUbicacione
     
     }else{
 
+        flock(fd, LOCK_EX);
+    
+
         int cantBloquesAOcupar = cantBloquesParaSize(sizeUbicaciones);
 
         if (cantBloquesAOcupar > cantidadBloquesLibres()){
@@ -1268,6 +1277,7 @@ int actualizarPokemon(char *pokemon, char *stringUbicaciones, int sizeUbicacione
             fputs(contenidoMetadata,f);
             fseek(f, 0, SEEK_SET);
             fclose(f);
+            flock(fd, LOCK_SH);
             free(pathMetadata);
             free(contenidoMetadata);
 
@@ -1302,6 +1312,7 @@ int actualizarPokemon(char *pokemon, char *stringUbicaciones, int sizeUbicacione
             fseek(f, 0, SEEK_SET);
 
             fclose(f);
+            flock(fd, LOCK_SH);
 
             log_trace(logger, "ARCHIVO METADATA DEL POKEMON %s ACTUALIZADO CORRECTAMENTE", pokemon);
 
@@ -1664,7 +1675,7 @@ int leerEstadoPokemon(char *pokemon){
         string_append_with_format(&pathMetadata, "%sFiles/%s/Metadata.bin", unGameCardConfig->puntoMontajeTallGrass, pokemon);
 
         t_config *metadata;
-        log_info(logger, "INGRESANDO A LA METADATA DE PATH %s", pathMetadata);
+        log_info(logger, "LEYENDO EL ESTADO DEL POKEMON %s", pokemon);
         metadata = config_create(pathMetadata);
 
         free(pathMetadata);
@@ -1726,8 +1737,14 @@ int cambiarEstadoPokemon(char *pokemon, int estado){
 
     FILE *f;
     f = fopen(pathMetadata, "w");
+    
+    int fd = fileno(f);
+    flock(fd, LOCK_EX);
+
     fputs(nuevaMeta, f);
     fclose(f);
+
+    flock(fd, LOCK_SH);
 
     free(pathMetadata);
     free(nuevaMeta);
@@ -1814,17 +1831,23 @@ char* leerArchivo(char* path){
     ssize_t tamLinea;
 
     f = fopen(path, "r");
+
+    int fd = fileno(f);
+    flock(fd, LOCK_EX);
     
     if (f == NULL) return NULL;
 
     while ((tamLinea = getline(&linea, &len, f)) != -1) {
-        log_info(logger, "LEIDA LINEA DE %d BYTES", len);
+        //log_info(logger, "LEIDA LINEA DE %d BYTES", len);
         string_append(&contenido, linea);
     }
     
     //printf("\nContenido del archivo leído: \n%s",contenido);
 
     fclose(f);
+
+    flock(fd, LOCK_SH);
+
     free(linea);
     return contenido;
 }
