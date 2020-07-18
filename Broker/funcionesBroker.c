@@ -904,6 +904,8 @@ void compactarMemoria()
 /*Ejecuta la Compactacion y Actualiza id Particion*/
 void ejecutarCompactacion()
 {
+    pthread_mutex_lock(&mutex_MENSAJES_LISTA);
+
     pthread_mutex_lock(&mutex_MENSAJES_NEW_POKEMON);
 
     pthread_mutex_lock(&mutex_MENSAJES_APPEARED_POKEMON);
@@ -973,7 +975,11 @@ void ejecutarCompactacion()
     pthread_mutex_unlock(&mutex_MENSAJES_GET_POKEMON);
 
     pthread_mutex_unlock(&mutex_MENSAJES_LOCALIZED_POKEMON);
+    
+    pthread_mutex_unlock(&mutex_MENSAJES_LISTA);
+
 }
+
 
 /*Compacta la memoria dejando una unica particion libre al final de la MEMORIA_PRINCIPAL */
 void compactacion(char *posicion)
@@ -1083,6 +1089,8 @@ void eliminarMensaje(uint32_t unIdMensaje)
     //MUTEX DE LA LISTA MENSAJES SE UTILIZAN EN ENVIAR MENSAJES
     tMensaje *unMensaje;
 
+    pthread_mutex_lock(&mutex_MENSAJES_LISTA);
+
     pthread_mutex_lock(&mutex_idMensajeABuscar);
 
     idMensajeABuscar = unIdMensaje;
@@ -1090,6 +1098,8 @@ void eliminarMensaje(uint32_t unIdMensaje)
     unMensaje = list_find(MENSAJES_LISTA, &existeIdMensaje);//?*FALTARIA MUTEX TOTAL DE MENSAJES LISTA
 
     pthread_mutex_unlock(&mutex_idMensajeABuscar);
+    
+    pthread_mutex_unlock(&mutex_MENSAJES_LISTA);
 
     if (unMensaje != NULL)
     {
@@ -1657,6 +1667,7 @@ bool verificarIdCorrelativo(uint32_t idCorr)
 /*devuelve idMensaje de idCorrelativoAsociado*/
 uint32_t buscaridMensajeDelCorrelativo(uint32_t idCorr)
 {
+    pthread_mutex_lock(&mutex_MENSAJES_LISTA);
 
     pthread_mutex_lock(&mutex_idCorrelativoABuscarEnMensaje);
 
@@ -1665,6 +1676,8 @@ uint32_t buscaridMensajeDelCorrelativo(uint32_t idCorr)
     tMensaje *unMensaje = list_find(MENSAJES_LISTA, &existeMensajeConIdCorrelativo);
 
     pthread_mutex_unlock(&mutex_idCorrelativoABuscarEnMensaje);
+    
+    pthread_mutex_unlock(&mutex_MENSAJES_LISTA);
 
     if (unMensaje)
     {
@@ -2142,7 +2155,7 @@ void ejecutarColaNewPokemon()
 
             tipoMensajeABuscar = tNewPokemon; // BUSCO DE LA LISTA GLOBAL MENSAJES LOS DE LA COLA NEW
 
-            mensajesAEnviar = list_filter(MENSAJES_LISTA, &existeTipoMensaje);
+            mensajesAEnviar = list_filter(MENSAJES_LISTA, &existeTipoMensaje);//no hace falta bloquear ya esta el mutex_MENSAJES_NEW_POKEMON
 
             pthread_mutex_unlock(&mutex_tipoMensajeABuscar);
 
@@ -2237,7 +2250,8 @@ void ejecutarColaAppearedPokemon()
 
             mensajesAEnviar = list_filter(MENSAJES_LISTA, &existeTipoMensaje);
 
-            pthread_mutex_unlock(&mutex_tipoMensajeABuscar);
+            pthread_mutex_unlock(&mutex_tipoMensajeABuscar);            
+            
 
             while (!list_is_empty(mensajesAEnviar))
             {
@@ -3467,7 +3481,11 @@ void guardarEnMemoriaNewPokemon(void *unPokemon)
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unNewPokemon->cantidadDePokemon, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
 
+    pthread_mutex_lock(&mutex_MENSAJES_LISTA);
+    
     list_add(MENSAJES_LISTA, unMensaje);
+    
+    pthread_mutex_unlock(&mutex_MENSAJES_LISTA);
 }
 
 /*Recibe un AppearedPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
@@ -3515,7 +3533,11 @@ void guardarEnMemoriaAppearedPokemon(void *unPokemon)
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unAppeardPokemon->posicionEnElMapaY, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
 
+    pthread_mutex_lock(&mutex_MENSAJES_LISTA);
+    
     list_add(MENSAJES_LISTA, unMensaje);
+    
+    pthread_mutex_unlock(&mutex_MENSAJES_LISTA);
 }
 
 /*Recibe un CatchPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
@@ -3560,8 +3582,12 @@ void guardarEnMemoriaCatchPokemon(void *unPokemon)
 
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCatchPokemon->posicionEnElMapaY, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
-
+    
+    pthread_mutex_lock(&mutex_MENSAJES_LISTA);
+    
     list_add(MENSAJES_LISTA, unMensaje);
+    
+    pthread_mutex_unlock(&mutex_MENSAJES_LISTA);
 }
 
 /*Recibe un CaughtPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
@@ -3589,7 +3615,11 @@ void guardarEnMemoriaCaughtPokemon(void *unPokemon)
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
 
+    pthread_mutex_lock(&mutex_MENSAJES_LISTA);
+    
     list_add(MENSAJES_LISTA, unMensaje);
+    
+    pthread_mutex_unlock(&mutex_MENSAJES_LISTA);
 }
 
 /*Recibe un GetPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
@@ -3628,7 +3658,11 @@ void guardarEnMemoriaGetPokemon(void *unPokemon)
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, unGetPokemon->nombrePokemon, tamanioNombrePokemon);
     desplazamiento += tamanioNombrePokemon;
 
+    pthread_mutex_lock(&mutex_MENSAJES_LISTA);
+    
     list_add(MENSAJES_LISTA, unMensaje);
+    
+    pthread_mutex_unlock(&mutex_MENSAJES_LISTA);
 }
 
 /*Recibe un LocalizedPokemon,lo guarda en memoria, crea la estructura Administrativa tMensaje y lo manda a la lista*/
@@ -3705,8 +3739,11 @@ void guardarEnMemoriaLocalizedPokemon(void *unPokemon)
     }
 
     //??* falta eliminar unLocalizedPokemon
-
+    pthread_mutex_lock(&mutex_MENSAJES_LISTA);
+    
     list_add(MENSAJES_LISTA, unMensaje);
+    
+    pthread_mutex_unlock(&mutex_MENSAJES_LISTA);
 }
 
 ////////////////////////////////////////FUNCIONES LISTAS////////////////////////////////////////////////
@@ -4217,6 +4254,8 @@ char *buscarColaAPartirDeIdMensaje(uint32_t idMensaje)
 
     tMensaje *unMensaje;
 
+    pthread_mutex_lock(&mutex_MENSAJES_LISTA);
+
     pthread_mutex_lock(&mutex_idMensajeABuscar);
 
     idMensajeABuscar = idMensaje;
@@ -4224,6 +4263,8 @@ char *buscarColaAPartirDeIdMensaje(uint32_t idMensaje)
     unMensaje = list_find(MENSAJES_LISTA, &existeIdMensaje);
 
     pthread_mutex_unlock(&mutex_idMensajeABuscar);
+    
+    pthread_mutex_unlock(&mutex_MENSAJES_LISTA);
 
     char *nombreCola = string_new();
 

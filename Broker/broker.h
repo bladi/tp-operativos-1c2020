@@ -136,6 +136,7 @@ pthread_mutex_t mutex_MENSAJES_CATCH_POKEMON;
 pthread_mutex_t mutex_MENSAJES_CAUGHT_POKEMON;
 pthread_mutex_t mutex_MENSAJES_GET_POKEMON;
 pthread_mutex_t mutex_MENSAJES_LOCALIZED_POKEMON;
+pthread_mutex_t mutex_MENSAJES_LISTA;
 
 
 t_list* IDS_CORRELATIVOS; //*uint32_t
