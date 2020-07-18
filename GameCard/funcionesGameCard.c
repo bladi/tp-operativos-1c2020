@@ -62,8 +62,10 @@ void cargarConfiguracionGameCard(){
         unGameCardConfig->tamanioBloques = config_get_int_value(configMetadata, BLOCK_SIZE);
         unGameCardConfig->magicNumber = config_get_string_value(configMetadata, MAGIC_NUMBER);
 
-        free(unGameCardArchivoConfig);
-        free(configMetadata);
+        //free(unGameCardArchivoConfig);
+        config_destroy(unGameCardArchivoConfig);
+        config_destroy(configMetadata);
+        //free(configMetadata);
         free(pathMetadata);
     }
 }
@@ -279,7 +281,8 @@ void inicializarHilosYVariablesGameCard(){
     }
 
     pthread_mutex_unlock(&mutexSocketBroker);
-
+    
+    free(unSuscriptor->ip);
     free(unSuscriptor);
     
     pthread_join(hiloActualizadorConfigGameCard, NULL);
@@ -722,6 +725,9 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
         }
 
+        free(unAppearedPokemon->nombrePokemon);
+        free(unAppearedPokemon);
+
         pthread_mutex_unlock(&mutexSocketBroker);
 
         break;
@@ -809,6 +815,9 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
             }
 
+            list_destroy_and_destroy_elements(unLocalizedPokemon->listaDatosPokemon,eliminarNodoDatosPokemon);
+            free(unLocalizedPokemon->nombrePokemon);
+            free(unLocalizedPokemon);
             pthread_mutex_unlock(&mutexSocketBroker);
 
         }else{
@@ -905,6 +914,8 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
                 log_error(logger, "FALLÓ ENVÍO DE CAUGHT_POKEMON AL BROKER");
 
         }
+
+        free(unCaughtPokemon);
 
         pthread_mutex_unlock(&mutexSocketBroker);
 
@@ -1032,6 +1043,7 @@ void inicializarBitMap(){
         crearArchivoBitmap(pathBitmap);
         verificarBitmapPrevio(pathBitmap);
     }
+    free(pathBitmap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1107,7 +1119,7 @@ void crearArchivoBitmap(char *pathBitmap){
 
     bitarray_destroy(bitarrayInicial);
     fclose(bitmap);
-    //free(pathBitmap);
+    free(data);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1202,6 +1214,7 @@ void crearBloquesFileSystem(){
             i++;
         }
     }
+    free(pathBloques);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1214,10 +1227,11 @@ int existePokemon(char *pokemon){
     char *path = string_new();
     string_append_with_format(&path, "%sFiles/%s", unGameCardConfig->puntoMontajeTallGrass, pokemon);
 
-    if (stat(path, &infoArchivo) == 0 && S_ISDIR(infoArchivo.st_mode))
-    {
+    if (stat(path, &infoArchivo) == 0 && S_ISDIR(infoArchivo.st_mode)){
+        free(path);
         return 1;
     }
+    free(path);
     return 0;
 }
 
@@ -1343,7 +1357,8 @@ char *leerUbicacionesPokemon(char *pokemon){
     t_config *configMetadata = config_create(pathMetadata);
     char **bloques = config_get_array_value(configMetadata, "BLOCKS");
 
-    free(configMetadata);
+    //free(configMetadata);
+    config_destroy(configMetadata);
     free(pathMetadata);
 
     int cantBloques;
@@ -1406,12 +1421,21 @@ t_list *generarListaUbicaciones(char *pokemon){
 
         list_add(listaUbicaciones, ubicacion);
 
+        free(igualdad[0]);
+        free(igualdad[1]);
         free(igualdad);
+
+        free(posiciones[0]);
+        free(posiciones[1]);
         free(posiciones);
     }
 
     free(ubicacionesEnString);
+    
+    string_iterate_lines(arregloUbicaciones, (void*) free);
     free(arregloUbicaciones);
+
+    //free(arregloUbicaciones);
 
     return listaUbicaciones;
 }
@@ -1659,7 +1683,8 @@ void liberarBloquesDelPokemon(char *pokemon){
         }
 
         free(bloques);
-        free(metadata);
+        config_destroy(metadata);
+        //free(metadata);
     }
 }
 
@@ -1682,7 +1707,8 @@ int leerEstadoPokemon(char *pokemon){
 
         if (metadata == NULL){
 
-            free(metadata);
+            //free(metadata);
+            config_destroy(metadata);
             log_error(logger, "NO SE PUDO LEER LA INFORMACION DEL ARCHIVO");
             exit(1);
         }
@@ -1691,13 +1717,15 @@ int leerEstadoPokemon(char *pokemon){
             char *estadoPokemon = config_get_string_value(metadata, "OPEN");
             if (!strcmp(estadoPokemon, "N"))
             {
-                free(metadata);
+                //free(metadata);
+                config_destroy(metadata);
                 free(estadoPokemon);
                 return 0;
             }
             else
             {
-                free(metadata);
+                //free(metadata);
+                config_destroy(metadata);
                 free(estadoPokemon);
                 return 1;
             }
@@ -1730,7 +1758,8 @@ int cambiarEstadoPokemon(char *pokemon, int estado){
     char *size = config_get_string_value(metaPokemon, "SIZE");
     char *blocks = config_get_string_value(metaPokemon, "BLOCKS");
 
-    free(metaPokemon);
+    //free(metaPokemon);
+    config_destroy(metaPokemon);
 
     char *nuevaMeta = string_new();
     string_append_with_format(&nuevaMeta, "DIRECTORY=%s\n%s\nSIZE=%s\nBLOCKS=%s\n", directory, nuevoEstado, size, blocks);
@@ -1831,11 +1860,12 @@ char* leerArchivo(char* path){
     ssize_t tamLinea;
 
     f = fopen(path, "r");
+    
+    if (f == NULL) return NULL;
 
     int fd = fileno(f);
     flock(fd, LOCK_EX);
     
-    if (f == NULL) return NULL;
 
     while ((tamLinea = getline(&linea, &len, f)) != -1) {
         //log_info(logger, "LEIDA LINEA DE %d BYTES", len);

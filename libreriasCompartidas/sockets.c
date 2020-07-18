@@ -133,9 +133,11 @@ int cliente(char *ipCliente, int puertoCliente, int idCliente) {
 
 	if (socketCliente == 0) {
 		log_error(logger,"No se conectó correctamente al %s. fallo en funcion conectarseA();", nombreCliente);
+		free(nombreCliente);
 		return 0;
 	} else {
 		log_trace(logger, "- Conectado a %s a través del socket %d", nombreCliente, socketCliente);
+		free(nombreCliente);
 		return socketCliente;
 	}
 
