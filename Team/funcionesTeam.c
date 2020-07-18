@@ -5,8 +5,8 @@
 void configurarLoggerTeam()
 {
 
-	logger = log_create(unTeamConfig->logFile, "TEAM", true, LOG_LEVEL_TRACE);
-    log_warning(logger, "LOG INICIALIZADO CON EXITO");
+	logger = log_create(unTeamConfig->logFile, "TEAM", false, LOG_LEVEL_TRACE);
+    //log_warning(logger, "LOG INICIALIZADO CON EXITO");
 }
 
 void cargarConfiguracionTeam()
@@ -20,13 +20,13 @@ void cargarConfiguracionTeam()
 	    
 	if (unTeamArchivoConfig == NULL) {
 
-        printf("\n=============================================================================================\n");
-	    printf("\nNO SE PUDO IMPORTAR LA CONFIGURACION DEL TEAM");
+        //printf("\n=============================================================================================\n");
+	    //printf("\nNO SE PUDO IMPORTAR LA CONFIGURACION DEL TEAM");
 
 	}else{
 
-        printf("\n=======================================================================================\n");
-        printf("\nCONFIGURACION DEL TEAM IMPORTADA");
+        //printf("\n=======================================================================================\n");
+        //printf("\nCONFIGURACION DEL TEAM IMPORTADA");
 
         unTeamConfig->posicionEntrenadores = config_get_array_value(unTeamArchivoConfig, POSICIONES_ENTRENADORES);
         unTeamConfig->pokemonEntrenadores = config_get_array_value(unTeamArchivoConfig, POKEMON_ENTRENADORES);
@@ -91,7 +91,7 @@ void cargarConfiguracionTeam()
 	    string_append(&stringPosicionEntrenadores, "]");
 	    string_append(&stringPokemonEntrenadores, "]");
 	    string_append(&stringObjetivosEntrenadores, "]");
-
+        /*
         printf("\n\n· Posicion de los Entrenadores = %s\n", stringPosicionEntrenadores);
         printf("· Pokemon de los Entrenadores = %s\n", stringPokemonEntrenadores);
         printf("· Objetivos de los Entrenadores = %s\n", stringObjetivosEntrenadores);
@@ -105,7 +105,7 @@ void cargarConfiguracionTeam()
         printf("· Puerto del Broker = %d\n", unTeamConfig->puertoBroker);
         printf("· IP del Team = %s\n", unTeamConfig->ipTeam);
         printf("· Puerto del Team = %d\n", unTeamConfig->puertoTeam);
-        printf("· Ruta del Archivo Log del Team = %s\n\n", unTeamConfig->logFile);
+        printf("· Ruta del Archivo Log del Team = %s\n\n", unTeamConfig->logFile);*/
         
         free(stringPosicionEntrenadores);
         free(stringPokemonEntrenadores);
@@ -147,7 +147,7 @@ void actualizarConfiguracionTeam()
 
             if (nuevoIdConfigTeam != idConfigTeam) {
 
-                log_warning(logger,"El archivo de configuración del Team cambió. Se procederá a actualizar.");
+                //log_warning(logger,"El archivo de configuración del Team cambió. Se procederá a actualizar.");
                 cargarConfiguracionTeam();
                 cantidadDeActualizacionesConfigTeam += 1;
                 
@@ -614,7 +614,9 @@ void cambiarEstado(t_Entrenador *pEntrenador, Estado pEstado)
             pthread_mutex_lock(&mutexEntrenadorEjecutando);
 			entrenadorEjecutando = pEntrenador;
             pthread_mutex_unlock(&mutexEntrenadorEjecutando);
+            pthread_mutex_lock(&mutexCantidadCambiosDeContexto);
             cantidadCambiosDeContexto ++;
+            pthread_mutex_unlock(&mutexCantidadCambiosDeContexto);
 			break;
 		}
 
@@ -658,9 +660,11 @@ void inicializarTeam() {
 }
 
 void finalizarTeam() {
-    pthread_mutex_lock(&mutexEntrenadorEjecutando);
+    pthread_mutex_lock(&mutexCantidadCambiosDeContexto);
     cantidadCambiosDeContexto ++;
+    pthread_mutex_unlock(&mutexCantidadCambiosDeContexto);
     mostrarMetricas();
+    liberarEntrenadores();
     /*
     pthread_mutex_lock(&mutexPIDHilos);
     for(int i = 0; i < list_size(pidHilos); i++)
@@ -674,6 +678,32 @@ void finalizarTeam() {
     free(logger);
     kill(getpid(),9);
 }
+
+liberarEntrenadores()
+{
+    for(int i = 0; i < list_size(listaDeEntrenadores); i++)
+    {
+        t_Entrenador* unEntrenador = list_remove(listaDeEntrenadores, 0);
+        for(int j = 0; j < list_size(unEntrenador->pokemones); j++)
+        {
+            t_Pokemon* unPokemon = list_remove(unEntrenador->pokemones,0);
+            free(unPokemon->nombre);
+            free(unPokemon);
+        }
+        for(int j = 0; j < list_size(unEntrenador->pokemones); j++)
+        {
+            t_Pokemon* unPokemon = list_remove(unEntrenador->pokemones,0);
+            free(unPokemon->nombre);
+            free(unPokemon);
+        }
+        t_Pokemon* pokeObjetivo = unEntrenador->objetivoPokemon;
+        free(pokeObjetivo->nombre);
+        free(pokeObjetivo);
+        free(unEntrenador);
+    }
+    free(listaDeEntrenadores);
+}
+
 /*
 void eliminarHilos(pthread_t* pHilo)
 {
@@ -702,7 +732,6 @@ void inicializarHilosYVariablesTeam()
     identificadoresGet = list_create();
     //pidHilos = list_create();
 
-    cantidadEntrenadores = 0;
     cantidadCiclosCPU = 0;
     cantidadCambiosDeContexto = 0;
     cantidadDeadlocks = 0;
@@ -939,7 +968,7 @@ void envioDeGetsPokemon()
 }
 
 ////////////////////////////// Pruebas ////////////////////////////////////////////////////////////////////
-
+/*
 void pruebasSanty()
 {
 
@@ -1000,30 +1029,33 @@ void pruebasSanty()
 
     printf("Termine la ejecucion del programa\n");
 
-}
+}*/
 
 ////////////////////////// Metricas ///////////////////////////////////////////////////////////////////////
 
 void mostrarMetricas(){
 
     log_info(logger, "----------------------------------------MÉTRICAS----------------------------------------");
+    pthread_mutex_lock(&mutexCantidadCambiosDeContexto);
     log_info(logger, "Cantidad de cambios de contexto: %d", cantidadCambiosDeContexto);
+    pthread_mutex_unlock(&mutexCantidadCambiosDeContexto);
+    pthread_mutex_lock(&mutexCantidadDeadlocks);
     log_info(logger, "Cantidad de deadlocks: %d",cantidadDeadlocks);
+    pthread_mutex_unlock(&mutexCantidadDeadlocks);
+    pthread_mutex_lock(&mutexCantidadDeadlocksResueltos);
     log_info(logger, "Cantidad de deadlocks resueltos: %d",cantidadDeadlocksResueltos);
+    pthread_mutex_unlock(&mutexCantidadDeadlocksResueltos);
     pthread_mutex_lock(&mutexListaDeEntrenadores);
     int tamanioListaEntrenadores = list_size(listaDeEntrenadores);
     for(int i = 0; i < tamanioListaEntrenadores; i++)
     {
         t_Entrenador* unEntrenador = list_get(listaDeEntrenadores, i);
-        if(unEntrenador->rafagasTotales > 0)
-        {
-            cantidadEntrenadores++;
-        }
         log_info(logger, "El entrenador con ID %d ejecuto %d rafagas de CPU", unEntrenador->id, unEntrenador->rafagasTotales);
     }
     pthread_mutex_unlock(&mutexListaDeEntrenadores);
-    log_info(logger, "Cantidad de entrenadores procesados: %d", cantidadEntrenadores);
+    pthread_mutex_lock(&mutexCantidadCiclosCPU);
     log_info(logger, "Cantidad de ciclos de CPU: %d", cantidadCiclosCPU);
+    pthread_mutex_unlock(&mutexCantidadCiclosCPU);
     log_info(logger, "----------------------------------------------------------------------------------------");
 
 }
@@ -1324,7 +1356,10 @@ void planificarExec()
             pthread_mutex_lock(&mutexListos);
             int cantidadReady = list_size(LISTOS);
             pthread_mutex_unlock(&mutexListos);
-            if(cantidadReady == 0 && cantidadDeadlocks == 0)
+            pthread_mutex_lock(&mutexCantidadDeadlocks);
+            int cantDeadlocks = cantidadDeadlocks;
+            pthread_mutex_unlock(&mutexCantidadDeadlocks);
+            if(cantidadReady == 0 && cantDeadlocks == 0)
             {
                 calcularDeadlock();
             }
@@ -1342,15 +1377,15 @@ void planificarExec()
 
 void planificarFIFO()
 {
-    printf("Planifique FIFO\n");
+    //printf("Planifique FIFO\n");
     pthread_mutex_lock(&mutexListos);
     t_Entrenador* unEntrenador = list_remove(LISTOS, 0);
     log_info(logger,"Se quito el entrenador con ID %d de la cola de listos, por ser el que esta primero, para llevarlo a ejecutar", unEntrenador->id);
     pthread_mutex_unlock(&mutexListos);
     cambiarEstado(unEntrenador, EXEC);
     log_info(logger,"Se paso el entrenador con ID %d a ejecucion segun el algoritmo FIFO", unEntrenador->id);
-    printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
-    printf("Posicion de Y a donde tiene que ir: %d\n", unEntrenador->objetivoY);
+    //printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
+    //printf("Posicion de Y a donde tiene que ir: %d\n", unEntrenador->objetivoY);
     while(entrenadorEjecutando != NULL){
         pthread_mutex_lock(&mutexSemaforosEntrenador);
         sem_post(list_get(semaforosEntrenador, entrenadorEjecutando->id));
@@ -1364,20 +1399,20 @@ void planificarFIFO()
 
 void planificarRR()
 {
-    printf("Planifique Round Robin\n");
+    //printf("Planifique Round Robin\n");
     pthread_mutex_lock(&mutexListos);
     t_Entrenador* unEntrenador = list_remove(LISTOS, 0);
     log_info(logger,"Se quito el entrenador con ID %d de la cola de listos, por ser el que esta primero, para llevarlo a ejecutar", unEntrenador->id);
     pthread_mutex_unlock(&mutexListos);
     cambiarEstado(unEntrenador, EXEC);
     log_info(logger,"Se paso el entrenador con ID %d a ejecucion segun el algoritmo Round Robin", unEntrenador->id);
-    printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
-    printf("Posicion de Y a donde tiene que ir: %d\n", unEntrenador->objetivoY);
+    //printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
+    //printf("Posicion de Y a donde tiene que ir: %d\n", unEntrenador->objetivoY);
     for(int i = 0; i < unTeamConfig->quantum; i++)
     {
         if(entrenadorEjecutando != NULL)
         {
-            printf("ID del entrenador ejecutando: %d\n",entrenadorEjecutando->id);
+            //printf("ID del entrenador ejecutando: %d\n",entrenadorEjecutando->id);
             pthread_mutex_lock(&mutexSemaforosEntrenador);
             sem_post(list_get(semaforosEntrenador, entrenadorEjecutando->id));
             pthread_mutex_unlock(&mutexSemaforosEntrenador);
@@ -1398,13 +1433,15 @@ void planificarRR()
         pthread_mutex_lock(&mutexEntrenadorEjecutando);
         entrenadorEjecutando = NULL;
         pthread_mutex_unlock(&mutexEntrenadorEjecutando);
+        pthread_mutex_lock(&mutexCantidadCambiosDeContexto);
         cantidadCambiosDeContexto ++;
+        pthread_mutex_unlock(&mutexCantidadCambiosDeContexto);
     }
 }
 
 void planificarSJF()
 {
-    printf("Planifique SJF sin desalojo\n");
+    //printf("Planifique SJF sin desalojo\n");
     int posicionEntre = entrenadorConMenorEstimacion();
     pthread_mutex_lock(&mutexListos);
     t_Entrenador* unEntrenador = list_remove(LISTOS, posicionEntre);
@@ -1412,8 +1449,8 @@ void planificarSJF()
     pthread_mutex_unlock(&mutexListos);
     cambiarEstado(unEntrenador, EXEC);
     log_info(logger,"Se paso el entrenador con ID %d a ejecucion segun el algoritmo SJF sin desalojo", unEntrenador->id);
-    printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
-    printf("Posicion de Y a donde tiene que ir: %d\n", unEntrenador->objetivoY);
+    //printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
+    //printf("Posicion de Y a donde tiene que ir: %d\n", unEntrenador->objetivoY);
     while(entrenadorEjecutando != NULL){
         pthread_mutex_lock(&mutexSemaforosEntrenador);
         sem_post(list_get(semaforosEntrenador, entrenadorEjecutando->id));
@@ -1427,7 +1464,7 @@ void planificarSJF()
 
 void planificarSRT()
 {
-    printf("Planifique SJF con desalojo\n");
+    //printf("Planifique SJF con desalojo\n");
     int posicionEntre = entrenadorConMenorEstimacion();
     pthread_mutex_lock(&mutexListos);
     t_Entrenador* unEntrenador = list_remove(LISTOS, posicionEntre);
@@ -1438,8 +1475,8 @@ void planificarSRT()
     pthread_mutex_lock(&mutexListos);
     int procesosEnListos = list_size(LISTOS);
     pthread_mutex_unlock(&mutexListos);
-    printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
-    printf("Posicion de Y a donde tiene que ir: %d\n", unEntrenador->objetivoY);
+    //printf("Posicion de X a donde tiene que ir: %d\n", unEntrenador->objetivoX);
+    //printf("Posicion de Y a donde tiene que ir: %d\n", unEntrenador->objetivoY);
     while(entrenadorEjecutando != NULL){
         pthread_mutex_lock(&mutexSemaforosEntrenador);
         sem_post(list_get(semaforosEntrenador, entrenadorEjecutando->id));
@@ -1458,7 +1495,9 @@ void planificarSRT()
             pthread_mutex_lock(&mutexEntrenadorEjecutando);
             entrenadorEjecutando = NULL;
             pthread_mutex_unlock(&mutexEntrenadorEjecutando);
+            pthread_mutex_lock(&mutexCantidadCambiosDeContexto);
             cantidadCambiosDeContexto ++;
+            pthread_mutex_unlock(&mutexCantidadCambiosDeContexto);
         }
     }
     log_debug(logger,"Termino de ejecutar\n");
@@ -1880,6 +1919,7 @@ int entrenadorSiguiente(t_Pokemon* pPokemon)
 
 void calcularDeadlock()
 {
+    log_info(logger,"Inicia el algoritmo de deteccion");
     t_list* listaInter;
     listaInter = list_create();
     pthread_mutex_lock(&mutexBloqueados);
@@ -1895,7 +1935,7 @@ void calcularDeadlock()
     pthread_mutex_unlock(&mutexBloqueados);
     if(list_size(listaInter) < 2)
     {
-        log_error(logger, "No hay deadlock");
+        log_info(logger, "No hay deadlock");
     }
     else
     {
@@ -1917,8 +1957,10 @@ void calcularDeadlock()
                 proximoId = entrenadorSiguiente(pokemonQuePrecisa);
                 proximoEntrenador = list_remove(listaInter, posicionEntrenadorEnLista(listaInter, proximoId));
             }
-            log_error(logger, "Hay deadlock");
+            log_info(logger, "Hay deadlock");
+            pthread_mutex_lock(&mutexCantidadDeadlocks);
             cantidadDeadlocks++;
+            pthread_mutex_unlock(&mutexCantidadDeadlocks);
             quienesEstanEnDeadlock();
         }
     }
@@ -1926,6 +1968,7 @@ void calcularDeadlock()
 
 void intercambiar()
 {
+    log_info(logger,"Se busca intercambiar entre el entrenador %d y el entrenador %d",entrenadorEjecutando->id,entrenadorEjecutando->intercambioEntrenador);
     entrenadorEjecutando->cpuIntercambio = 0;
     pthread_mutex_lock(&mutexBloqueados);
     t_Entrenador* segundoEntrenador = list_remove(BLOQUEADOS, posicionEntrenadorEnLista(BLOQUEADOS, entrenadorEjecutando->intercambioEntrenador));
@@ -1933,8 +1976,8 @@ void intercambiar()
     pthread_mutex_unlock(&mutexBloqueados);
     t_Pokemon* pokemonNecesitado = entrenadorEjecutando->objetivoPokemon;
     char* pokemonSobra = cualEsElPrimerPokemonQueLeSobra(entrenadorEjecutando);
-    printf("El pokemon que le sobra al primer entrenador es: %s\n", pokemonSobra);
-    printf("El pokemon que esta buscando el primer entrenador es: %s\n", pokemonNecesitado->nombre);
+    //printf("El pokemon que le sobra al primer entrenador es: %s\n", pokemonSobra);
+    //printf("El pokemon que esta buscando el primer entrenador es: %s\n", pokemonNecesitado->nombre);
     agregarPokeALista(entrenadorEjecutando->pokemones, pokemonNecesitado->nombre);
     quitarPokeDeLista(segundoEntrenador->pokemones, pokemonNecesitado->nombre);
     agregarPokeALista(segundoEntrenador->pokemones, pokemonSobra);
@@ -1942,17 +1985,26 @@ void intercambiar()
     if(entrenadorCumplioObjetivos(entrenadorEjecutando) && entrenadorCumplioObjetivos(segundoEntrenador)) //TO DO AND o OR???
     {
         //cantidadDeadlocks++;
+        pthread_mutex_lock(&mutexCantidadDeadlocksResueltos);
         cantidadDeadlocksResueltos++;
+        pthread_mutex_unlock(&mutexCantidadDeadlocksResueltos);
     }
     entrenadorFinalizoSuTarea(segundoEntrenador);
     entrenadorFinalizoSuTarea(entrenadorEjecutando);
-    if(cantidadDeadlocks > cantidadDeadlocksResueltos){
+    pthread_mutex_lock(&mutexCantidadDeadlocks);
+    int cantDead = cantidadDeadlocks;
+    pthread_mutex_unlock(&mutexCantidadDeadlocks);
+    pthread_mutex_lock(&mutexCantidadDeadlocksResueltos);
+    int cantResueltos = cantidadDeadlocksResueltos;
+    pthread_mutex_unlock(&mutexCantidadDeadlocksResueltos);
+    if(cantDead > cantResueltos){
         quienesEstanEnDeadlock();
     }
 }
 
 void atrapar()
 {
+    log_info(logger,"Se busca atrapar el pokemon %s en la posicion [%d,%d]",entrenadorEjecutando->objetivoPokemon->nombre,entrenadorEjecutando->objetivoX,entrenadorEjecutando->objetivoY);
 
     pthread_mutex_lock(&mutexSocketBroker);
 
@@ -2096,7 +2148,9 @@ void ejecutar(int pId){
 
         entrenadorEjecutando->rafagasTotales++;
 
+        pthread_mutex_lock(&mutexCantidadCiclosCPU);
         cantidadCiclosCPU ++;
+        pthread_mutex_unlock(&mutexCantidadCiclosCPU);
 
         if(entrenadorEjecutando!=NULL){
 
@@ -2114,8 +2168,9 @@ void ejecutar(int pId){
                 log_info(logger,"Se saco al entrenador con ID %d de ejecucion ya que termino su tarea", entrenadorEjecutando->id);
                 entrenadorFinalizoSuTarea(entrenadorEjecutando);
                 entrenadorEjecutando = NULL;
-
+                pthread_mutex_lock(&mutexCantidadCambiosDeContexto);
                 cantidadCambiosDeContexto ++; //PROBAR
+                pthread_mutex_unlock(&mutexCantidadCambiosDeContexto);
             }
             else
             {
@@ -2132,7 +2187,9 @@ void ejecutar(int pId){
                         atrapar();
                         log_info(logger,"Se saco al entrenador con ID %d de ejecucion ya que termino su tarea", entrenadorEjecutando->id);
                         entrenadorEjecutando = NULL;
+                        pthread_mutex_lock(&mutexCantidadCambiosDeContexto);
                         cantidadCambiosDeContexto ++; //PROBAR
+                        pthread_mutex_unlock(&mutexCantidadCambiosDeContexto);
                     }
                     else
                     {
@@ -2141,7 +2198,9 @@ void ejecutar(int pId){
                             intercambiar();
                             log_info(logger,"Se saco al entrenador con ID %d de ejecucion ya que termino su tarea", entrenadorEjecutando->id);
                             entrenadorEjecutando = NULL;
+                            pthread_mutex_lock(&mutexCantidadCambiosDeContexto);
                             cantidadCambiosDeContexto ++; //PROBAR
+                            pthread_mutex_unlock(&mutexCantidadCambiosDeContexto);
                         }
                         else
                         {

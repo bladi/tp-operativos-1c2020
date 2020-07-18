@@ -188,7 +188,10 @@ pthread_mutex_t mutexNuevos;
 pthread_mutex_t mutexListos;
 pthread_mutex_t mutexBloqueados;
 pthread_mutex_t mutexFinalizados;
-//pthread_mutex_t mutexPIDHilos;
+pthread_mutex_t mutexCantidadCiclosCPU;
+pthread_mutex_t mutexCantidadCambiosDeContexto;
+pthread_mutex_t mutexCantidadDeadlocks;
+pthread_mutex_t mutexCantidadDeadlocksResueltos;
 
 sem_t* semaforoPlanificador;
 sem_t* semaforoTerminoEjecucion;
