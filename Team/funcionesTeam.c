@@ -1331,7 +1331,7 @@ void planificarExec()
             pthread_mutex_lock(&mutexCantidadDeadlocks);
             int cantDeadlocks = cantidadDeadlocks;
             pthread_mutex_unlock(&mutexCantidadDeadlocks);
-            if(cantidadReady == 0 && cantDeadlocks == 0)
+            if(cantidadReady == 0 && cantDeadlocks == 0 && estanTodosBloqueadosPorRecursos())
             {
                 calcularDeadlock();
             }

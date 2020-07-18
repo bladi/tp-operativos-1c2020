@@ -261,5 +261,6 @@ void moverEntrenadorEnY();
 
 void calcularDeadlock();
 int entrenadorSiguiente(t_Pokemon* pPokemon);
+bool estanTodosBloqueadosPorRecursos();
 
 #endif
