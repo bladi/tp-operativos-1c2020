@@ -3690,11 +3690,11 @@ void guardarEnMemoriaLocalizedPokemon(void *unPokemon)
 
     int contadorito = 0;
 
-    printf(C_VERDE"\n\nLOCALIZED_POKEMON DESERIALIZADO: \n");
+    /*printf(C_VERDE"\n\nLOCALIZED_POKEMON DESERIALIZADO: \n");
     printf("\nIdentificador: %d", unLocalizedPokemon->identificador);
     printf("\nIdentificador Correlacional: %d", unLocalizedPokemon->identificadorCorrelacional);
     printf("\nNombre del Pokemón: %s", unLocalizedPokemon->nombrePokemon);
-
+    */
     datosPokemon *nodoDatosPokemon;
 
     while (contadorito < cantidadListaDatosPokemon)
