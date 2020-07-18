@@ -41,7 +41,8 @@ void cargarConfiguracionGameBoy(){
         printf("· Puerto del Team = %d\n", unGameBoyConfig->puertoTeam);
         printf("· Puerto del Game Card = %d\n", unGameBoyConfig->puertoGameCard);
         printf("· Puerto del Game Boy = %d\n", unGameBoyConfig->puertoGameBoy);
-        printf("· Ruta del Archivo Log del Game Boy = %s\n\n", unGameBoyConfig->logFile);
+        printf("· Ruta del Archivo Log del Game Boy = %s", unGameBoyConfig->logFile);
+        printf("\n=======================================================================================\n");
 
         free(unGameBoyArchivoConfig);
 
@@ -88,7 +89,8 @@ void administradorDeConexiones(void* infoAdmin){
         
     }else if (resultado == -2){
 
-        log_info(logger, "ME HICIERON UN PING\n\n\n");
+        //log_info(logger, "ME HICIERON UN PING");
+        break;
         
     }
     else if(resultado == -1 || resultado < -2){
@@ -667,7 +669,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
             log_info(logger,"El nombre del Pokemón es: %s.",unNewPokemon->nombrePokemon);
             log_info(logger,"La cantidad del pokemón es: %d.", unNewPokemon->cantidadDePokemon);
 
-            log_info(logger,"Se le avisará al Broker que se recibió correctamente el NEW_POKEMON");
+            //log_info(logger,"Se le avisará al Broker que se recibió correctamente el NEW_POKEMON");
             enviarInt(socketCliente, 2);
             
             break;
@@ -683,7 +685,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
             log_info(logger,"El ID correlacional del pókemon es %d.",unGetPokemon->identificadorCorrelacional);
             log_info(logger,"El nombre del Pokemón es: %s.",unGetPokemon->nombrePokemon);
 
-            log_info(logger,"Se le avisará al Broker que se recibió correctamente el GET_POKEMON");
+            //log_info(logger,"Se le avisará al Broker que se recibió correctamente el GET_POKEMON");
             enviarInt(socketCliente, 2);
 
             break;
@@ -700,7 +702,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
             log_info(logger,"El nombre del pokemón es: %s.",unCatchPokemon->nombrePokemon);
             log_info(logger,"La posicion del pokémon en el mapa es: [%d,%d].", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
 
-            log_info(logger,"Se le avisará al Broker que se recibió correctamente el CATCH_POKEMON");
+            //log_info(logger,"Se le avisará al Broker que se recibió correctamente el CATCH_POKEMON");
             enviarInt(socketCliente, 2);
 
             break;
@@ -717,7 +719,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
             log_info(logger,"El nombre del pokemón es: %s.",unAppearedPokemon->nombrePokemon);
             log_info(logger,"La posicion del pokémon en el mapa es: [%d,%d].", unAppearedPokemon->posicionEnElMapaX, unAppearedPokemon->posicionEnElMapaY);
 
-            log_info(logger,"Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON");
+            //log_info(logger,"Se le avisará al Broker que se recibió correctamente el APPEARED_POKEMON");
             enviarInt(socketCliente, 2);
 
             break;
@@ -732,7 +734,7 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
             log_info(logger,"El ID del mensaje es: %d.",unCaughtPokemon->identificador);
             log_info(logger,"El ID correlacional del mensaje es: %d.",unCaughtPokemon->identificadorCorrelacional);
             
-            log_info(logger,"Se le avisará al Broker que se recibió correctamente el CAUGHT_POKEMON");
+            //log_info(logger,"Se le avisará al Broker que se recibió correctamente el CAUGHT_POKEMON");
             enviarInt(socketCliente, 2);
 
             break;
@@ -756,15 +758,15 @@ void manejarRespuestaABroker(int socketCliente,int idCliente){
 
 		        nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon,contador);
 		
-		        printf("\nCantidad de pokemón en %d° ubicación: %d", *contador, nodoDatosPokemon->cantidad);
+		        /*printf("\nCantidad de pokemón en %d° ubicación: %d", *contador, nodoDatosPokemon->cantidad);
 		        printf("\nUbicacion en 'x': %d", nodoDatosPokemon->posicionEnElMapaX);
 		        printf("\nUbicacion en 'y': %d\n", nodoDatosPokemon->posicionEnElMapaY);
-
+                */
 		        *contador+=1;
 
 	        }
 
-            log_info(logger,"Se le avisará al Broker que se recibió correctamente el LOCALIZED_POKEMON");
+            //log_info(logger,"Se le avisará al Broker que se recibió correctamente el LOCALIZED_POKEMON");
             enviarInt(socketCliente, 2);
 
             break;
