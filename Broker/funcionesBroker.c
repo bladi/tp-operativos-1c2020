@@ -568,7 +568,7 @@ void ejecutarEliminarParticionBuddy()
         unaParticion->free = true;
         unaParticion->idMensaje = 0;
 
-        log_trace(logger, "\n\t--SE ELIMINA PARTICION %d EN LA POSICION %d ", unaParticion->idParticion, (unaParticion->posicion - MEMORIA_PRINCIPAL));
+        log_trace(logger, "\n\t--SE ELIMINA PARTICION-BS OCUPADA %d EN LA POSICION %d ", unaParticion->idParticion, (unaParticion->posicion - MEMORIA_PRINCIPAL));
 
         killMe(unaParticion->idParticion); //?*falta matar a los hijos de ser necesario
     }
@@ -595,7 +595,7 @@ void ejecutarEliminarParticionBuddy()
         unaParticion->free = true;
         unaParticion->idMensaje = 0;
 
-        log_trace(logger, "\n\t--SE ELIMINA PARTICION-BS %d EN LA POSICION %d ", unaParticion->idParticion, (unaParticion->posicion - MEMORIA_PRINCIPAL));
+        log_trace(logger, "\n\t--SE ELIMINA PARTICION-BS OCUPADA %d EN LA POSICION %d ", unaParticion->idParticion, (unaParticion->posicion - MEMORIA_PRINCIPAL));
 
         killMe(unaParticion->idParticion);
     }
@@ -616,6 +616,7 @@ void killMe(uint32_t index)
         pthread_mutex_unlock(&mutex_idParticionABuscar);
         
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
+
         log_trace(logger, "\n\t--LA MEMORIA QUEDO VACIA");
 
         father->free = true;
@@ -679,8 +680,8 @@ void killMe(uint32_t index)
                     
                     pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
-                    log_trace(logger, "\n\t--SE LIBERA PARTICION-I %d EN LA POSICION %d ", left->idParticion, (left->posicion - MEMORIA_PRINCIPAL));
-                    log_trace(logger, "\n\t--SE LIBERA PARTICION-D %d EN LA POSICION %d ", right->idParticion, (right->posicion - MEMORIA_PRINCIPAL));
+                    log_trace(logger, "\n\t--SE ELIMINA PARTICION-I %d EN LA POSICION %d ", left->idParticion, (left->posicion - MEMORIA_PRINCIPAL));
+                    log_trace(logger, "\n\t--SE ELIMINA PARTICION-D %d EN LA POSICION %d ", right->idParticion, (right->posicion - MEMORIA_PRINCIPAL));
                     log_trace(logger, "\n\t--SE MANDA A LIBERAR AL PADRE %d",indexFather);
 
 
@@ -749,8 +750,8 @@ void killMe(uint32_t index)
                     
                     pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
-                    log_trace(logger, "\n\t--SE LIBERA PARTICION-I %d EN LA POSICION %d ", left->idParticion, (left->posicion - MEMORIA_PRINCIPAL));
-                    log_trace(logger, "\n\t--SE LIBERA PARTICION-D %d EN LA POSICION %d ", right->idParticion, (right->posicion - MEMORIA_PRINCIPAL));
+                    log_trace(logger, "\n\t--SE ELIMINA PARTICION-I %d EN LA POSICION %d ", left->idParticion, (left->posicion - MEMORIA_PRINCIPAL));
+                    log_trace(logger, "\n\t--SE ELIMINA PARTICION-D %d EN LA POSICION %d ", right->idParticion, (right->posicion - MEMORIA_PRINCIPAL));
                     log_trace(logger, "\n\t--SE MANDA A LIBERAR AL PADRE %d",indexFather);
 
 
@@ -818,9 +819,9 @@ void ejecutarEliminarParticion()
         
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
-        printf(C_AZUL"---particion a eliminar: ");
-        printf("---Particion: %d", unaParticion->idParticion);
-        printf("---IdMensaje: %d"C_RESET, unaParticion->idMensaje);
+        //printf(C_AZUL"---particion a eliminar: ");
+        //printf("---Particion: %d", unaParticion->idParticion);
+        //printf("---IdMensaje: %d"C_RESET, unaParticion->idMensaje);
 
         list_destroy(ParticionesOrdenadasPorTime);
 
@@ -1347,7 +1348,7 @@ void administradorDeConexiones(void *infoAdmin)
     else if (resultado == -1)
     {
 
-        log_warning(logger, "Cliente Desconectado");
+        log_warning(logger, "CLIENTE DESCONECTADO");
         close(unaInfoAdmin->socketCliente);
     }
     else if (resultado == -2)
