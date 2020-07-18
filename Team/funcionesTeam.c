@@ -1349,6 +1349,25 @@ void planificarExec()
 }
 }
 
+bool estanTodosBloqueadosPorRecursos(){
+
+    pthread_mutex_lock(&mutexBloqueados);
+
+    t_Entrenador * unEntrenador;
+
+    for(int i = 0; i< list_size(BLOQUEADOS);i++){
+        unEntrenador = list_get(BLOQUEADOS,i);
+        if(!estaBloqueadoPorRecursos(unEntrenador)){
+            return false;
+        }
+    }
+    
+    pthread_mutex_unlock(&mutexBloqueados);
+   
+    return true;
+
+}
+
 void planificarFIFO()
 {
     //printf("Planifique FIFO\n");

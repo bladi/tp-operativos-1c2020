@@ -108,7 +108,7 @@ void configurarLoggerBroker()
 {
 
     logger = log_create(CONFIG_BROKER->logFile, "BROKER", true, LOG_LEVEL_TRACE);
-    log_info(logger, "LOG INICIALIZADO CON EXITO");
+    //log_info(logger, "LOG INICIALIZADO CON EXITO");
 }
 
 /*Libera las variables Globales*/
@@ -209,7 +209,7 @@ void inicializarMemoria()
 
     if ((MEMORIA_PRINCIPAL = malloc(CONFIG_BROKER->tamanioMemoria)) == NULL)
     {
-        log_error(logger, "- Error! no se pudo alocar MEMORIA_PRINCIPAL.");
+        log_error(logger, "- ERROR no se pudo RESERVAR MEMORIA_PRINCIPAL.");
         exit(EXIT_FAILURE);
     }
 
@@ -567,6 +567,9 @@ void ejecutarEliminarParticionBuddy()
 
         unaParticion->free = true;
         unaParticion->idMensaje = 0;
+
+        log_trace(logger, "\n\t--SE ELIMINA PARTICION %d EN LA POSICION %d ", unaParticion->idParticion, (unaParticion->posicion - MEMORIA_PRINCIPAL));
+
         killMe(unaParticion->idParticion); //?*falta matar a los hijos de ser necesario
     }
     else
@@ -591,6 +594,9 @@ void ejecutarEliminarParticionBuddy()
 
         unaParticion->free = true;
         unaParticion->idMensaje = 0;
+
+        log_trace(logger, "\n\t--SE ELIMINA PARTICION-BS %d EN LA POSICION %d ", unaParticion->idParticion, (unaParticion->posicion - MEMORIA_PRINCIPAL));
+
         killMe(unaParticion->idParticion);
     }
 }
@@ -610,6 +616,7 @@ void killMe(uint32_t index)
         pthread_mutex_unlock(&mutex_idParticionABuscar);
         
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
+        log_trace(logger, "\n\t--LA MEMORIA QUEDO VACIA");
 
         father->free = true;
         father->idMensaje = 0;
@@ -671,6 +678,11 @@ void killMe(uint32_t index)
                     pthread_mutex_unlock(&mutex_idParticionABuscar);
                     
                     pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
+
+                    log_trace(logger, "\n\t--SE LIBERA PARTICION-I %d EN LA POSICION %d ", left->idParticion, (left->posicion - MEMORIA_PRINCIPAL));
+                    log_trace(logger, "\n\t--SE LIBERA PARTICION-D %d EN LA POSICION %d ", right->idParticion, (right->posicion - MEMORIA_PRINCIPAL));
+                    log_trace(logger, "\n\t--SE MANDA A LIBERAR AL PADRE %d",indexFather);
+
 
                     free(left);
                     free(right);
@@ -737,6 +749,11 @@ void killMe(uint32_t index)
                     
                     pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
+                    log_trace(logger, "\n\t--SE LIBERA PARTICION-I %d EN LA POSICION %d ", left->idParticion, (left->posicion - MEMORIA_PRINCIPAL));
+                    log_trace(logger, "\n\t--SE LIBERA PARTICION-D %d EN LA POSICION %d ", right->idParticion, (right->posicion - MEMORIA_PRINCIPAL));
+                    log_trace(logger, "\n\t--SE MANDA A LIBERAR AL PADRE %d",indexFather);
+
+
                     free(left);
                     free(right);
                     killMe(indexFather);
@@ -775,10 +792,13 @@ void ejecutarEliminarParticion()
 
         pthread_mutex_lock(&mutex_METADATA_MEMORIA);
 
+        log_trace(logger, "\n\t--SE ELIMINA PARTICION %d EN LA POSICION %d ", unaParticion->idParticion, (unaParticion->posicion - MEMORIA_PRINCIPAL));
+        
         unaParticion->free = true;
         unaParticion->idMensaje = 0;
         consolidarCache(unaParticion);
         CANTIDAD_PARTICIONES_LIBERADAS++;
+
 
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
     }
@@ -807,6 +827,9 @@ void ejecutarEliminarParticion()
         eliminarMensaje(unaParticion->idMensaje); //SE ELIMINA EL MENSAJE ANTES DE ELIMINAR LA PARTICION PARA QUE NO SE GENERE ERRORES
 
         pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
+        log_trace(logger, "\n\t--SE ELIMINA PARTICION %d EN LA POSICION %d ", unaParticion->idParticion, (unaParticion->posicion - MEMORIA_PRINCIPAL));
+
         unaParticion->free = true;
         unaParticion->idMensaje = 0;
         consolidarCache(unaParticion);
@@ -929,6 +952,8 @@ void ejecutarCompactacion()
     pthread_mutex_lock(&mutex_MENSAJES_LOCALIZED_POKEMON);
 
     pthread_mutex_lock(&mutex_METADATA_MEMORIA);
+
+    log_trace(logger, "\n\t--SE EJECUTA LA COMPACTACION--");
 
     compactacion(MEMORIA_PRINCIPAL);
 
@@ -1268,6 +1293,7 @@ void administradorDeConexiones(void *infoAdmin)
         {
             printf(C_VERDE"\n================================================================================\n");
             printf(C_VERDE"\n================================================================================\n"C_RESET);
+            log_trace(logger, "SE CONECTO UN PROCESO GAMEBOY AL BROKER");
 
             manejarRespuestaAGameBoy(unaInfoAdmin->socketCliente, idCliente);
             break;
@@ -1277,6 +1303,8 @@ void administradorDeConexiones(void *infoAdmin)
         {
             printf(C_VERDE"\n================================================================================\n");
             printf(C_VERDE"\n================================================================================\n"C_RESET);
+            log_trace(logger, "SE CONECTO UN PROCESO GAMECARD AL BROKER");
+
             manejarRespuestaAGameCard(unaInfoAdmin->socketCliente, idCliente);
             break;
         }
@@ -1285,6 +1313,8 @@ void administradorDeConexiones(void *infoAdmin)
         {
             printf(C_VERDE"\n================================================================================\n");
             printf(C_VERDE"\n================================================================================\n"C_RESET);
+            log_trace(logger, "SE CONECTO UN PROCESO TEAM AL BROKER");
+
             manejarRespuestaATeam(unaInfoAdmin->socketCliente, idCliente);
             break;
         }
@@ -1322,8 +1352,7 @@ void administradorDeConexiones(void *infoAdmin)
     }
     else if (resultado == -2)
     {
-
-        log_info(logger, "ME HICIERON UN PING\n\n\n");
+        printf("ME HICIERON UN PING\n\n\n");
     }
     else if (resultado < -2)
     {
@@ -1353,6 +1382,8 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
         t_suscriptor *nuevaSuscripcion = (t_suscriptor *)buffer;
 
         //log_debug(logger, "\n\t--GAMEBOY SUSCRIBE TO : %d", nuevaSuscripcion->colaDeMensajes);
+
+        log_debug(logger, "\n\t--SE SUSCRIBIO UN GAMEBOY A LA COLA %d", nuevaSuscripcion->colaDeMensajes);
 
         enviarInt(socketCliente, 1);
         sleep(1);
@@ -1499,13 +1530,20 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
+        log_debug(logger, "\n\t--SE SUSCRIBIO UN GAMECARD A LA COLA DE NEW");
+
         nuevaSuscripcion->colaDeMensajes = tGetPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
+        log_debug(logger, "\n\t--SE SUSCRIBIO UN GAMECARD A LA COLA DE GET");
+
         nuevaSuscripcion->colaDeMensajes = tCatchPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
+
+        log_debug(logger, "\n\t--SE SUSCRIBIO UN GAMECARD A LA COLA DE CATCH");
+
 
         break;
     }
@@ -1732,19 +1770,19 @@ void manejarRespuestaATeam(int socketCliente, int idCliente)
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
-        log_debug(logger, "\n\t--TEAM %s SUSCRIBE TO : %d", nuevaSuscripcion->ip, nuevaSuscripcion->colaDeMensajes);
+        log_debug(logger, "\n\t--SE SUSCRIBIO UN TEAM A LA COLA DE APPEARED");
 
         nuevaSuscripcion->colaDeMensajes = tLocalizedPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
-        log_debug(logger, "\n\t--TEAM %s SUSCRIBE TO : %d", nuevaSuscripcion->ip, nuevaSuscripcion->colaDeMensajes);
+        log_debug(logger, "\n\t--SE SUSCRIBIO UN TEAM A LA COLA DE LOCALIZED");
 
         nuevaSuscripcion->colaDeMensajes = tCaughtPokemon;
 
         ingresarNuevoSuscriber(nuevaSuscripcion);
 
-        log_debug(logger, "\n\t--TEAM %s SUSCRIBE TO : %d", nuevaSuscripcion->ip, nuevaSuscripcion->colaDeMensajes);
+        log_debug(logger, "\n\t--SE SUSCRIBIO UN TEAM A LA COLA DE CAUGHT");
 
         break;
     }
@@ -2746,7 +2784,7 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, voi
 
     int tamanioNewPokemon = 0;
 
-    log_warning(logger, "\n\t-->  socket Suscriptor valor %d", unSuscriptor->identificadorCorrelacional);
+    //log_warning(logger, "\n\t-->  socket Suscriptor valor %d", unSuscriptor->identificadorCorrelacional);
 
     enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tNewPokemon, unNewPokemon, tamanioNewPokemon);
@@ -3498,6 +3536,9 @@ void guardarEnMemoriaNewPokemon(void *unPokemon)
 
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unNewPokemon->cantidadDePokemon, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
+    
+
+    log_trace(logger, "\n\t--SE ALMACENA UN MENSAJE NEW CON ID %d EN LA POSICION %d ", unMensaje->idMensaje, (unMensaje->posicionEnMemoria - MEMORIA_PRINCIPAL));
 
     pthread_mutex_lock(&mutex_MENSAJES_LISTA);
     
@@ -3551,6 +3592,8 @@ void guardarEnMemoriaAppearedPokemon(void *unPokemon)
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unAppeardPokemon->posicionEnElMapaY, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
 
+    log_trace(logger, "\n\t--SE ALMACENA UN MENSAJE APPEARED CON ID %d EN LA POSICION %d ", unMensaje->idMensaje, (unMensaje->posicionEnMemoria - MEMORIA_PRINCIPAL));
+
     pthread_mutex_lock(&mutex_MENSAJES_LISTA);
     
     list_add(MENSAJES_LISTA, unMensaje);
@@ -3600,6 +3643,8 @@ void guardarEnMemoriaCatchPokemon(void *unPokemon)
 
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCatchPokemon->posicionEnElMapaY, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
+
+    log_trace(logger, "\n\t--SE ALMACENA UN MENSAJE CATCH CON ID %d EN LA POSICION %d ", unMensaje->idMensaje, (unMensaje->posicionEnMemoria - MEMORIA_PRINCIPAL));
     
     pthread_mutex_lock(&mutex_MENSAJES_LISTA);
     
@@ -3632,6 +3677,8 @@ void guardarEnMemoriaCaughtPokemon(void *unPokemon)
 
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, &unCaughtPokemon->resultado, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
+
+    log_trace(logger, "\n\t--SE ALMACENA UN MENSAJE CAUGHT CON ID %d EN LA POSICION %d ", unMensaje->idMensaje, (unMensaje->posicionEnMemoria - MEMORIA_PRINCIPAL));
 
     pthread_mutex_lock(&mutex_MENSAJES_LISTA);
     
@@ -3676,6 +3723,8 @@ void guardarEnMemoriaGetPokemon(void *unPokemon)
     memcpy(unMensaje->posicionEnMemoria + desplazamiento, unGetPokemon->nombrePokemon, tamanioNombrePokemon);
     desplazamiento += tamanioNombrePokemon;
 
+    log_trace(logger, "\n\t--SE ALMACENA UN MENSAJE GET CON ID %d EN LA POSICION %d ", unMensaje->idMensaje, (unMensaje->posicionEnMemoria - MEMORIA_PRINCIPAL));
+
     pthread_mutex_lock(&mutex_MENSAJES_LISTA);
     
     list_add(MENSAJES_LISTA, unMensaje);
@@ -3707,14 +3756,14 @@ void guardarEnMemoriaLocalizedPokemon(void *unPokemon)
 
         nodoDatosPokemon = list_get(unLocalizedPokemon->listaDatosPokemon, contadorito);
 
-        printf("\nCantidad de pokemón en %d° ubicación: %d", contadorito, nodoDatosPokemon->cantidad);
-        printf("\nUbicacion en 'x': %d", nodoDatosPokemon->posicionEnElMapaX);
-        printf("\nUbicacion en 'y': %d\n", nodoDatosPokemon->posicionEnElMapaY);
+        //printf("\nCantidad de pokemón en %d° ubicación: %d", contadorito, nodoDatosPokemon->cantidad);
+        //printf("\nUbicacion en 'x': %d", nodoDatosPokemon->posicionEnElMapaX);
+        //printf("\nUbicacion en 'y': %d\n", nodoDatosPokemon->posicionEnElMapaY);
 
         contadorito += 1;
     }
 
-    printf(C_RESET"");
+    //printf(C_RESET"");
 
     //HAsta aca
 
@@ -3757,6 +3806,8 @@ void guardarEnMemoriaLocalizedPokemon(void *unPokemon)
 
         contador += 1;
     }
+
+    log_trace(logger, "\n\t--SE ALMACENA UN MENSAJE LOCALIZED CON ID %d EN LA POSICION %d ", unMensaje->idMensaje, (unMensaje->posicionEnMemoria - MEMORIA_PRINCIPAL));
 
     //??* falta eliminar unLocalizedPokemon
     pthread_mutex_lock(&mutex_MENSAJES_LISTA);
