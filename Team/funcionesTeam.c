@@ -5,7 +5,7 @@
 void configurarLoggerTeam()
 {
 
-	logger = log_create(unTeamConfig->logFile, "TEAM", false, LOG_LEVEL_TRACE);
+	logger = log_create(unTeamConfig->logFile, "TEAM", true, LOG_LEVEL_TRACE);
     printf("LOG INICIALIZADO CON EXITO\n");
 }
 
@@ -904,7 +904,7 @@ void envioDeGetsPokemon()
 
                 if(tipoResultado > 0){
                     
-                    printf("Get enviado con éxito\n");
+                    log_info(logger,"Get enviado con éxito");
 
                     pthread_mutex_lock(&mutexIdentificadoresGet);
                     list_add(identificadoresGet, tipoResultado);
@@ -912,7 +912,7 @@ void envioDeGetsPokemon()
                     
                 }else if(tipoResultado == 0){
 
-                    printf("No se pudo enviar el get\n");
+                    log_info(logger,"No se pudo enviar el get");
                     
                 }
 
@@ -1319,7 +1319,7 @@ void planificarExec()
             }
             else
             {
-                printf("No existe el algoritmo de planificacion especificado\n");
+                //printf("No existe el algoritmo de planificacion especificado\n");
             }
             if(puedoPlanificarReady())
             {

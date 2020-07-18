@@ -90,7 +90,7 @@ void administradorDeConexiones(void* infoAdmin){
     }else if (resultado == -2){
 
         //log_info(logger, "ME HICIERON UN PING");
-        break;
+        return;
         
     }
     else if(resultado == -1 || resultado < -2){
