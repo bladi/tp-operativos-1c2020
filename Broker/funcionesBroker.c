@@ -1258,8 +1258,7 @@ void administradorDeConexiones(void *infoAdmin)
 
     while ((resultado = recibirInt(unaInfoAdmin->socketCliente, &idCliente)) > 0)
     {
-        printf(C_VERDE"\n================================================================================\n");
-        printf(C_VERDE"\n================================================================================\n"C_RESET);
+        
 
 
         switch (idCliente)
@@ -1267,6 +1266,8 @@ void administradorDeConexiones(void *infoAdmin)
 
         case 2:
         {
+            printf(C_VERDE"\n================================================================================\n");
+            printf(C_VERDE"\n================================================================================\n"C_RESET);
 
             manejarRespuestaAGameBoy(unaInfoAdmin->socketCliente, idCliente);
             break;
@@ -1274,14 +1275,16 @@ void administradorDeConexiones(void *infoAdmin)
 
         case 3:
         {
-
+            printf(C_VERDE"\n================================================================================\n");
+            printf(C_VERDE"\n================================================================================\n"C_RESET);
             manejarRespuestaAGameCard(unaInfoAdmin->socketCliente, idCliente);
             break;
         }
 
         case 4:
         {
-
+            printf(C_VERDE"\n================================================================================\n");
+            printf(C_VERDE"\n================================================================================\n"C_RESET);
             manejarRespuestaATeam(unaInfoAdmin->socketCliente, idCliente);
             break;
         }
@@ -1294,8 +1297,10 @@ void administradorDeConexiones(void *infoAdmin)
         }
 
         default:
-        {
+        {   
 
+            printf(C_VERDE"\n================================================================================\n");
+            printf(C_VERDE"\n================================================================================\n"C_RESET);
             log_warning(logger, "RECIBIMOS UN IDENTIFICADOR DE PROCESO NO VALIDO");
             break;
         }
