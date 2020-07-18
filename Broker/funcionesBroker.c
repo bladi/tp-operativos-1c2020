@@ -1087,7 +1087,7 @@ void eliminarMensaje(uint32_t unIdMensaje)
 
     idMensajeABuscar = unIdMensaje;
 
-    unMensaje = list_find(MENSAJES_LISTA, &existeIdMensaje);
+    unMensaje = list_find(MENSAJES_LISTA, &existeIdMensaje);//?*FALTARIA MUTEX TOTAL DE MENSAJES LISTA
 
     pthread_mutex_unlock(&mutex_idMensajeABuscar);
 
@@ -2200,7 +2200,7 @@ void ejecutarColaNewPokemon()
                     }
                 }
 
-                //free(unNewPokemon);
+                free(unNewPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar  
             list_destroy(mensajesAEnviar);
@@ -2249,6 +2249,8 @@ void ejecutarColaAppearedPokemon()
                 
                 pthread_mutex_unlock(&mutex_APPEARED_POKEMON_LISTA);
 
+                unPokemon = (t_appearedPokemon *)buscarEnMemoriaAppearedPokemon(unMensaje);                
+
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
                     pthread_mutex_lock(&mutex_APPEARED_POKEMON_LISTA);
@@ -2282,8 +2284,6 @@ void ejecutarColaAppearedPokemon()
                             
                             pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
 
-                            unPokemon = (t_appearedPokemon *)buscarEnMemoriaAppearedPokemon(unMensaje);
-
                             enviarMensajeAppearedPokemon(unMensaje, unSuscriptor, unPokemon);
                             actualizarLru(unMensaje->idMensaje);
                         }
@@ -2294,7 +2294,7 @@ void ejecutarColaAppearedPokemon()
                     }
                 }
 
-                //free(unPokemon);
+                free(unPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
@@ -2343,6 +2343,8 @@ void ejecutarColaCatchPokemon()
                 suscriptoresCant = list_size(CATCH_POKEMON_LISTA);
                 
                 pthread_mutex_unlock(&mutex_CATCH_POKEMON_LISTA);
+
+                unPokemon = (t_catchPokemon *)buscarEnMemoriaCatchPokemon(unMensaje);               
                 
 
                 for (int i = 0; i < suscriptoresCant; i++)
@@ -2379,8 +2381,6 @@ void ejecutarColaCatchPokemon()
                             
                             pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
 
-                            unPokemon = (t_catchPokemon *)buscarEnMemoriaCatchPokemon(unMensaje);
-
                             enviarMensajeCatchPokemon(unMensaje, unSuscriptor, unPokemon);
                             actualizarLru(unMensaje->idMensaje);
                         }
@@ -2391,7 +2391,7 @@ void ejecutarColaCatchPokemon()
                     }
                 }
 
-                // free(unPokemon);
+                free(unPokemon);
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
@@ -2502,7 +2502,7 @@ void ejecutarColaCaughtPokemon()
                     log_debug(logger, "----------------------------NO SE ENCONTRÓ EL POKEMON BUSCADO EN MEMORIA-----------------------------");
                 }
 
-                //free(unPokemon);
+                
             }
             //SE NECESITA ELIMINAR LA LISTA mensajesAEnviar
             list_destroy(mensajesAEnviar);
@@ -2836,8 +2836,7 @@ void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion
         log_error(logger, "ERROR enviarMensajeAPPEARED() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
         reconectarSuscriptor(unSuscriptor);
     }
-
-    free(unAppearedPokemon);
+    
 }
 
 /*Se encarga de mandar un CatchPokemon a un suscriptor*/
@@ -2902,7 +2901,7 @@ void enviarMensajeCatchPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, v
         reconectarSuscriptor(unSuscriptor);
     }
 
-    free(unCatchPokemon);
+    
 }
 
 /*Se encarga de mandar un CaughtPokemon a un suscriptor*/
@@ -2971,7 +2970,7 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, 
         log_error(logger, "ERROR enviarMensaje-CAUGHT no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
     }
 
-    // free(unCaughtPokemon);
+    
 }
 
 /*Se encarga de mandar un GetPokemon a un suscriptor*/
@@ -3037,7 +3036,7 @@ void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, voi
         log_error(logger, "ERROR enviarMensajeGET() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
     }
 
-    //free(unGetPokemon);
+   
 }
 
 /*Se encarga de mandar un LocalizedPokemon a un suscriptor*/
@@ -3103,7 +3102,7 @@ void enviarMensajeLocalizedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcio
         reconectarSuscriptor(unSuscriptor);
     }
 
-    //free(unLocalizedPokemon);
+    
 }
 
 ////////////////////////////////////////LEVANTAR POKEMON DE MEMORIA////////////////////////////////////////////////
