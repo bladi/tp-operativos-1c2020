@@ -822,11 +822,20 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
         int resultado;
         int tipoResultado = 0;
 
+        enviarInt(socketCliente,3); //ACK
+        log_info(logger, "ACKNOWLEDGE DEL CATCH ENVIADO AL BROKER");
+
         log_info(logger, "'CATCH_POKEMON' RECIBIDO: \n");
         log_info(logger, "NOMBRE POKEMON: %s", unCatchPokemon->nombrePokemon);
         log_info(logger, "POSICION EN MAPA: [%d,%d]", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
         log_info(logger, "ID MENSAJE: %d", unCatchPokemon->identificador);
         log_info(logger, "ID CORRELACIONAL: %d", unCatchPokemon->identificadorCorrelacional);
+
+        t_caughtPokemon *unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
+
+        unCaughtPokemon->resultado = false;
+        unCaughtPokemon->identificador = 0;              //CHEQUEAR QUÉ HACER CON ESTO CUANDO VIENE DEL GAME BOY
+        unCaughtPokemon->identificadorCorrelacional = unCatchPokemon->identificador;
 
         int resultadoOperacion = existePokemon(unCatchPokemon->nombrePokemon);
 
@@ -840,7 +849,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
                 sleep(unGameCardConfig->tiempoReintentoOperacion);
             }
 
-            t_caughtPokemon *unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
+            //t_caughtPokemon *unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
 
             cambiarEstadoPokemon(unCatchPokemon->nombrePokemon,1);
             unCaughtPokemon->resultado = (uint32_t)actualizarUbicacionPokemon(unCatchPokemon->nombrePokemon, unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY, -1);
@@ -850,55 +859,50 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
             
             sleep(unGameCardConfig->tiempoRetardoOperacion);
             cambiarEstadoPokemon(unCatchPokemon->nombrePokemon,0);
-            
-            enviarInt(socketCliente,3);
-            log_info(logger, "RESULTADO DE LA OPERACION ENVIADO AL BROKER");
-            
-            pthread_mutex_lock(&mutexSocketBroker);
+        
+        } else {
+            log_error(logger, "POKEMON NO ENCONTRADO EN TALL_GRASS");
+        }
 
-            brokerActivo = probarConexionSocket(socketBroker);
+        pthread_mutex_lock(&mutexSocketBroker);
 
-            if(brokerActivo > 0){
+        brokerActivo = probarConexionSocket(socketBroker);
 
-                int tamanioCaughtPokemon = 0;
+        if(brokerActivo > 0){
 
-                enviarInt(socketBroker, 3);
-                enviarPaquete(socketBroker, tCaughtPokemon, unCaughtPokemon, tamanioCaughtPokemon);
+            int tamanioCaughtPokemon = 0;
+
+            enviarInt(socketBroker, 3);
+            enviarPaquete(socketBroker, tCaughtPokemon, unCaughtPokemon, tamanioCaughtPokemon);
 
 
-                if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0){
+            if ((resultado = recibirInt(socketBroker, &tipoResultado)) > 0){
 
-                    if (tipoResultado >= 1){
+                if (tipoResultado >= 1){
 
-                        log_trace(logger, "CAUGHT_POKEMON ENVIADO AL BROKER EXITOSAMENTE");
-                    }
-                    
-                    else if (tipoResultado == 0){
-
-                        log_error(logger, "FALLÓ ENVÍO DE CAUGHT_POKEMON AL BROKER");
-                    }
+                    log_trace(logger, "CAUGHT_POKEMON ENVIADO AL BROKER EXITOSAMENTE");
                 }
-                else
-                {
+                
+                else if (tipoResultado == 0){
 
                     log_error(logger, "FALLÓ ENVÍO DE CAUGHT_POKEMON AL BROKER");
-
-                    brokerActivo = probarConexionSocket(socketBroker);
-
                 }
-            }else{
+            }
+            else
+            {
 
-                    log_error(logger, "FALLÓ ENVÍO DE CAUGHT_POKEMON AL BROKER");
+                log_error(logger, "FALLÓ ENVÍO DE CAUGHT_POKEMON AL BROKER");
+
+                brokerActivo = probarConexionSocket(socketBroker);
 
             }
-
-            pthread_mutex_unlock(&mutexSocketBroker);
-
         }else{
 
-            log_error(logger, "POKEMON NO ENCONTRADO EN TALL_GRASS");
+                log_error(logger, "FALLÓ ENVÍO DE CAUGHT_POKEMON AL BROKER");
 
         }
+
+        pthread_mutex_unlock(&mutexSocketBroker);
 
         break;
 

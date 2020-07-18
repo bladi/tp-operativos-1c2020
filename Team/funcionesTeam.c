@@ -294,7 +294,7 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente)
 
             t_appearedPokemon *unAppearedPokemon = (t_appearedPokemon *)buffer;
 
-            enviarInt(socketCliente, 1); //Le avisamos al Broker que recibimos bien la solicitud.
+            enviarInt(socketCliente, 4); //Le avisamos al Broker que recibimos bien la solicitud.
 
             log_warning(logger, "Llego un appeared. Nombre del Pokemón: %s - Posición en X: %d - Posición en Y: %d.", unAppearedPokemon->nombrePokemon, unAppearedPokemon->posicionEnElMapaX, unAppearedPokemon->posicionEnElMapaY);
             
@@ -353,7 +353,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
             t_appearedPokemon *unAppearedPokemon = (t_appearedPokemon *)buffer;
 
-            enviarInt(socketCliente, 1); //Le avisamos al Broker que recibimos bien la solicitud.
+            enviarInt(socketCliente, 4); //Le avisamos al Broker que recibimos bien la solicitud.
 
             int posicion = posicionPokeEnListaMapaSinPosicion(unAppearedPokemon->nombrePokemon);
 
@@ -396,9 +396,7 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
             enviarInt(socketCliente, 4); //Le avisamos al Broker que recibimos bien la solicitud.
 
-            int* contador = malloc(sizeof(int));
-
-            *contador = 0;
+            int contador =  0;
 
             t_Entrenador* unEntrenador;
 
@@ -407,12 +405,12 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
 
             if(!listaVaciaBloqueados){
                 
-                unEntrenador = list_get(BLOQUEADOS,*contador);
+                unEntrenador = list_get(BLOQUEADOS,contador);
 
                 while(unEntrenador != NULL && unEntrenador->identificadorCorrelacional != unCaughtPokemon->identificadorCorrelacional){
 
-                    *contador ++;
-                    unEntrenador = list_get(BLOQUEADOS,*contador);
+                    contador ++;
+                    unEntrenador = list_get(BLOQUEADOS,contador);
 
                 }
 
@@ -468,8 +466,6 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
                 pthread_mutex_unlock(&mutexBloqueados);
 
             }
-
-            free(contador);
 
             break;
 

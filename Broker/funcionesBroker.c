@@ -2249,8 +2249,6 @@ void ejecutarColaAppearedPokemon()
                 
                 pthread_mutex_unlock(&mutex_APPEARED_POKEMON_LISTA);
 
-                unPokemon = (t_appearedPokemon *)buscarEnMemoriaAppearedPokemon(unMensaje);
-
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
                     pthread_mutex_lock(&mutex_APPEARED_POKEMON_LISTA);
@@ -2283,6 +2281,8 @@ void ejecutarColaAppearedPokemon()
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
                             
                             pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
+
+                            unPokemon = (t_appearedPokemon *)buscarEnMemoriaAppearedPokemon(unMensaje);
 
                             enviarMensajeAppearedPokemon(unMensaje, unSuscriptor, unPokemon);
                             actualizarLru(unMensaje->idMensaje);
@@ -2344,7 +2344,6 @@ void ejecutarColaCatchPokemon()
                 
                 pthread_mutex_unlock(&mutex_CATCH_POKEMON_LISTA);
                 
-                unPokemon = (t_catchPokemon *)buscarEnMemoriaCatchPokemon(unMensaje);
 
                 for (int i = 0; i < suscriptoresCant; i++)
                 {
@@ -2379,6 +2378,8 @@ void ejecutarColaCatchPokemon()
                             pthread_mutex_unlock(&mutex_idSuscriptorABuscar);
                             
                             pthread_mutex_unlock(&mutex_SUSCRIPTORES_LISTA);
+
+                            unPokemon = (t_catchPokemon *)buscarEnMemoriaCatchPokemon(unMensaje);
 
                             enviarMensajeCatchPokemon(unMensaje, unSuscriptor, unPokemon);
                             actualizarLru(unMensaje->idMensaje);
