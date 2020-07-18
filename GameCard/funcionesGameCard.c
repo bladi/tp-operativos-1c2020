@@ -62,10 +62,10 @@ void cargarConfiguracionGameCard(){
         unGameCardConfig->tamanioBloques = config_get_int_value(configMetadata, BLOCK_SIZE);
         unGameCardConfig->magicNumber = config_get_string_value(configMetadata, MAGIC_NUMBER);
 
-        //free(unGameCardArchivoConfig);
-        config_destroy(unGameCardArchivoConfig);
-        config_destroy(configMetadata);
-        //free(configMetadata);
+        free(unGameCardArchivoConfig);
+        //config_destroy(unGameCardArchivoConfig);
+        //config_destroy(configMetadata);
+        free(configMetadata);
         free(pathMetadata);
     }
 }
@@ -306,13 +306,14 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
         int resultado;
         int tipoResultado = 0;
 
-        log_info(logger, "'NEW_POKEMON' RECIBIDO: \n");
+        log_info(logger, "'NEW_POKEMON' RECIBIDO: %s", unNewPokemon->nombrePokemon);
+        /*
         log_info(logger, "NOMBRE: %s.", unNewPokemon->nombrePokemon);
         log_info(logger, "POSICIÓN: [%d,%d].", unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY);
         log_info(logger, "CANTIDAD: %d.", unNewPokemon->cantidadDePokemon);
         log_info(logger, "ID MENSAJE: %d", unNewPokemon->identificador);
         log_info(logger, "ID CORRELACIONAL: %d.", unNewPokemon->identificadorCorrelacional);
-
+        */
         int resultadoOperacionPokemon;
 
         if (existePokemon(unNewPokemon->nombrePokemon))
@@ -407,10 +408,13 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
         int resultado;
         int tipoResultado = 0;
 
-        log_info(logger, "'GET_POKEMON' RECIBIDO: \n");
+        log_info(logger, "'GET_POKEMON' RECIBIDO: %s", unGetPokemon->nombrePokemon);
+        
+        /*
         log_info(logger, "NOMBRE POKEMON: %s.", unGetPokemon->nombrePokemon);
         log_info(logger, "ID DEL POKEMON: %d", unGetPokemon->identificador);
         log_info(logger, "ID CORRELACIONAL: %d", unGetPokemon->identificadorCorrelacional);
+        */
 
         int resultadoOperacion = existePokemon(unGetPokemon->nombrePokemon);
 
@@ -507,12 +511,14 @@ void manejarRespuestaAGameBoy(int socketCliente, int idCliente){
         int resultado;
         int tipoResultado = 0;
 
-        log_info(logger, "'CATCH_POKEMON' RECIBIDO: \n");
+        log_info(logger, "'CATCH_POKEMON' RECIBIDO: %s", unCatchPokemon->nombrePokemon);
+        
+        /*
         log_info(logger, "NOMBRE POKEMON: %s", unCatchPokemon->nombrePokemon);
         log_info(logger, "POSICION EN MAPA: [%d,%d]", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
         log_info(logger, "ID MENSAJE: %d", unCatchPokemon->identificador);
         log_info(logger, "ID CORRELACIONAL: %d", unCatchPokemon->identificadorCorrelacional);
-
+        */
         int resultadoOperacion = existePokemon(unCatchPokemon->nombrePokemon);
 
         if (resultadoOperacion)
@@ -629,12 +635,15 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
         int resultado;
         int tipoResultado = 0;
 
-        log_info(logger, "'NEW_POKEMON' RECIBIDO: \n");
+        log_info(logger, "'NEW_POKEMON' RECIBIDO: %s", unNewPokemon->nombrePokemon);
+        /*
         log_info(logger, "NOMBRE POKEMON: %s", unNewPokemon->nombrePokemon);
         log_info(logger, "POSICION EN MAPA: [%d,%d]", unNewPokemon->posicionEnElMapaX, unNewPokemon->posicionEnElMapaY);
         log_info(logger, "CANTIDAD: %d", unNewPokemon->cantidadDePokemon);
         log_info(logger, "ID MENSAJE: %d", unNewPokemon->identificador);
         log_info(logger, "ID CORRELACIONAL: %d.", unNewPokemon->identificadorCorrelacional);
+        */
+
 
         int resultadoOperacionPokemon;
         //int existiaPokemon = 0;
@@ -741,11 +750,13 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
         int resultado;
         int tipoResultado = 0;
 
-        log_info(logger, "'GET_POKEMON' RECIBIDO: \n");
+        log_info(logger, "'GET_POKEMON' RECIBIDO: %s", unGetPokemon->nombrePokemon);
+        
+        /*
         log_info(logger, "NOMBRE POKEMON: %s", unGetPokemon->nombrePokemon);
         log_info(logger, "ID POKEMON: %d", unGetPokemon->identificador);// REVISAR (ID MENSAJE?)
         log_info(logger, "ID CORRELACIONAL: %d", unGetPokemon->identificadorCorrelacional);
-
+        */
         int resultadoOperacion = existePokemon(unGetPokemon->nombrePokemon);
 
         enviarInt(socketCliente, 3);//FIJARSE SI ES CONVENIENTE 3 O resultadoOperacion 
@@ -839,12 +850,13 @@ void manejarRespuestaABroker(int socketCliente, int idCliente){
         enviarInt(socketCliente,3); //ACK
         log_info(logger, "ACKNOWLEDGE DEL CATCH ENVIADO AL BROKER");
 
-        log_info(logger, "'CATCH_POKEMON' RECIBIDO: \n");
-        log_info(logger, "NOMBRE POKEMON: %s", unCatchPokemon->nombrePokemon);
+        log_info(logger, "'CATCH_POKEMON' RECIBIDO: %s", unCatchPokemon->nombrePokemon);
+        
+        /*log_info(logger, "NOMBRE POKEMON: %s", unCatchPokemon->nombrePokemon);
         log_info(logger, "POSICION EN MAPA: [%d,%d]", unCatchPokemon->posicionEnElMapaX, unCatchPokemon->posicionEnElMapaY);
         log_info(logger, "ID MENSAJE: %d", unCatchPokemon->identificador);
         log_info(logger, "ID CORRELACIONAL: %d", unCatchPokemon->identificadorCorrelacional);
-
+        */
         t_caughtPokemon *unCaughtPokemon = malloc(sizeof(t_caughtPokemon));
 
         unCaughtPokemon->resultado = false;
@@ -1357,9 +1369,9 @@ char *leerUbicacionesPokemon(char *pokemon){
     t_config *configMetadata = config_create(pathMetadata);
     char **bloques = config_get_array_value(configMetadata, "BLOCKS");
 
-    //free(configMetadata);
-    config_destroy(configMetadata);
+    free(configMetadata);
     free(pathMetadata);
+    //config_destroy(configMetadata);
 
     int cantBloques;
     char *todasLasUbicaciones = string_new();
@@ -1431,7 +1443,7 @@ t_list *generarListaUbicaciones(char *pokemon){
     }
 
     free(ubicacionesEnString);
-    
+
     string_iterate_lines(arregloUbicaciones, (void*) free);
     free(arregloUbicaciones);
 
@@ -1683,8 +1695,8 @@ void liberarBloquesDelPokemon(char *pokemon){
         }
 
         free(bloques);
-        config_destroy(metadata);
-        //free(metadata);
+        //config_destroy(metadata);
+        free(metadata);
     }
 }
 
@@ -1707,8 +1719,8 @@ int leerEstadoPokemon(char *pokemon){
 
         if (metadata == NULL){
 
-            //free(metadata);
-            config_destroy(metadata);
+            free(metadata);
+            //config_destroy(metadata);
             log_error(logger, "NO SE PUDO LEER LA INFORMACION DEL ARCHIVO");
             exit(1);
         }
@@ -1717,15 +1729,15 @@ int leerEstadoPokemon(char *pokemon){
             char *estadoPokemon = config_get_string_value(metadata, "OPEN");
             if (!strcmp(estadoPokemon, "N"))
             {
-                //free(metadata);
-                config_destroy(metadata);
+                free(metadata);
+                //config_destroy(metadata);
                 free(estadoPokemon);
                 return 0;
             }
             else
             {
-                //free(metadata);
-                config_destroy(metadata);
+                free(metadata);
+                //config_destroy(metadata);
                 free(estadoPokemon);
                 return 1;
             }
@@ -1758,8 +1770,8 @@ int cambiarEstadoPokemon(char *pokemon, int estado){
     char *size = config_get_string_value(metaPokemon, "SIZE");
     char *blocks = config_get_string_value(metaPokemon, "BLOCKS");
 
-    //free(metaPokemon);
-    config_destroy(metaPokemon);
+    free(metaPokemon);
+    //config_destroy(metaPokemon);
 
     char *nuevaMeta = string_new();
     string_append_with_format(&nuevaMeta, "DIRECTORY=%s\n%s\nSIZE=%s\nBLOCKS=%s\n", directory, nuevoEstado, size, blocks);
