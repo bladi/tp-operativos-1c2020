@@ -62,14 +62,15 @@ void cargarConfiguracionBroker()
     if (unBrokerArchivoConfig == NULL)
     {
 
-        printf("\n=============================================================================================\n");
-        printf("\nNO SE PUDO IMPORTAR LA CONFIGURACION DEL BROKER");
+        printf(C_ROJO"\n=============================================================================================\n");
+        printf("\nNO SE PUDO IMPORTAR LA CONFIGURACION DEL BROKER"C_RESET);
     }
     else
     {
 
-        printf("\n=======================================================================================\n");
-        printf("\nCONFIGURACION DEL BROKER IMPORTADA CON EXITO");
+        printf(C_VERDE"\n================================================================================\n");
+        printf(C_VERDE"\n================================================================================\n"C_RESET);
+        printf(C_AZUL"\nCONFIGURACION DEL BROKER IMPORTADA CON EXITO"C_RESET);
 
         CONFIG_BROKER->tamanioMemoria = config_get_int_value(unBrokerArchivoConfig, TAMANO_MEMORIA);
         CONFIG_BROKER->tamanioMinimoParticion = config_get_int_value(unBrokerArchivoConfig, TAMANO_MINIMO_PARTICION);
@@ -82,7 +83,8 @@ void cargarConfiguracionBroker()
         CONFIG_BROKER->logFile = config_get_string_value(unBrokerArchivoConfig, LOG_FILE);
         CONFIG_BROKER->pathDump = config_get_string_value(unBrokerArchivoConfig, PATH_DUMP);
 
-        printf("\n\n· Tamanio de la Memoria = %d\n", CONFIG_BROKER->tamanioMemoria);
+       // printf(“"\033[1;31m");
+        printf(C_MAGENTA"\n\n· Tamanio de la Memoria = %d\n", CONFIG_BROKER->tamanioMemoria);
         printf("· Tamanio Minimo de Particion = %d\n", CONFIG_BROKER->tamanioMinimoParticion);
         printf("· Algoritmo de Memoria = %s\n", CONFIG_BROKER->algoritmoMemoria);
         printf("· Algoritmo de Reemplazo = %s\n", CONFIG_BROKER->algoritmoReemplazo);
@@ -91,9 +93,13 @@ void cargarConfiguracionBroker()
         printf("· Puerto del Broker = %d\n", CONFIG_BROKER->puertoBroker);
         printf("· Frecuencia de Compactacion = %d\n", CONFIG_BROKER->frecuenciaCompactacion);
         printf("· Ruta del Archivo Log del Broker = %s\n", CONFIG_BROKER->logFile);
-        printf("· Ruta del Archivo Dump del Broker = %s\n\n", CONFIG_BROKER->pathDump);
-
+        printf("· Ruta del Archivo Dump del Broker = %s\n\n"C_RESET, CONFIG_BROKER->pathDump);
+        
         free(unBrokerArchivoConfig);
+
+        printf(C_VERDE"\n================================================================================\n");
+        printf(C_VERDE"\n================================================================================\n"C_RESET);
+
     }
 }
 
@@ -172,7 +178,7 @@ void inicializarHilosYVariablesBroker()
     //string_append(&unaInfoServidorBroker->ip,CONFIG_BROKER->ipBroker); PUEDE QUE HAYA QUE HACER ESTO CUANDO LO PROBEMOS EN LABORATORIO
     string_append(&unaInfoServidorBroker->ip, "0");
 
-    pthread_create(&hiloActualizadorConfigBroker, NULL, (void *)actualizarConfiguracionBroker, NULL); // ?* creo que no es necesario
+    //pthread_create(&hiloActualizadorConfigBroker, NULL, (void *)actualizarConfiguracionBroker, NULL); // ?* creo que no es necesario
 
     pthread_create(&hiloServidorBroker, NULL, (void *)servidor_inicializar, (void *)unaInfoServidorBroker);
 
@@ -185,7 +191,10 @@ void inicializarHilosYVariablesBroker()
 
     //pthread_create(&hiloDumpCache,NULL,(void*)dumpCache, NULL);
 
-    pthread_join(hiloActualizadorConfigBroker, NULL);
+    //pthread_join(hiloActualizadorConfigBroker, NULL);
+    pthread_join(hiloServidorBroker, NULL);
+
+
 }
 
 ////////////////////////////////////////ADMINISTRACION MEMORIA////////////////////////////////////////////////
@@ -746,7 +755,7 @@ void ejecutarEliminarParticion()
 {
     if (string_equals_ignore_case(CONFIG_BROKER->algoritmoReemplazo, "FIFO"))
     {
-        log_warning(logger,"---Elimino particion por fifo");
+        //log_warning(logger,"---Elimino particion por fifo");
 
         pthread_mutex_lock(&mutex_METADATA_MEMORIA);
 
@@ -775,7 +784,7 @@ void ejecutarEliminarParticion()
     }
     else
     {
-        log_warning(logger,"---Elimino particion por LRU");
+        //log_warning(logger,"---Elimino particion por LRU");
         //LRU
 
         pthread_mutex_lock(&mutex_METADATA_MEMORIA);
@@ -789,8 +798,9 @@ void ejecutarEliminarParticion()
         
         pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
 
-        log_warning(logger,"---particion a eliminar: ");
-        log_warning(logger,"---unaParti: %d", unaParticion->idMensaje);
+        printf(C_AZUL"---particion a eliminar: ");
+        printf("---Particion: %d", unaParticion->idParticion);
+        printf("---IdMensaje: %d"C_RESET, unaParticion->idMensaje);
 
         list_destroy(ParticionesOrdenadasPorTime);
 
@@ -1248,6 +1258,9 @@ void administradorDeConexiones(void *infoAdmin)
 
     while ((resultado = recibirInt(unaInfoAdmin->socketCliente, &idCliente)) > 0)
     {
+        printf(C_VERDE"\n================================================================================\n");
+        printf(C_VERDE"\n================================================================================\n"C_RESET);
+
 
         switch (idCliente)
         {
@@ -1575,7 +1588,7 @@ void manejarRespuestaAGameCard(int socketCliente, int idCliente)
 
         log_info(logger, "El nombre del Pokemón es: %s", unAppeardPokemon->nombrePokemon);
         log_info(logger, "La posicion del Pokémon era: %d %d", unAppeardPokemon->posicionEnElMapaX, unAppeardPokemon->posicionEnElMapaY);
-        log_warning(logger, "IDENTIFICADOR CORRRE %d", unAppeardPokemon->identificadorCorrelacional);
+        //log_warning(logger, "IDENTIFICADOR CORRE %d", unAppeardPokemon->identificadorCorrelacional);
 
         if (verificarIdCorrelativo(unAppeardPokemon->identificadorCorrelacional))
         {
@@ -2044,7 +2057,7 @@ void ingresarNuevoSuscriber(void *unaNuevaSuscripcion)
     else
     {
 
-        log_debug(logger, "\n\t--INGRESA SUSCRIPTOR A LA LISTA DE SUSCRIPTORES");
+        log_info(logger, "\n\t--INGRESA SUSCRIPTOR A LA LISTA DE SUSCRIPTORES");
 
         //AGREGO NUEVO t_suscriptor
 
@@ -2761,22 +2774,22 @@ void enviarMensajeNewPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, voi
         if (tipoResultado == 1)
         {
 
-            log_trace(logger, "\n\t-- RECIBI ACK DE NEWPOKEMON --> DE BROKER");
+            log_trace(logger,  "\n\t-- RECIBI ACK DE NEWPOKEMON --> DE BROKER");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 2)
         {
-            log_trace(logger, "\n\t-- RECIBI ACK DE NEWPOKEMON -->DE GAMEBOY");
+            log_trace(logger,  "\n\t-- RECIBI ACK DE NEWPOKEMON -->DE GAMEBOY");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 3)
         {
-            log_trace(logger, "\n\t-- RECIBI ACK DE NEWPOKEMON -->DE GAMECARD");
+            log_trace(logger,  "\n\t-- RECIBI ACK DE NEWPOKEMON -->DE GAMECARD");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 4)
         {
-            log_trace(logger, "\n\t-- RECIBI ACK DE NEWPOKEMON -->DE TEAM");
+            log_trace(logger,  "\n\t-- RECIBI ACK DE NEWPOKEMON -->DE TEAM");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
     }
@@ -2825,29 +2838,29 @@ void enviarMensajeAppearedPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion
         if (tipoResultado == 1)
         {
 
-            log_trace(logger, "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE BROKER");
+            log_trace(logger,  "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE BROKER");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 2)
         {
-            log_trace(logger, "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE GAMEBOY");
+            log_trace(logger,  "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE GAMEBOY");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 3)
         {
-            log_trace(logger, "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE GAMECARD");
+            log_trace(logger,  "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE GAMECARD");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
         else if (tipoResultado == 4)
         {
-            log_trace(logger, "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE TEAM");
+            log_trace(logger,  "\n\t-- RECIBI ACK DE APPEAREDPOKEMON -->DE TEAM");
             list_add(unMensaje->acknowledgement, unSuscriptor->identificador);
         }
     }
     else
     {
 
-        log_error(logger, "ERROR enviarMensajeAPPEARED() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
+        log_error(logger, "\n\tNO FUE POSIBLE ENVIAR APPEARED RECONECTAR SUSCRIPTOR.."); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
         reconectarSuscriptor(unSuscriptor);
     }
     
@@ -2927,9 +2940,9 @@ void enviarMensajeCaughtPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, 
 
     int tamanioPokemon = 0;
 
-    log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON IDMENSAJE: %d", unCaughtPokemon->identificador);
-    log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON IDMENSAJECORRELACIONAL: %d", unCaughtPokemon->identificadorCorrelacional);
-    log_debug(logger, "ENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON RESULTADO: %d", unCaughtPokemon->resultado);
+    //log_debug(logger, "\n\tENVIAMOS A SUSCRIPTOR %d EL CAUGHT POKEMON CON IDMENSAJE: %d", unSuscriptor->identificador, unCaughtPokemon->identificador);
+    //log_debug(logger, "\n\tENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON IDMENSAJECORRELACIONAL: %d", unCaughtPokemon->identificadorCorrelacional);
+    //log_debug(logger, "\n\tENVIAMOS A SUSCRIPTOR EL CAUGHT POKEMON CON RESULTADO: %d", unCaughtPokemon->resultado);
 
     enviarInt(unSuscriptor->identificadorCorrelacional, 1);
     enviarPaquete(unSuscriptor->identificadorCorrelacional, tCaughtPokemon, unCaughtPokemon, tamanioPokemon);
@@ -3047,7 +3060,7 @@ void enviarMensajeGetPokemon(tMensaje *unMensaje, void *unaNuevaSuscripcion, voi
     else
     {
 
-        log_error(logger, "ERROR enviarMensajeGET() no recibi nada server apagado "); //??* en este caso agregar en cola enviados y volvera a intentar en proxima ejecutarColaNewPokemon()
+        log_error(logger, "ERROR enviarMensajeGET() no recibi nada server apagado ");
     }
 
    
@@ -3414,7 +3427,7 @@ void *buscarEnMemoriaLocalizedPokemon(tMensaje *unMensaje)
 
 void actualizarLru(uint32_t elIdMensaje){
 
-    log_warning(logger,"actualizo lru de %d",elIdMensaje);
+    //log_warning(logger,"actualizo lru de IdMensaje %d",elIdMensaje);
     pthread_mutex_lock(&mutex_METADATA_MEMORIA);
 
     pthread_mutex_lock(&mutex_idMensajeABuscar);
@@ -3428,7 +3441,7 @@ void actualizarLru(uint32_t elIdMensaje){
     if (unaParti)
     {
         unaParti->lru = nuevoTimeStamp();
-        log_warning(logger,"LRU: Existe parti lru de %d",elIdMensaje);
+        //log_warning(logger,"LRU: Existe parti lru de %d",elIdMensaje);
     }
     
     pthread_mutex_unlock(&mutex_METADATA_MEMORIA);
@@ -3677,7 +3690,7 @@ void guardarEnMemoriaLocalizedPokemon(void *unPokemon)
 
     int contadorito = 0;
 
-    printf("\n\nLOCALIZED_POKEMON DESERIALIZADO: \n");
+    printf(C_VERDE"\n\nLOCALIZED_POKEMON DESERIALIZADO: \n");
     printf("\nIdentificador: %d", unLocalizedPokemon->identificador);
     printf("\nIdentificador Correlacional: %d", unLocalizedPokemon->identificadorCorrelacional);
     printf("\nNombre del Pokemón: %s", unLocalizedPokemon->nombrePokemon);
@@ -3695,6 +3708,8 @@ void guardarEnMemoriaLocalizedPokemon(void *unPokemon)
 
         contadorito += 1;
     }
+
+    printf(C_RESET"");
 
     //HAsta aca
 
@@ -4072,7 +4087,7 @@ void dumpCache()
 
         f = fopen(CONFIG_BROKER->pathDump, "w+");
 
-        log_debug(logger, "CREANDO ARCHIVO DUMP EN %s", CONFIG_BROKER->pathDump);
+        log_debug(logger, "\n\tCREANDO ARCHIVO DUMP EN %s", CONFIG_BROKER->pathDump);
 
         fputs(contenidoDump, f);
         fseek(f, 0, SEEK_SET);
@@ -4144,7 +4159,7 @@ void dumpCache()
 void manejarSeniales(int signum)
 {
 
-    printf("LCDTM ALLBOYS");
+    //printf("LCDTM ALLBOYS");
 
     if (signum == SIGUSR1)
     {

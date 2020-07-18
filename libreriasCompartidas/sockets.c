@@ -30,7 +30,7 @@ int escucharSocket(int puertoObjetivo) {
   		return -1;
   	}
 
-  	log_trace(logger, "- SOCKET %d ESCUCHANDO DESDE EL PUERTO: %d", socketEscucha, puertoObjetivo);
+  	//log_trace(logger, "- SOCKET %d ESCUCHANDO DESDE EL PUERTO: %d", socketEscucha, puertoObjetivo);
 	return socketEscucha;
 
 }
@@ -46,7 +46,7 @@ int aceptarConexion(int socketEscucha) {
   		return 1;
   	}
 
-  	log_info(logger, "- CONEXION ACEPTADA");
+  	//log_info(logger, "- CONEXION ACEPTADA");
   	return nuevoSocketCliente;
 
 }
@@ -64,7 +64,7 @@ int conectarseA(char *ip, int puertoObjetivo) {
 		return 0;
 	}
 
-	log_info(logger, "- CONEXION EXITOSA");
+	//log_info(logger, "- CONEXION EXITOSA");
 	return nuevoCliente;
 
 }
@@ -136,7 +136,7 @@ int cliente(char *ipCliente, int puertoCliente, int idCliente) {
 		free(nombreCliente);
 		return 0;
 	} else {
-		log_trace(logger, "- Conectado a %s a través del socket %d", nombreCliente, socketCliente);
+		//log_trace(logger, "- Conectado a %s a través del socket %d", nombreCliente, socketCliente);
 		free(nombreCliente);
 		return socketCliente;
 	}
@@ -187,8 +187,8 @@ void servidor_inicializar(void* unaInfoServidor) {
 
        while((client_sock = accept(socket_desc,(struct sockaddr*)&client,(socklen_t*)&c))){
 
-            log_info(logger,"Cliente conectado!");
-            log_info(logger,"Creando hilo de administracion de conexion con cliente ....");
+            //log_info(logger,"Cliente conectado!");
+            //log_info(logger,"Creando hilo de administracion de conexion con cliente ....");
 
 			infoAdminConexiones_t* unaInfoAdmin = malloc(sizeof(infoAdminConexiones_t));
 			unaInfoAdmin->socketCliente = client_sock;
@@ -200,7 +200,7 @@ void servidor_inicializar(void* unaInfoServidor) {
 
             }
 
-            log_info(logger,"Hilo creado correctamente");   
+            //log_info(logger,"Hilo creado correctamente");   
 
        }
 
@@ -271,7 +271,7 @@ int enviarPorSocket(int fdCliente, const void* mensaje, int totalAEnviar) {
 	}
 	//if (bytes_enviados == FAIL) manejaError ("[ERROR] Funcion send");
 
-	log_info(logger, "- SE HAN ENVIADO %d BYTES CON EXITO", bytes_enviados);
+	//log_info(logger, "- SE HAN ENVIADO %d BYTES CON EXITO", bytes_enviados);
 	return bytes_enviados;
 
 }

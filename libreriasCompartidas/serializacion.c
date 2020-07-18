@@ -140,7 +140,7 @@ void* recibirPaquete(int fdCliente, int* tipoMensaje, int* tamanioMensaje){
 
 	int recibido = recibirPorSocket(fdCliente, tipoMensaje, sizeof(int));
 
-	log_info(logger,"Tipo de mensaje recibido: %d", *tipoMensaje);
+	//log_info(logger,"Tipo de mensaje recibido: %d", *tipoMensaje);
 
 	if (*tipoMensaje < 1 || *tipoMensaje > tFinDeProtocolo || recibido <= 0){
 		return NULL;
@@ -627,7 +627,7 @@ void* serializarLocalizedPokemon(t_localizedPokemon* localizedPokemon, int* tama
 
 	//printf("\nTamaño datosPokemon: %d", sizeof(datosPokemon) * cantidadListaDatosPokemon);
 	
-	printf("\nTamaño del paquete a serializar: %d", *tamanio); //51
+	//printf("\nTamaño del paquete a serializar: %d", *tamanio); //51
 
 	void* localizedPokemonSerializado = malloc(*tamanio);
 
