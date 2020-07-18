@@ -256,4 +256,7 @@ void ejecutar(int pId);
 void moverEntrenadorEnX();
 void moverEntrenadorEnY();
 
+void calcularDeadlock();
+int entrenadorSiguiente(t_Pokemon* pPokemon);
+
 #endif
