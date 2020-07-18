@@ -46,8 +46,7 @@ void cargarConfiguracionGameCard(){
         char *pathMetadata = string_new();
         string_append_with_format(&pathMetadata, "%sMetadata/Metadata.bin", unGameCardConfig->puntoMontajeTallGrass);
 
-        printf("\n· pathMetadata = %s\n\n", pathMetadata);
-        printf("\n=============================================================================");
+        printf("\n· pathMetadata = %s", pathMetadata);
 
         configMetadata = config_create(pathMetadata);
 
@@ -64,6 +63,7 @@ void cargarConfiguracionGameCard(){
         printf("\n· Cantidad de Bloques de TALL_GRASS = %d", unGameCardConfig->cantidadDeBloques);
         printf("\n· Tamaño de los bloques = %d", unGameCardConfig->tamanioBloques);
         printf("\n· Magic number = %s", unGameCardConfig->magicNumber);
+        printf("\n=============================================================================");
 
         free(unGameCardArchivoConfig);
         //config_destroy(unGameCardArchivoConfig);
@@ -1586,8 +1586,14 @@ int cantBloquesParaSize(int size){
 
 char *generarStringBlocks(int cantBloques, int bloquesAEscribir[]){
 
+
     char *stringBlocks = string_new();
     string_append(&stringBlocks, "BLOCKS=[");
+    
+    if (cantBloques == 0){
+        string_append(&stringBlocks, "]");
+        return stringBlocks;
+    }
 
     for (int j = 0; j < cantBloques; j++)
     {
